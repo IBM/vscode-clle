@@ -117,11 +117,9 @@ test('test1', () => {
     }]
   });
 
-  // if(tokens[9].block != void){
-    
-  // }
-
-  // expect(lines.substring(tokens[9].block[0].range.start, tokens[9].range.end)).toBe('DCL');
+  if(tokens[9].block != undefined){
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+  }
 
   expect(tokens[10]).toBe({
     value: `LEN`,
@@ -272,7 +270,9 @@ test('test2', () => {
     }]
   });
 
-  // expect(lines.substring(tokens[9].block[0], tokens[9].range.end)).toBe('DCL');
+  if(tokens[9].block != undefined){
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+  }
 
   expect(tokens[10]).toBe({
     value: `LEN`,
@@ -424,7 +424,9 @@ test('test3', () => {
     }]
   });
 
-  // expect(lines.substring(tokens[9].block[0], tokens[9].range.end)).toBe('DCL');
+  if(tokens[9].block != undefined){
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+  }
 
   expect(tokens[10]).toBe({
     value: `LEN`,
@@ -578,7 +580,9 @@ test('test4', () => {
     }]
   });
 
-  // expect(lines.substring(tokens[9].block[0], tokens[9].range.end)).toBe('DCL');
+  if(tokens[9].block != undefined){
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+  }
 
   expect(tokens[10]).toBe({
     value: `LEN`,
