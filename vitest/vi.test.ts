@@ -19,7 +19,7 @@ test('test1', () => {
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
 
-  expect(tokens[0]).toBe({
+  expect(tokens[0]).toStrictEqual({
     value: `PGM`,
     type: `command`,
     range: {
@@ -29,7 +29,7 @@ test('test1', () => {
 
   expect(lines.substring(tokens[0].range.start, tokens[0].range.end)).toBe(`PGM`);
 
-  expect(tokens[1]).toBe({
+  expect(tokens[1]).toStrictEqual({
     value: `PARM`,
     type:  `parameter`,
     range: {
@@ -40,7 +40,7 @@ test('test1', () => {
 
   expect(lines.substring(tokens[1].range.start, tokens[1].range.end)).toBe(`PARM`);
 
-  expect(tokens[2]).toBe({
+  expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
       start: 19,
@@ -56,7 +56,7 @@ test('test1', () => {
     }]
   });
 
-  expect(tokens[5]).toBe({
+  expect(tokens[5]).toStrictEqual({
     value: `DCL`,
     type: `command`,
     range: {
@@ -67,7 +67,7 @@ test('test1', () => {
 
   expect(lines.substring(tokens[5].range.start, tokens[5].range.end)).toBe(`DCL`);
 
-  expect(tokens[6]).toBe({
+  expect(tokens[6]).toStrictEqual({
     value: `VAR`,
     type: `parameter`,
     range: {
@@ -76,7 +76,7 @@ test('test1', () => {
     }
   });
 
-  expect(tokens[7]).toBe({
+  expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
       start: 45,
@@ -92,7 +92,7 @@ test('test1', () => {
     }]
   });
 
-  expect(tokens[8]).toBe({
+  expect(tokens[8]).toStrictEqual({
     value: `TYPE`,
     type: `parameter`,
     range: {
@@ -101,7 +101,7 @@ test('test1', () => {
     }
   });
 
-  expect(tokens[9]).toBe({
+  expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
       start: 56,
@@ -118,10 +118,10 @@ test('test1', () => {
   });
 
   if(tokens[9].block != undefined){
-    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`*CHAR`); 
   }
 
-  expect(tokens[10]).toBe({
+  expect(tokens[10]).toStrictEqual({
     value: `LEN`,
     type: `parameter`,
     range: {
@@ -130,7 +130,7 @@ test('test1', () => {
     }
   });
 
-  expect(tokens[11]).toBe({
+  expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
       start: 67,
@@ -146,7 +146,7 @@ test('test1', () => {
     }]
   });
 
-  expect(tokens[14]).toBe({
+  expect(tokens[14]).toStrictEqual({
     type: `command`,
     value: `STRPCO`,
     range: {
@@ -172,7 +172,7 @@ test('test2', () => {
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
 
-  expect(tokens[0]).toBe({
+  expect(tokens[0]).toStrictEqual({
     value: `PGM`,
     type: `command`,
     range: {
@@ -182,7 +182,7 @@ test('test2', () => {
 
   expect(lines.substring(tokens[0].range.start, tokens[0].range.end)).toBe(`PGM`);
 
-  expect(tokens[1]).toBe({
+  expect(tokens[1]).toStrictEqual({
     value: `PARM`,
     type:  `parameter`,
     range: {
@@ -193,7 +193,7 @@ test('test2', () => {
 
   expect(lines.substring(tokens[1].range.start, tokens[1].range.end)).toBe(`PARM`);
 
-  expect(tokens[2]).toBe({
+  expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
       start: 19,
@@ -209,7 +209,7 @@ test('test2', () => {
     }]
   });
 
-  expect(tokens[5]).toBe({
+  expect(tokens[5]).toStrictEqual({
     value: `DCL`,
     type: `command`,
     range: {
@@ -220,7 +220,7 @@ test('test2', () => {
 
   expect(lines.substring(tokens[5].range.start, tokens[5].range.end)).toBe(`DCL`);
 
-  expect(tokens[6]).toBe({
+  expect(tokens[6]).toStrictEqual({
     value: `VAR`,
     type: `parameter`,
     range: {
@@ -229,7 +229,7 @@ test('test2', () => {
     }
   });
 
-  expect(tokens[7]).toBe({
+  expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
       start: 45,
@@ -245,7 +245,7 @@ test('test2', () => {
     }]
   });
 
-  expect(tokens[8]).toBe({
+  expect(tokens[8]).toStrictEqual({
     value: `TYPE`,
     type: `parameter`,
     range: {
@@ -254,7 +254,7 @@ test('test2', () => {
     }
   });
 
-  expect(tokens[9]).toBe({
+  expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
       start: 56,
@@ -271,10 +271,10 @@ test('test2', () => {
   });
 
   if(tokens[9].block != undefined){
-    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`*CHAR`); 
   }
 
-  expect(tokens[10]).toBe({
+  expect(tokens[10]).toStrictEqual({
     value: `LEN`,
     type: `parameter`,
     range: {
@@ -283,7 +283,7 @@ test('test2', () => {
     }
   });
 
-  expect(tokens[11]).toBe({
+  expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
       start: 67,
@@ -299,7 +299,7 @@ test('test2', () => {
     }]
   });
 
-  expect(tokens[14]).toBe({
+  expect(tokens[14]).toStrictEqual({
     type: `command`,
     value: `STRPCO`,
     range: {
@@ -326,7 +326,7 @@ test('test3', () => {
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
 
-  expect(tokens[0]).toBe({
+  expect(tokens[0]).toStrictEqual({
     value: `PGM`,
     type: `command`,
     range: {
@@ -336,7 +336,7 @@ test('test3', () => {
 
   expect(lines.substring(tokens[0].range.start, tokens[0].range.end)).toBe(`PGM`);
 
-  expect(tokens[1]).toBe({
+  expect(tokens[1]).toStrictEqual({
     value: `PARM`,
     type:  `parameter`,
     range: {
@@ -347,7 +347,7 @@ test('test3', () => {
 
   expect(lines.substring(tokens[1].range.start, tokens[1].range.end)).toBe(`PARM`);
 
-  expect(tokens[2]).toBe({
+  expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
       start: 19,
@@ -363,7 +363,7 @@ test('test3', () => {
     }]
   });
 
-  expect(tokens[5]).toBe({
+  expect(tokens[5]).toStrictEqual({
     value: `DCL`,
     type: `command`,
     range: {
@@ -374,7 +374,7 @@ test('test3', () => {
 
   expect(lines.substring(tokens[5].range.start, tokens[5].range.end)).toBe(`DCL`);
 
-  expect(tokens[6]).toBe({
+  expect(tokens[6]).toStrictEqual({
     value: `VAR`,
     type: `parameter`,
     range: {
@@ -383,7 +383,7 @@ test('test3', () => {
     }
   });
 
-  expect(tokens[7]).toBe({
+  expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
       start: 45,
@@ -399,7 +399,7 @@ test('test3', () => {
     }]
   });
 
-  expect(tokens[8]).toBe({
+  expect(tokens[8]).toStrictEqual({
     value: `TYPE`,
     type: `parameter`,
     range: {
@@ -408,7 +408,7 @@ test('test3', () => {
     }
   });
 
-  expect(tokens[9]).toBe({
+  expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
       start: 56,
@@ -425,10 +425,10 @@ test('test3', () => {
   });
 
   if(tokens[9].block != undefined){
-    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`*CHAR`); 
   }
 
-  expect(tokens[10]).toBe({
+  expect(tokens[10]).toStrictEqual({
     value: `LEN`,
     type: `parameter`,
     range: {
@@ -437,7 +437,7 @@ test('test3', () => {
     }
   });
 
-  expect(tokens[11]).toBe({
+  expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
       start: 67,
@@ -453,7 +453,7 @@ test('test3', () => {
     }]
   });
 
-  expect(tokens[14]).toBe({
+  expect(tokens[14]).toStrictEqual({
     type: `command`,
     value: `STRPCO`,
     range: {
@@ -482,7 +482,7 @@ test('test4', () => {
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
 
-  expect(tokens[0]).toBe({
+  expect(tokens[0]).toStrictEqual({
     value: `PGM`,
     type: `command`,
     range: {
@@ -492,7 +492,7 @@ test('test4', () => {
 
   expect(lines.substring(tokens[0].range.start, tokens[0].range.end)).toBe(`PGM`);
 
-  expect(tokens[1]).toBe({
+  expect(tokens[1]).toStrictEqual({
     value: `PARM`,
     type:  `parameter`,
     range: {
@@ -503,7 +503,7 @@ test('test4', () => {
 
   expect(lines.substring(tokens[1].range.start, tokens[1].range.end)).toBe(`PARM`);
 
-  expect(tokens[2]).toBe({
+  expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
       start: 19,
@@ -519,7 +519,7 @@ test('test4', () => {
     }]
   });
 
-  expect(tokens[5]).toBe({
+  expect(tokens[5]).toStrictEqual({
     value: `DCL`,
     type: `command`,
     range: {
@@ -530,7 +530,7 @@ test('test4', () => {
 
   expect(lines.substring(tokens[5].range.start, tokens[5].range.end)).toBe(`DCL`);
 
-  expect(tokens[6]).toBe({
+  expect(tokens[6]).toStrictEqual({
     value: `VAR`,
     type: `parameter`,
     range: {
@@ -539,7 +539,7 @@ test('test4', () => {
     }
   });
 
-  expect(tokens[7]).toBe({
+  expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
       start: 45,
@@ -555,7 +555,7 @@ test('test4', () => {
     }]
   });
 
-  expect(tokens[8]).toBe({
+  expect(tokens[8]).toStrictEqual({
     value: `TYPE`,
     type: `parameter`,
     range: {
@@ -564,7 +564,7 @@ test('test4', () => {
     }
   });
 
-  expect(tokens[9]).toBe({
+  expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
       start: 56,
@@ -581,10 +581,10 @@ test('test4', () => {
   });
 
   if(tokens[9].block != undefined){
-    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`DCL`); 
+    expect(lines.substring(tokens[9].block[0].range.start, tokens[9].block[0].range.end)).toBe(`*CHAR`); 
   }
 
-  expect(tokens[10]).toBe({
+  expect(tokens[10]).toStrictEqual({
     value: `LEN`,
     type: `parameter`,
     range: {
@@ -593,7 +593,7 @@ test('test4', () => {
     }
   });
 
-  expect(tokens[11]).toBe({
+  expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
       start: 67,
@@ -609,7 +609,7 @@ test('test4', () => {
     }]
   });
 
-  expect(tokens[13]).toBe({
+  expect(tokens[13]).toStrictEqual({
     type: `label`,
     value: `RESTART:`,
     range: {
@@ -620,7 +620,7 @@ test('test4', () => {
 
   expect(lines.substring(tokens[13].range.start, tokens[13].range.end)).toBe(`RESTART:`);
 
-  expect(tokens[16]).toBe({
+  expect(tokens[16]).toStrictEqual({
     type: `command`,
     value: `STRPCO`,
     range: {
@@ -795,8 +795,8 @@ test('test8', () => {
   const dcl_parms = dcl.getParms();
   expect(Object.keys(dcl_parms).length).toBe(3);
   expect(dcl_parms[`VAR`].length).toBe(1);
-  expect(dcl_parms[`TYPE`]).toBe(1);
-  expect(dcl_parms[`LEN`]).toBe(1);
+  expect(dcl_parms[`TYPE`].length).toBe(1);
+  expect(dcl_parms[`LEN`].length).toBe(1);
 
   expect(statements[2].tokens.length).toBe(1);
   expect(statements[2].tokens[0].type).toBe(`label`);
