@@ -3,11 +3,11 @@ import Module from '../src/module';
 import CLParser from "../src/parser";
 import {DataType} from "../src/types";
 
-import def1 from "./cl/simple_def";
-import def2 from "./cl/simple_def_two";
+import simple_def from "./cl/simple_def";
+import simple_def_two from "./cl/simple_def_two";
 
 test('getting a definiton list', () => {
-  const lines = def1;
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -26,7 +26,7 @@ test('getting a definiton list', () => {
 });
 
 test('getting a specific definiton', () => {
-  const lines = def1;
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -45,7 +45,7 @@ test('getting a specific definiton', () => {
 });
 
 test('getting a specific definiton (case-insensitive)', () => {
-  const lines = def1;
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -64,7 +64,7 @@ test('getting a specific definiton (case-insensitive)', () => {
 });
 
 test('getting many definitions from list', () => {
-  const lines = def2;
+  const lines = simple_def_two;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -77,7 +77,7 @@ test('getting many definitions from list', () => {
 });
 
 test('getting different definitions by name', () => {
-  const lines = def2;
+  const lines = simple_def_two;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
