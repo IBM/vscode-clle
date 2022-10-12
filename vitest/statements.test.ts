@@ -699,10 +699,12 @@ test('test6', () => {
     statements[0].range.end
   )).toBe(`PGM        PARM(&CMD)`);
 
+  expect(statements[0].type).toBe(`statement`);
   object = statements[0].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`PGM`);
 
+  expect(statements[1].type).toBe(`definition`);
   expect(lines.substring(
     statements[1].range.start,
     statements[1].range.end
@@ -714,6 +716,7 @@ test('test6', () => {
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`DCL`);
 
+  expect(statements[4].type).toBe(`statement`);
   expect(lines.substring(
     statements[4].range.start,
     statements[4].range.end
@@ -749,6 +752,7 @@ test('test7', () => {
 
   const statements = module.statements;
 
+  expect(statements[2].type).toBe(`statement`);
   object = statements[2].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`STRPCO`);
@@ -758,6 +762,7 @@ test('test7', () => {
     statements[4].range.end
   )).toBe(`QGPL/STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`);
 
+  expect(statements[4].type).toBe(`statement`);
   object = statements[4].getObject();
   expect(object).toBeTruthy();
   expect(object?.library).toBe(`QGPL`);
@@ -789,6 +794,7 @@ test('test8', () => {
   expect(statements.length).toBe(6);
 
   const dcl = statements[1];
+  expect(dcl.type).toBe(`definition`);
   const dcl_object = dcl.getObject();
   expect(dcl_object?.name).toBe(`DCL`);
 
