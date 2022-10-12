@@ -16,7 +16,7 @@ export default class Definition extends Statement {
     super(tokens, range);
 
     this.type = "definition";
-    this.name = this.processName();
+    this.name = this.processName()?.toUpperCase();
     this.dataType = this.processType();
   }
 

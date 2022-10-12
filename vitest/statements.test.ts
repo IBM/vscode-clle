@@ -1,20 +1,10 @@
 import {expect, test} from 'vitest';
 import Module from '../src/module';
 import CLParser from "../src/parser";
+import def1 from './cl/def1';
 
 test('test1', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ``,
-    `    STRPCO`,
-    `    MONMSG     MSGID(IWS4010)`,
-    ``,
-    `    STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = def1;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -634,18 +624,7 @@ test('test4', () => {
 })
 
 test('test5', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ``,
-    `    STRPCO`,
-    `    MONMSG     MSGID(IWS4010)`,
-    ``,
-    `    STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = def1;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -806,5 +785,38 @@ test('test8', () => {
 
   expect(statements[2].tokens.length).toBe(1);
   expect(statements[2].tokens[0].type).toBe(`label`);
+})
 
+test('get parms on PGM', () => {
+  const lines = [
+    `    PGM        PARM(&CMD)`,
+    ``,
+    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
+    ` RESTART:`,
+    `    /* hello world`,
+    `       goodbye world */`,
+    `    STRPCO`,
+    `    GOTO RESTART`,
+    ``,
+    `    ENDPGM `,
+  ].join(`\n`);
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const pgmDef = module.statements[0];
+
+  expect(pgmDef).toBeDefined();
+  expect(pgmDef.type).toBe(`statement`);
+
+  const object = pgmDef.getObject();
+  expect(object?.name).toBe(`PGM`);
+  
+  const parms = pgmDef.getParms();
+  const parm = parms[`PARM`];
+  expect(parm).toBeDefined();
+  expect(parm.length).toBe(1);
+  expect(parm[0].value).toBe(`&CMD`);
 })
