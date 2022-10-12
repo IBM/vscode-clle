@@ -1,10 +1,12 @@
 import {expect, test} from 'vitest';
 import Module from '../src/module';
 import CLParser from "../src/parser";
-import def1 from './cl/simple_def';
+
+import simple_def from './cl/simple_def';
+import def_label_comment from "./cl/def_label_comment";
 
 test('test1', () => {
-  const lines = def1;
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -624,7 +626,7 @@ test('test4', () => {
 })
 
 test('test5', () => {
-  const lines = def1;
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -749,18 +751,7 @@ test('test7', () => {
 })
 
 test('test8', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ` RESTART:`,
-    `    /* hello world`,
-    `       goodbye world */`,
-    `    STRPCO`,
-    `    GOTO RESTART`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = def_label_comment;
 
 
   const parser = new CLParser();
@@ -788,18 +779,7 @@ test('test8', () => {
 })
 
 test('get parms on PGM', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ` RESTART:`,
-    `    /* hello world`,
-    `       goodbye world */`,
-    `    STRPCO`,
-    `    GOTO RESTART`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = def_label_comment;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -819,4 +799,34 @@ test('get parms on PGM', () => {
   expect(parm).toBeDefined();
   expect(parm.length).toBe(1);
   expect(parm[0].value).toBe(`&CMD`);
-})
+});
+
+test('test for many parms', () => {
+  const lines = def_label_comment;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const dclStatement = module.statements[1];
+
+  expect(dclStatement).toBeDefined();
+  expect(dclStatement.type).toBe(`definition`);
+
+  const object = dclStatement.getObject();
+  expect(object?.name).toBe(`DCL`);
+  
+  const parms = dclStatement.getParms();
+  expect(parms[`VAR`]).toBeDefined();
+  expect(parms[`VAR`].length).toBe(1);
+  expect(parms[`VAR`][0].value).toBeDefined();
+
+  expect(parms[`TYPE`]).toBeDefined();
+  expect(parms[`TYPE`].length).toBe(1);
+  expect(parms[`TYPE`][0].value).toBeDefined();
+
+  expect(parms[`LEN`]).toBeDefined();
+  expect(parms[`LEN`].length).toBe(1);
+  expect(parms[`LEN`][0].value).toBeDefined();
+});
