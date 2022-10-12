@@ -1,25 +1,17 @@
 import Statement from "./statement";
+import { DataType } from "./types";
 
-enum Type {
-  Unknown,
-  Character,
-  Packed,
-  Pointer,
-  Label,
-  Subroutine
-}
-
-const TypeValue: {[typeString: string]: Type} = {
-  '*CHAR': Type.Character,
-  '*PACKED': Type.Packed,
-  '*POINTER': Type.Pointer
+const TypeValue: {[typeString: string]: DataType} = {
+  '*CHAR': DataType.Character,
+  '*PACKED': DataType.Packed,
+  '*POINTER': DataType.Pointer
 }
 
 const TypeSpecials = Object.keys(TypeValue);
 
 export default class Definition extends Statement {
   name: string|undefined;
-  dataType: Type;
+  dataType: DataType;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
@@ -28,8 +20,8 @@ export default class Definition extends Statement {
     this.dataType = this.processType();
   }
 
-  processType(): Type {
-    let possibleType: Type = Type.Unknown;
+  processType(): DataType {
+    let possibleType: DataType = DataType.Unknown;
     const parms = this.getParms();
 
     if (parms[`TYPE`] && parms[`TYPE`].length === 1) {
