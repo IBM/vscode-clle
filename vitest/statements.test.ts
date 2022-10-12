@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import Module from '../src/module';
 import CLParser from "../src/parser";
-import def1 from './cl/def1';
+import def1 from './cl/simple_def';
 
 test('test1', () => {
   const lines = def1;

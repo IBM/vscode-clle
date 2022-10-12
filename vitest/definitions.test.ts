@@ -3,8 +3,8 @@ import Module from '../src/module';
 import CLParser from "../src/parser";
 import {DataType} from "../src/types";
 
-import def1 from "./cl/def1";
-import def2 from "./cl/def2";
+import def1 from "./cl/simple_def";
+import def2 from "./cl/simple_def_two";
 
 test('getting a definiton list', () => {
   const lines = def1;
@@ -100,7 +100,6 @@ test('getting different definitions by name', () => {
     expect(lengthParm[0].value).toBe(`128`);
   }
 
-
   const text = module.getDefinition(`&TEXT`);
   expect(text).toBeDefined();
 
@@ -108,7 +107,7 @@ test('getting different definitions by name', () => {
     expect(text.type).toBe(`definition`);
     expect(text.name).toBe(`&TEXT`);
     expect(text.dataType).toBe(DataType.Character);
-    
+
     const cmdParms = text.getParms();
     const lengthParm = cmdParms[`LEN`];
     expect(lengthParm).toBeDefined();
