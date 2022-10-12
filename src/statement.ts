@@ -1,7 +1,10 @@
 
 
 export default class Statement {
-  constructor(public tokens: Token[], public range: IRange) {}
+  type: "statement"|"definition";
+  constructor(public tokens: Token[], public range: IRange) {
+    this.type = "statement";
+  }
 
   getObject(): QualifiedObject|null {
     const noNewLines = this.tokens.filter(p => p.type !== `newline`);

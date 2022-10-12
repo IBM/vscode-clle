@@ -18,11 +18,17 @@ const TypeValue: {[typeString: string]: Type} = {
 const TypeSpecials = Object.keys(TypeValue);
 
 export default class Definition extends Statement {
+  name: string|undefined;
+  dataType: Type;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
+
+    this.type = "definition";
+    this.name = this.processName();
+    this.dataType = this.processType();
   }
 
-  getType(): Type {
+  processType(): Type {
     let possibleType: Type = Type.Unknown;
     const parms = this.getParms();
 
@@ -43,7 +49,7 @@ export default class Definition extends Statement {
     return possibleType;
   }
 
-  getName() {
+  processName() {
     let possibleName: string|undefined;
     const parms = this.getParms();
 
