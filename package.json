@@ -5,7 +5,6 @@
     "vitest": "^0.23.4"
   },
   "scripts": {
-    "test": "vitest",
-    "test:run": "npx vitest"
+    "test": "vitest"
   }
 }
