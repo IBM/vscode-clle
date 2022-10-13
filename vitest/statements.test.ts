@@ -4,6 +4,7 @@ import CLParser from "../src/parser";
 
 import simple_def from './cl/simple_def';
 import def_label_comment from "./cl/def_label_comment";
+import ex_trace from "./cl/ex_trace";
 
 test('test1', () => {
   const lines = simple_def;
@@ -830,3 +831,73 @@ test('test for many parms', () => {
   expect(parms[`LEN`].length).toBe(1);
   expect(parms[`LEN`][0].value).toBeDefined();
 });
+
+test('complex parms (ex_trace)', () => {
+  const lines = ex_trace;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  expect(module.statements.length).toBe(19);
+  const rtvobjd = module.statements[9];
+  expect(rtvobjd.type).toBe(`statement`);
+  
+  const rtvobjdObj = rtvobjd.getObject();
+  expect(rtvobjdObj).toBeDefined();
+  expect(rtvobjdObj?.name).toBe(`rtvobjd`);
+
+  const rtvobjdParms = rtvobjd.getParms();
+  expect(Object.keys(rtvobjdParms).length).toBe(3);
+
+  expect(rtvobjdParms[`OBJ`]).toBeDefined();
+  expect(rtvobjdParms[`OBJ`].length).toBe(1);
+  expect(rtvobjdParms[`OBJ`][0].type).toBe(`word`);
+  expect(rtvobjdParms[`OBJ`][0].value).toBe(`JSONXML`);
+
+  expect(rtvobjdParms[`OBJTYPE`]).toBeDefined();
+  expect(rtvobjdParms[`OBJTYPE`].length).toBe(1);
+  expect(rtvobjdParms[`OBJTYPE`][0].type).toBe(`special`);
+  expect(rtvobjdParms[`OBJTYPE`][0].value).toBe(`*SRVPGM`);
+
+  const crtdtaara = module.statements[12];
+  expect(rtvobjd.type).toBe(`statement`);
+
+  const crtdtaaraObj = crtdtaara.getObject();
+  expect(crtdtaaraObj).toBeDefined();
+  expect(crtdtaaraObj?.name).toBe(`CRTDTAARA`);
+
+  const crtdtaaraParms = crtdtaara.getParms();
+  expect(Object.keys(crtdtaaraParms).length).toBe(4);
+
+  expect(crtdtaaraParms[`DTAARA`]).toBeDefined();
+  expect(crtdtaaraParms[`DTAARA`].length).toBe(3);
+  expect(crtdtaaraParms[`DTAARA`][0].type).toBe(`variable`);
+  expect(crtdtaaraParms[`DTAARA`][0].value).toBe(`&LIB`);
+  expect(crtdtaaraParms[`DTAARA`][1].type).toBe(`forwardslash`);
+  expect(crtdtaaraParms[`DTAARA`][2].type).toBe(`word`);
+  expect(crtdtaaraParms[`DTAARA`][2].value).toBe(`SQLTRACE`);
+
+  expect(crtdtaaraParms[`TYPE`]).toBeDefined();
+  expect(crtdtaaraParms[`TYPE`].length).toBe(1);
+  expect(crtdtaaraParms[`TYPE`][0].type).toBe(`special`);
+  expect(crtdtaaraParms[`TYPE`][0].value).toBe(`*LGL`);
+
+  expect(crtdtaaraParms[`VALUE`]).toBeDefined();
+  expect(crtdtaaraParms[`VALUE`].length).toBe(1);
+  expect(crtdtaaraParms[`VALUE`][0].type).toBe(`string`);
+  expect(crtdtaaraParms[`VALUE`][0].value).toBe(`'0'`);
+
+  expect(crtdtaaraParms[`TEXT`]).toBeDefined();
+  expect(crtdtaaraParms[`TEXT`].length).toBe(1);
+  expect(crtdtaaraParms[`TEXT`][0].type).toBe(`string`);
+  expect(crtdtaaraParms[`TEXT`][0].value).toBe(`'SQL trace enabled'`);
+
+  const rtvjoba = module.statements[15];
+  expect(rtvjoba.type).toBe(`statement`);
+
+  const rtvjobaObj = rtvjoba.getObject();
+  expect(rtvjobaObj).toBeDefined();
+  expect(rtvjobaObj?.name).toBe(`RTVJOBA`);
+})
