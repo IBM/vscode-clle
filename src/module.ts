@@ -7,7 +7,7 @@ export default class Module {
     this.statements = [];
   }
 
-  addStatement(statement: Statement) {
+  private addStatement(statement: Statement) {
     if (statement.getObject()?.name.toUpperCase() === `DCL`) {
       this.statements.push(new Definition(statement.tokens, statement.range));
     } else {
