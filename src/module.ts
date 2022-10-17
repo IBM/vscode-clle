@@ -1,6 +1,7 @@
 import Variable from "./variable";
 import File from "./file";
 import Statement from "./statement";
+import Subroutine from "./subroutine";
 
 export default class Module {
   statements: (Statement|Variable|File)[];
@@ -17,6 +18,9 @@ export default class Module {
         break;
       case `DCLF`:
         this.statements.push(new File(statement.tokens, statement.range));
+        break;
+      case `SUBR`:
+        this.statements.push(new Subroutine(statement.tokens, statement.range));
         break;
       default:
         this.statements.push(statement);

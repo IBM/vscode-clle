@@ -1,3 +1,5 @@
+// From MIT repo.
+
 export default [
   `/* ------------------------------------------------------------- */`,
   `/* Company . . . : System & Method A/S                           */`,
