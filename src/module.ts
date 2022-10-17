@@ -82,6 +82,10 @@ export default class Module {
     return this.getDefinitions().find(def => def.name?.toUpperCase() === name.toUpperCase());
   }
 
+  getFiles(): File[] {
+    return this.statements.filter(stmt => stmt.type === `file`).map(stmt => stmt as File);
+  }
+
   getReferences() {
     // TODO: ???
   }
