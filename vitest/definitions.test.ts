@@ -5,6 +5,7 @@ import {DataType} from "../src/types";
 
 import simple_def from "./cl/simple_def";
 import simple_def_two from "./cl/simple_def_two";
+import many_types_ds from './cl/many_types_ds';
 
 test('getting a definiton list', () => {
   const lines = simple_def;
@@ -115,3 +116,63 @@ test('getting different definitions by name', () => {
     expect(lengthParm[0].value).toBe(`256`);
   }
 });
+
+test(`shorthand declare`, () => {
+  const lines = many_types_ds;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const traceDef = module.getDefinition(`&Trace`);
+  expect(traceDef).toBeDefined();
+  expect(traceDef?.name).toBe(`&trace`);
+  expect(traceDef?.dataType).toBe(DataType.Logical);
+
+  const qualobjDef = module.getDefinition(`&qualobj`);
+  expect(qualobjDef).toBeDefined();
+  expect(qualobjDef?.name).toBe(`&QualObj`);
+  expect(qualobjDef?.dataType).toBe(DataType.Character);
+
+  const objectDef = module.getDefinition(`&Object`);
+  expect(objectDef).toBeDefined();
+  expect(objectDef?.name).toBe(`&Object`);
+  expect(objectDef?.dataType).toBe(DataType.Character);
+
+  const libraryDef = module.getDefinition(`&LIBRARY`);
+  expect(libraryDef).toBeDefined();
+  expect(libraryDef?.name).toBe(`&Library`);
+  expect(libraryDef?.dataType).toBe(DataType.Character);
+})
+
+test(`available types`, () => {
+  const lines = many_types_ds;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const traceDef = module.getDefinition(`&NAME`);
+  expect(traceDef).toBeDefined();
+  expect(traceDef?.name).toBe(`&NAME`);
+  expect(traceDef?.dataType).toBe(DataType.Character);
+
+  const qualobjDef = module.getDefinition(`&PI`);
+  expect(qualobjDef).toBeDefined();
+  expect(qualobjDef?.name).toBe(`&PI`);
+  expect(qualobjDef?.dataType).toBe(DataType.Packed);
+
+  const objectDef = module.getDefinition(`&trace`);
+  expect(objectDef).toBeDefined();
+  expect(objectDef?.name).toBe(`&trace`);
+  expect(objectDef?.dataType).toBe(DataType.Logical);
+
+  const libraryDef = module.getDefinition(`&nextobj`);
+  expect(libraryDef).toBeDefined();
+  expect(libraryDef?.name).toBe(`&NextObj`);
+  expect(libraryDef?.dataType).toBe(DataType.Pointer);
+})

@@ -4,5 +4,8 @@ export enum DataType {
   Packed,
   Pointer,
   Label,
-  Subroutine
+  Subroutine,
+  Logical,
+  Integer,
+  UInteger
 }

@@ -3,8 +3,11 @@ import { DataType } from "./types";
 
 const TypeValue: {[typeString: string]: DataType} = {
   '*CHAR': DataType.Character,
-  '*PACKED': DataType.Packed,
-  '*POINTER': DataType.Pointer
+  '*DEC': DataType.Packed,
+  '*LGL': DataType.Logical,
+  '*INT': DataType.Integer,
+  '*UINT': DataType.UInteger,
+  '*PTR': DataType.Pointer,
 }
 
 const TypeSpecials = Object.keys(TypeValue);
@@ -16,7 +19,7 @@ export default class Definition extends Statement {
     super(tokens, range);
 
     this.type = "definition";
-    this.name = this.processName()?.toUpperCase();
+    this.name = this.processName();
     this.dataType = this.processType();
   }
 
@@ -27,7 +30,7 @@ export default class Definition extends Statement {
     if (parms[`TYPE`] && parms[`TYPE`].length === 1) {
       const typeString = parms[`TYPE`][0].value;
 
-      if (typeString) possibleType = TypeValue[typeString];
+      if (typeString) possibleType = TypeValue[typeString.toUpperCase()];
       
     } else {
       // Search all pieces for a special that is the type

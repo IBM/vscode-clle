@@ -70,7 +70,7 @@ export default class Module {
   }
 
   getDefinition(name: string): Definition|undefined {
-    return this.getDefinitions().find(def => def.name === name.toUpperCase());
+    return this.getDefinitions().find(def => def.name?.toUpperCase() === name.toUpperCase());
   }
 
   getReferences() {
