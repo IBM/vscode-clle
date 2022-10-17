@@ -1,9 +1,18 @@
+import Definition from "./definition";
 import Statement from "./statement";
 
 export default class Module {
-  statements: Statement[];
+  statements: (Statement|Definition)[];
   constructor() {
     this.statements = [];
+  }
+
+  private addStatement(statement: Statement) {
+    if (statement.getObject()?.name.toUpperCase() === `DCL`) {
+      this.statements.push(new Definition(statement.tokens, statement.range));
+    } else {
+      this.statements.push(statement);
+    }
   }
 
   parseStatements(tokens: Token[]) {
@@ -16,7 +25,7 @@ export default class Module {
           const statementTokens = tokens.slice(statementIndexStart, i);
 
           if (statementTokens.length > 0) {
-            this.statements.push(new Statement(
+            this.addStatement(new Statement(
               statementTokens,
               {
                 start: statementTokens[0].range.start,
@@ -38,7 +47,7 @@ export default class Module {
       const statementTokens = tokens.slice(statementIndexStart, tokens.length);
 
       if (statementTokens.length > 0) {
-        this.statements.push(new Statement(
+        this.addStatement(new Statement(
           statementTokens,
           {
             start: statementTokens[0].range.start,
@@ -56,8 +65,12 @@ export default class Module {
     })
   }
 
-  getDefinition(name: string) {
-    // TODO: return something?
+  getDefinitions(): Definition[] {
+    return this.statements.filter(stmt => stmt.type === `definition`).map(stmt => stmt as Definition);
+  }
+
+  getDefinition(name: string): Definition|undefined {
+    return this.getDefinitions().find(def => def.name?.toUpperCase() === name.toUpperCase());
   }
 
   getReferences() {

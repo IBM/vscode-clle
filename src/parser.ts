@@ -29,10 +29,15 @@ export default class CLParser {
       name: `NEWLINE`,
       match: [{type: `newliner`}, {type: `newline`}],
       becomes: `newline`,
+    },
+    {
+      name: `BIF`,
+      match: [{type: `percent`}, {type: `word`}],
+      becomes: `builtin`,
     }
   ];
   readonly spaces = [` `];
-  readonly splitParts: string[] = [`(`, `)`, `/`, `*`, `+`, `:`, `&`, `\n`, `\r`, ...this.spaces];
+  readonly splitParts: string[] = [`(`, `)`, `/`, `*`, `+`, `:`, `&`, `%`, `\n`, `\r`, ...this.spaces];
   readonly types: {[part: string]: string} = {
     '(': `openbracket`,
     ')': `closebracket`,
@@ -41,6 +46,7 @@ export default class CLParser {
     '+': `plus`,
     ':': `colon`,
     '&': `ampersand`,
+    '%': `percent`,
     '\n': `newline`,
     '\r': `newliner`,
   };

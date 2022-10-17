@@ -2,19 +2,12 @@ import {expect, test} from 'vitest';
 import Module from '../src/module';
 import CLParser from "../src/parser";
 
+import simple_def from './cl/simple_def';
+import def_label_comment from "./cl/def_label_comment";
+import ex_trace from "./cl/ex_trace";
+
 test('test1', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ``,
-    `    STRPCO`,
-    `    MONMSG     MSGID(IWS4010)`,
-    ``,
-    `    STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -634,18 +627,7 @@ test('test4', () => {
 })
 
 test('test5', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ``,
-    `    STRPCO`,
-    `    MONMSG     MSGID(IWS4010)`,
-    ``,
-    `    STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = simple_def;
 
   const parser = new CLParser();
   const tokens = parser.parseDocument(lines);
@@ -699,10 +681,12 @@ test('test6', () => {
     statements[0].range.end
   )).toBe(`PGM        PARM(&CMD)`);
 
+  expect(statements[0].type).toBe(`statement`);
   object = statements[0].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`PGM`);
 
+  expect(statements[1].type).toBe(`definition`);
   expect(lines.substring(
     statements[1].range.start,
     statements[1].range.end
@@ -714,6 +698,7 @@ test('test6', () => {
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`DCL`);
 
+  expect(statements[4].type).toBe(`statement`);
   expect(lines.substring(
     statements[4].range.start,
     statements[4].range.end
@@ -749,6 +734,7 @@ test('test7', () => {
 
   const statements = module.statements;
 
+  expect(statements[2].type).toBe(`statement`);
   object = statements[2].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`STRPCO`);
@@ -758,6 +744,7 @@ test('test7', () => {
     statements[4].range.end
   )).toBe(`QGPL/STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`);
 
+  expect(statements[4].type).toBe(`statement`);
   object = statements[4].getObject();
   expect(object).toBeTruthy();
   expect(object?.library).toBe(`QGPL`);
@@ -765,18 +752,7 @@ test('test7', () => {
 })
 
 test('test8', () => {
-  const lines = [
-    `    PGM        PARM(&CMD)`,
-    ``,
-    `    DCL        VAR(&CMD) TYPE(*CHAR) LEN(128)`,
-    ` RESTART:`,
-    `    /* hello world`,
-    `       goodbye world */`,
-    `    STRPCO`,
-    `    GOTO RESTART`,
-    ``,
-    `    ENDPGM `,
-  ].join(`\n`);
+  const lines = def_label_comment;
 
 
   const parser = new CLParser();
@@ -789,6 +765,7 @@ test('test8', () => {
   expect(statements.length).toBe(6);
 
   const dcl = statements[1];
+  expect(dcl.type).toBe(`definition`);
   const dcl_object = dcl.getObject();
   expect(dcl_object?.name).toBe(`DCL`);
 
@@ -800,5 +777,127 @@ test('test8', () => {
 
   expect(statements[2].tokens.length).toBe(1);
   expect(statements[2].tokens[0].type).toBe(`label`);
+})
 
+test('get parms on PGM', () => {
+  const lines = def_label_comment;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const pgmDef = module.statements[0];
+
+  expect(pgmDef).toBeDefined();
+  expect(pgmDef.type).toBe(`statement`);
+
+  const object = pgmDef.getObject();
+  expect(object?.name).toBe(`PGM`);
+  
+  const parms = pgmDef.getParms();
+  const parm = parms[`PARM`];
+  expect(parm).toBeDefined();
+  expect(parm.length).toBe(1);
+  expect(parm[0].value).toBe(`&CMD`);
+});
+
+test('test for many parms', () => {
+  const lines = def_label_comment;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const dclStatement = module.statements[1];
+
+  expect(dclStatement).toBeDefined();
+  expect(dclStatement.type).toBe(`definition`);
+
+  const object = dclStatement.getObject();
+  expect(object?.name).toBe(`DCL`);
+  
+  const parms = dclStatement.getParms();
+  expect(parms[`VAR`]).toBeDefined();
+  expect(parms[`VAR`].length).toBe(1);
+  expect(parms[`VAR`][0].value).toBeDefined();
+
+  expect(parms[`TYPE`]).toBeDefined();
+  expect(parms[`TYPE`].length).toBe(1);
+  expect(parms[`TYPE`][0].value).toBeDefined();
+
+  expect(parms[`LEN`]).toBeDefined();
+  expect(parms[`LEN`].length).toBe(1);
+  expect(parms[`LEN`][0].value).toBeDefined();
+});
+
+test('complex parms (ex_trace)', () => {
+  const lines = ex_trace;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  expect(module.statements.length).toBe(19);
+  const rtvobjd = module.statements[9];
+  expect(rtvobjd.type).toBe(`statement`);
+  
+  const rtvobjdObj = rtvobjd.getObject();
+  expect(rtvobjdObj).toBeDefined();
+  expect(rtvobjdObj?.name).toBe(`rtvobjd`);
+
+  const rtvobjdParms = rtvobjd.getParms();
+  expect(Object.keys(rtvobjdParms).length).toBe(3);
+
+  expect(rtvobjdParms[`OBJ`]).toBeDefined();
+  expect(rtvobjdParms[`OBJ`].length).toBe(1);
+  expect(rtvobjdParms[`OBJ`][0].type).toBe(`word`);
+  expect(rtvobjdParms[`OBJ`][0].value).toBe(`JSONXML`);
+
+  expect(rtvobjdParms[`OBJTYPE`]).toBeDefined();
+  expect(rtvobjdParms[`OBJTYPE`].length).toBe(1);
+  expect(rtvobjdParms[`OBJTYPE`][0].type).toBe(`special`);
+  expect(rtvobjdParms[`OBJTYPE`][0].value).toBe(`*SRVPGM`);
+
+  const crtdtaara = module.statements[12];
+  expect(rtvobjd.type).toBe(`statement`);
+
+  const crtdtaaraObj = crtdtaara.getObject();
+  expect(crtdtaaraObj).toBeDefined();
+  expect(crtdtaaraObj?.name).toBe(`CRTDTAARA`);
+
+  const crtdtaaraParms = crtdtaara.getParms();
+  expect(Object.keys(crtdtaaraParms).length).toBe(4);
+
+  expect(crtdtaaraParms[`DTAARA`]).toBeDefined();
+  expect(crtdtaaraParms[`DTAARA`].length).toBe(3);
+  expect(crtdtaaraParms[`DTAARA`][0].type).toBe(`variable`);
+  expect(crtdtaaraParms[`DTAARA`][0].value).toBe(`&LIB`);
+  expect(crtdtaaraParms[`DTAARA`][1].type).toBe(`forwardslash`);
+  expect(crtdtaaraParms[`DTAARA`][2].type).toBe(`word`);
+  expect(crtdtaaraParms[`DTAARA`][2].value).toBe(`SQLTRACE`);
+
+  expect(crtdtaaraParms[`TYPE`]).toBeDefined();
+  expect(crtdtaaraParms[`TYPE`].length).toBe(1);
+  expect(crtdtaaraParms[`TYPE`][0].type).toBe(`special`);
+  expect(crtdtaaraParms[`TYPE`][0].value).toBe(`*LGL`);
+
+  expect(crtdtaaraParms[`VALUE`]).toBeDefined();
+  expect(crtdtaaraParms[`VALUE`].length).toBe(1);
+  expect(crtdtaaraParms[`VALUE`][0].type).toBe(`string`);
+  expect(crtdtaaraParms[`VALUE`][0].value).toBe(`'0'`);
+
+  expect(crtdtaaraParms[`TEXT`]).toBeDefined();
+  expect(crtdtaaraParms[`TEXT`].length).toBe(1);
+  expect(crtdtaaraParms[`TEXT`][0].type).toBe(`string`);
+  expect(crtdtaaraParms[`TEXT`][0].value).toBe(`'SQL trace enabled'`);
+
+  const rtvjoba = module.statements[15];
+  expect(rtvjoba.type).toBe(`statement`);
+
+  const rtvjobaObj = rtvjoba.getObject();
+  expect(rtvjobaObj).toBeDefined();
+  expect(rtvjobaObj?.name).toBe(`RTVJOBA`);
 })

@@ -1,35 +1,36 @@
 import Statement from "./statement";
+import { DataType } from "./types";
 
-enum Type {
-  Unknown,
-  Character,
-  Packed,
-  Pointer,
-  Label,
-  Subroutine
-}
-
-const TypeValue: {[typeString: string]: Type} = {
-  '*CHAR': Type.Character,
-  '*PACKED': Type.Packed,
-  '*POINTER': Type.Pointer
+const TypeValue: {[typeString: string]: DataType} = {
+  '*CHAR': DataType.Character,
+  '*DEC': DataType.Packed,
+  '*LGL': DataType.Logical,
+  '*INT': DataType.Integer,
+  '*UINT': DataType.UInteger,
+  '*PTR': DataType.Pointer,
 }
 
 const TypeSpecials = Object.keys(TypeValue);
 
 export default class Definition extends Statement {
+  name: string|undefined;
+  dataType: DataType;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
+
+    this.type = "definition";
+    this.name = this.processName();
+    this.dataType = this.processType();
   }
 
-  getType(): Type {
-    let possibleType: Type = Type.Unknown;
+  processType(): DataType {
+    let possibleType: DataType = DataType.Unknown;
     const parms = this.getParms();
 
     if (parms[`TYPE`] && parms[`TYPE`].length === 1) {
       const typeString = parms[`TYPE`][0].value;
 
-      if (typeString) possibleType = TypeValue[typeString];
+      if (typeString) possibleType = TypeValue[typeString.toUpperCase()];
       
     } else {
       // Search all pieces for a special that is the type
@@ -43,7 +44,7 @@ export default class Definition extends Statement {
     return possibleType;
   }
 
-  getName() {
+  processName() {
     let possibleName: string|undefined;
     const parms = this.getParms();
 
