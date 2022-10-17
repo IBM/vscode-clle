@@ -1,9 +1,9 @@
-import Definition from "./definition";
+import Variable from "./variable";
 import File from "./file";
 import Statement from "./statement";
 
 export default class Module {
-  statements: (Statement|Definition|File)[];
+  statements: (Statement|Variable|File)[];
   constructor() {
     this.statements = [];
   }
@@ -13,7 +13,7 @@ export default class Module {
 
     switch (command) {
       case `DCL`:
-        this.statements.push(new Definition(statement.tokens, statement.range));
+        this.statements.push(new Variable(statement.tokens, statement.range));
         break;
       case `DCLF`:
         this.statements.push(new File(statement.tokens, statement.range));
@@ -74,12 +74,12 @@ export default class Module {
     })
   }
 
-  getDefinitions(): Definition[] {
-    return this.statements.filter(stmt => stmt.type === `definition`).map(stmt => stmt as Definition);
+  getVariables(): Variable[] {
+    return this.statements.filter(stmt => stmt.type === `variable`).map(stmt => stmt as Variable);
   }
 
-  getDefinition(name: string): Definition|undefined {
-    return this.getDefinitions().find(def => def.name?.toUpperCase() === name.toUpperCase());
+  getVariable(name: string): Variable|undefined {
+    return this.getVariables().find(def => def.name?.toUpperCase() === name.toUpperCase());
   }
 
   getFiles(): File[] {

@@ -12,13 +12,13 @@ const TypeValue: {[typeString: string]: DataType} = {
 
 const TypeSpecials = Object.keys(TypeValue);
 
-export default class Definition extends Statement {
+export default class Variable extends Statement {
   name: string|undefined;
   dataType: DataType;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
-    this.type = "definition";
+    this.type = "variable";
     this.name = this.processName();
     this.dataType = this.processType();
   }

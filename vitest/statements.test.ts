@@ -686,7 +686,7 @@ test('test6', () => {
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`PGM`);
 
-  expect(statements[1].type).toBe(`definition`);
+  expect(statements[1].type).toBe(`variable`);
   expect(lines.substring(
     statements[1].range.start,
     statements[1].range.end
@@ -765,7 +765,7 @@ test('test8', () => {
   expect(statements.length).toBe(6);
 
   const dcl = statements[1];
-  expect(dcl.type).toBe(`definition`);
+  expect(dcl.type).toBe(`variable`);
   const dcl_object = dcl.getObject();
   expect(dcl_object?.name).toBe(`DCL`);
 
@@ -813,7 +813,7 @@ test('test for many parms', () => {
   const dclStatement = module.statements[1];
 
   expect(dclStatement).toBeDefined();
-  expect(dclStatement.type).toBe(`definition`);
+  expect(dclStatement.type).toBe(`variable`);
 
   const object = dclStatement.getObject();
   expect(object?.name).toBe(`DCL`);

@@ -1,7 +1,7 @@
 
 
 export default class Statement {
-  type: "statement"|"definition"|"file";
+  type: "statement"|"variable"|"file";
   constructor(public tokens: Token[], public range: IRange) {
     this.type = "statement";
   }

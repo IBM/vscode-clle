@@ -43,7 +43,7 @@ test('get files and vars', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const defs = module.getDefinitions();
+  const defs = module.getVariables();
   const files = module.getFiles();
 
   expect(defs.length).toBe(1);
