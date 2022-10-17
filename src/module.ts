@@ -1,17 +1,26 @@
 import Definition from "./definition";
+import File from "./file";
 import Statement from "./statement";
 
 export default class Module {
-  statements: (Statement|Definition)[];
+  statements: (Statement|Definition|File)[];
   constructor() {
     this.statements = [];
   }
 
   private addStatement(statement: Statement) {
-    if (statement.getObject()?.name.toUpperCase() === `DCL`) {
-      this.statements.push(new Definition(statement.tokens, statement.range));
-    } else {
-      this.statements.push(statement);
+    const command = statement.getObject()?.name.toUpperCase();
+
+    switch (command) {
+      case `DCL`:
+        this.statements.push(new Definition(statement.tokens, statement.range));
+        break;
+      case `DCLF`:
+        this.statements.push(new File(statement.tokens, statement.range));
+        break;
+      default:
+        this.statements.push(statement);
+        break;
     }
   }
 
@@ -71,6 +80,10 @@ export default class Module {
 
   getDefinition(name: string): Definition|undefined {
     return this.getDefinitions().find(def => def.name?.toUpperCase() === name.toUpperCase());
+  }
+
+  getFiles(): File[] {
+    return this.statements.filter(stmt => stmt.type === `file`).map(stmt => stmt as File);
   }
 
   getReferences() {
