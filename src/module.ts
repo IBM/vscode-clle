@@ -107,7 +107,35 @@ export default class Module {
     }) as T;
   }
 
-  getReferences() {
-    // TODO: ???
+  getReferences(variable: Variable): IRange[] {
+    const name = variable.name?.toUpperCase();
+    let references: IRange[] = [];
+
+    const scanBlock = (block: Token[]) => {
+      let found: IRange[] = [];
+
+      block.forEach(token => {
+        switch (token.type) {
+          case `variable`:
+            if (token.value && token.value.toUpperCase() === name) {
+              found.push(token.range);
+            }
+            break;
+          case `block`:
+            if (token.block) {
+              found.push(...scanBlock(token.block));
+            }
+            break;
+        }
+      });
+
+      return found;
+    }
+
+    this.statements.forEach(stmt => {
+      references.push(...scanBlock(stmt.tokens));
+    })
+
+    return references;
   }
 }

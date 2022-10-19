@@ -176,4 +176,38 @@ test(`available types`, () => {
   expect(libraryDef).toBeDefined();
   expect(libraryDef?.name).toBe(`&NextObj`);
   expect(libraryDef?.dataType).toBe(DataType.Pointer);
-})
+});
+
+test('getting references', () => {
+  const lines = simple_def;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const cmd = module.getDefinition<Variable>(`&CMD`);
+  expect(cmd).toBeDefined();
+
+  if (cmd) {
+    const references = module.getReferences(cmd);
+
+    expect(references.length).toBe(3);
+
+    expect(references[0]).toMatchObject({
+      start: 20,
+      end: 24
+    });
+
+    expect(references[1]).toMatchObject({
+      start: 46,
+      end: 50
+    });
+
+    expect(references[2]).toMatchObject({
+      start: 137,
+      end: 141
+    });
+  }
+});
