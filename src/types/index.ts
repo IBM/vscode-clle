@@ -9,3 +9,9 @@ export enum DataType {
   Integer,
   UInteger
 }
+
+export enum DefinitionType {
+  Statement,
+  Variable,
+  File
+}

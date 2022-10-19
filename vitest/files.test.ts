@@ -5,8 +5,9 @@ import CLParser from "../src/parser";
 
 import file_a from './cl/file';
 import file_var from './cl/file_var';
-import { DataType } from '../src/types';
+import { DataType, DefinitionType } from '../src/types';
 import files_openid from './cl/files_openid';
+import Variable from '../src/variable';
 
 test('basic file definition', () => {
   const lines = file_a;
@@ -20,7 +21,7 @@ test('basic file definition', () => {
   expect(module.statements.length).toBe(4);
 
   const dclfStatement = module.statements[1];
-  expect(dclfStatement.type).toBe(`file`);
+  expect(dclfStatement.type).toBe(DefinitionType.File);
 
   const fileDef = dclfStatement as File;
   expect(fileDef.file).toBeDefined();
@@ -31,7 +32,7 @@ test('basic file definition', () => {
   expect(fileDefOpenId).toBeUndefined();
 
   const rcvfStatement = module.statements[2];
-  expect(rcvfStatement.type).toBe(`statement`);
+  expect(rcvfStatement.type).toBe(DefinitionType.Statement);
 });
 
 test('get files and vars', () => {
@@ -43,8 +44,8 @@ test('get files and vars', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const defs = module.getVariables();
-  const files = module.getFiles();
+  const defs = module.getSpecificDefinitions<Variable>(DefinitionType.Variable);
+  const files = module.getSpecificDefinitions<File>(DefinitionType.File);
 
   expect(defs.length).toBe(1);
   expect(files.length).toBe(1);
@@ -71,7 +72,7 @@ test('many files with open id', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const files = module.getFiles();
+  const files = module.getSpecificDefinitions<File>(DefinitionType.File);
 
   expect(files.length).toBe(2);
 

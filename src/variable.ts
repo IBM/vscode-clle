@@ -1,5 +1,5 @@
 import Statement from "./statement";
-import { DataType } from "./types";
+import { DataType, DefinitionType } from "./types";
 
 const TypeValue: {[typeString: string]: DataType} = {
   '*CHAR': DataType.Character,
@@ -18,7 +18,7 @@ export default class Variable extends Statement {
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
-    this.type = "variable";
+    this.type = DefinitionType.Variable;
     this.name = this.processName();
     this.dataType = this.processType();
   }

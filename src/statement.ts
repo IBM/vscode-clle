@@ -1,9 +1,9 @@
-
+import { DefinitionType } from "./types";
 
 export default class Statement {
-  type: "statement"|"variable"|"file"|"subroutine";
+  type: DefinitionType;
   constructor(public tokens: Token[], public range: IRange) {
-    this.type = "statement";
+    this.type = DefinitionType.Statement;
   }
 
   getObject(): QualifiedObject|null {
