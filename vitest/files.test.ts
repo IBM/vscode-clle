@@ -44,8 +44,8 @@ test('get files and vars', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const defs = module.getSpecificDefinitions<Variable>(DefinitionType.Variable);
-  const files = module.getSpecificDefinitions<File>(DefinitionType.File);
+  const defs = module.getDefinitionsOfType<Variable>(DefinitionType.Variable);
+  const files = module.getDefinitionsOfType<File>(DefinitionType.File);
 
   expect(defs.length).toBe(1);
   expect(files.length).toBe(1);
@@ -72,7 +72,7 @@ test('many files with open id', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const files = module.getSpecificDefinitions<File>(DefinitionType.File);
+  const files = module.getDefinitionsOfType<File>(DefinitionType.File);
 
   expect(files.length).toBe(2);
 

@@ -83,7 +83,7 @@ export default class Module {
     return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File|Subroutine)[]
   }
 
-  getSpecificDefinitions<T>(type: DefinitionType): T[] {
+  getDefinitionsOfType<T>(type: DefinitionType): T[] {
     const defs = this.getDefinitions();
     
     return defs.filter(stmt => stmt.type === type) as T[];

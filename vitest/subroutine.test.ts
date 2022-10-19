@@ -15,7 +15,7 @@ test('getting a subroutine list', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const definitions = module.getSpecificDefinitions<Subroutine>(DefinitionType.Subroutine);
+  const definitions = module.getDefinitionsOfType<Subroutine>(DefinitionType.Subroutine);
 
   expect(definitions.length).toBe(2);
 
