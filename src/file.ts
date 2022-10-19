@@ -1,11 +1,12 @@
 import Statement from "./statement";
+import { DefinitionType } from "./types";
 
 export default class File extends Statement {
   file: QualifiedObject|undefined;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
-    this.type = "file";
+    this.type = DefinitionType.File;
     this.file = this.processFile();
   }
 

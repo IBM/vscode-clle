@@ -1,6 +1,7 @@
 import Variable from "./variable";
 import File from "./file";
 import Statement from "./statement";
+import { DefinitionType } from "./types";
 
 export default class Module {
   statements: (Statement|Variable|File)[];
@@ -74,16 +75,29 @@ export default class Module {
     })
   }
 
-  getVariables(): Variable[] {
-    return this.statements.filter(stmt => stmt.type === `variable`).map(stmt => stmt as Variable);
+  getDefinitions() {
+    return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File)[]
   }
 
-  getVariable(name: string): Variable|undefined {
-    return this.getVariables().find(def => def.name?.toUpperCase() === name.toUpperCase());
+  getSpecificDefinitions<T>(type: DefinitionType): T[] {
+    const defs = this.getDefinitions();
+    
+    return defs.filter(stmt => stmt.type === type) as T[];
   }
 
-  getFiles(): File[] {
-    return this.statements.filter(stmt => stmt.type === `file`).map(stmt => stmt as File);
+  getDefinition<T>(name: string): T|undefined {
+    const upperName = name.toUpperCase();
+
+    const defs = this.getDefinitions();
+    
+    return defs.find(stmt => {
+      if (stmt instanceof Variable) {
+        return stmt.name?.toUpperCase() === upperName;
+      }
+      if (stmt instanceof File) {
+        return stmt.file?.name.toUpperCase() === upperName;
+      }
+    }) as T;
   }
 
   getReferences() {

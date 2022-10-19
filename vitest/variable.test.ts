@@ -1,11 +1,12 @@
 import {expect, test} from 'vitest';
 import Module from '../src/module';
 import CLParser from "../src/parser";
-import {DataType} from "../src/types";
+import {DataType, DefinitionType} from "../src/types";
 
 import simple_def from "./cl/simple_def";
 import simple_def_two from "./cl/simple_def_two";
 import many_types_ds from './cl/many_types_ds';
+import Variable from '../src/variable';
 
 test('getting a definiton list', () => {
   const lines = simple_def;
@@ -16,12 +17,12 @@ test('getting a definiton list', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const definitions = module.getVariables();
+  const definitions = module.getDefinitions();
 
   expect(definitions.length).toBe(1);
   
-  const cmd = definitions[0];
-  expect(cmd.type).toBe(`variable`);
+  const cmd = definitions[0] as Variable;
+  expect(cmd.type).toBe(DefinitionType.Variable );
   expect(cmd.name).toBe(`&CMD`);
   expect(cmd.dataType).toBe(DataType.Character);
 });
@@ -35,11 +36,11 @@ test('getting a specific definiton', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const cmd = module.getVariable(`&CMD`);
+  const cmd = module.getDefinition<Variable>(`&CMD`);
   expect(cmd).toBeDefined();
 
   if (cmd) {
-    expect(cmd.type).toBe(`variable`);
+    expect(cmd.type).toBe(DefinitionType.Variable );
     expect(cmd.name).toBe(`&CMD`);
     expect(cmd.dataType).toBe(DataType.Character);
   }
@@ -54,11 +55,11 @@ test('getting a specific definiton (case-insensitive)', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const cmd = module.getVariable(`&cmd`);
+  const cmd = module.getDefinition<Variable>(`&cmd`);
   expect(cmd).toBeDefined();
 
   if (cmd) {
-    expect(cmd.type).toBe(`variable`);
+    expect(cmd.type).toBe(DefinitionType.Variable );
     expect(cmd.name).toBe(`&CMD`);
     expect(cmd.dataType).toBe(DataType.Character);
   }
@@ -73,7 +74,7 @@ test('getting many definitions from list', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const definitions = module.getVariables();
+  const definitions = module.getDefinitions();
   expect(definitions.length).toBe(2);
 });
 
@@ -86,11 +87,11 @@ test('getting different definitions by name', () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const cmd = module.getVariable(`&cmd`);
+  const cmd = module.getDefinition<Variable>(`&cmd`);
   expect(cmd).toBeDefined();
 
   if (cmd) {
-    expect(cmd.type).toBe(`variable`);
+    expect(cmd.type).toBe(DefinitionType.Variable);
     expect(cmd.name).toBe(`&CMD`);
     expect(cmd.dataType).toBe(DataType.Character);
 
@@ -101,11 +102,11 @@ test('getting different definitions by name', () => {
     expect(lengthParm[0].value).toBe(`128`);
   }
 
-  const text = module.getVariable(`&TEXT`);
+  const text = module.getDefinition<Variable>(`&TEXT`);
   expect(text).toBeDefined();
 
   if (text) {
-    expect(text.type).toBe(`variable`);
+    expect(text.type).toBe(DefinitionType.Variable );
     expect(text.name).toBe(`&TEXT`);
     expect(text.dataType).toBe(DataType.Character);
 
@@ -126,22 +127,22 @@ test(`shorthand declare`, () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const traceDef = module.getVariable(`&Trace`);
+  const traceDef = module.getDefinition<Variable>(`&Trace`);
   expect(traceDef).toBeDefined();
   expect(traceDef?.name).toBe(`&trace`);
   expect(traceDef?.dataType).toBe(DataType.Logical);
 
-  const qualobjDef = module.getVariable(`&qualobj`);
+  const qualobjDef = module.getDefinition<Variable>(`&qualobj`);
   expect(qualobjDef).toBeDefined();
   expect(qualobjDef?.name).toBe(`&QualObj`);
   expect(qualobjDef?.dataType).toBe(DataType.Character);
 
-  const objectDef = module.getVariable(`&Object`);
+  const objectDef = module.getDefinition<Variable>(`&Object`);
   expect(objectDef).toBeDefined();
   expect(objectDef?.name).toBe(`&Object`);
   expect(objectDef?.dataType).toBe(DataType.Character);
 
-  const libraryDef = module.getVariable(`&LIBRARY`);
+  const libraryDef = module.getDefinition<Variable>(`&LIBRARY`);
   expect(libraryDef).toBeDefined();
   expect(libraryDef?.name).toBe(`&Library`);
   expect(libraryDef?.dataType).toBe(DataType.Character);
@@ -156,22 +157,22 @@ test(`available types`, () => {
   const module = new Module();
   module.parseStatements(tokens);
 
-  const traceDef = module.getVariable(`&NAME`);
+  const traceDef = module.getDefinition<Variable>(`&NAME`);
   expect(traceDef).toBeDefined();
   expect(traceDef?.name).toBe(`&NAME`);
   expect(traceDef?.dataType).toBe(DataType.Character);
 
-  const qualobjDef = module.getVariable(`&PI`);
+  const qualobjDef = module.getDefinition<Variable>(`&PI`);
   expect(qualobjDef).toBeDefined();
   expect(qualobjDef?.name).toBe(`&PI`);
   expect(qualobjDef?.dataType).toBe(DataType.Packed);
 
-  const objectDef = module.getVariable(`&trace`);
+  const objectDef = module.getDefinition<Variable>(`&trace`);
   expect(objectDef).toBeDefined();
   expect(objectDef?.name).toBe(`&trace`);
   expect(objectDef?.dataType).toBe(DataType.Logical);
 
-  const libraryDef = module.getVariable(`&nextobj`);
+  const libraryDef = module.getDefinition<Variable>(`&nextobj`);
   expect(libraryDef).toBeDefined();
   expect(libraryDef?.name).toBe(`&NextObj`);
   expect(libraryDef?.dataType).toBe(DataType.Pointer);

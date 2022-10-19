@@ -5,6 +5,7 @@ import CLParser from "../src/parser";
 import simple_def from './cl/simple_def';
 import def_label_comment from "./cl/def_label_comment";
 import ex_trace from "./cl/ex_trace";
+import { DefinitionType } from '../src/types';
 
 test('test1', () => {
   const lines = simple_def;
@@ -681,12 +682,12 @@ test('test6', () => {
     statements[0].range.end
   )).toBe(`PGM        PARM(&CMD)`);
 
-  expect(statements[0].type).toBe(`statement`);
+  expect(statements[0].type).toBe(DefinitionType.Statement);
   object = statements[0].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`PGM`);
 
-  expect(statements[1].type).toBe(`variable`);
+  expect(statements[1].type).toBe(DefinitionType.Variable);
   expect(lines.substring(
     statements[1].range.start,
     statements[1].range.end
@@ -698,7 +699,7 @@ test('test6', () => {
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`DCL`);
 
-  expect(statements[4].type).toBe(`statement`);
+  expect(statements[4].type).toBe(DefinitionType.Statement);
   expect(lines.substring(
     statements[4].range.start,
     statements[4].range.end
@@ -734,7 +735,7 @@ test('test7', () => {
 
   const statements = module.statements;
 
-  expect(statements[2].type).toBe(`statement`);
+  expect(statements[2].type).toBe(DefinitionType.Statement);
   object = statements[2].getObject();
   expect(object).toBeTruthy();
   expect(object?.name).toBe(`STRPCO`);
@@ -744,7 +745,7 @@ test('test7', () => {
     statements[4].range.end
   )).toBe(`QGPL/STRPCCMD   PCCMD(&CMD) PAUSE(*YES)`);
 
-  expect(statements[4].type).toBe(`statement`);
+  expect(statements[4].type).toBe(DefinitionType.Statement);
   object = statements[4].getObject();
   expect(object).toBeTruthy();
   expect(object?.library).toBe(`QGPL`);
@@ -765,7 +766,7 @@ test('test8', () => {
   expect(statements.length).toBe(6);
 
   const dcl = statements[1];
-  expect(dcl.type).toBe(`variable`);
+  expect(dcl.type).toBe(DefinitionType.Variable);
   const dcl_object = dcl.getObject();
   expect(dcl_object?.name).toBe(`DCL`);
 
@@ -790,7 +791,7 @@ test('get parms on PGM', () => {
   const pgmDef = module.statements[0];
 
   expect(pgmDef).toBeDefined();
-  expect(pgmDef.type).toBe(`statement`);
+  expect(pgmDef.type).toBe(DefinitionType.Statement);
 
   const object = pgmDef.getObject();
   expect(object?.name).toBe(`PGM`);
@@ -813,7 +814,7 @@ test('test for many parms', () => {
   const dclStatement = module.statements[1];
 
   expect(dclStatement).toBeDefined();
-  expect(dclStatement.type).toBe(`variable`);
+  expect(dclStatement.type).toBe(DefinitionType.Variable);
 
   const object = dclStatement.getObject();
   expect(object?.name).toBe(`DCL`);
@@ -842,7 +843,7 @@ test('complex parms (ex_trace)', () => {
 
   expect(module.statements.length).toBe(19);
   const rtvobjd = module.statements[9];
-  expect(rtvobjd.type).toBe(`statement`);
+  expect(rtvobjd.type).toBe(DefinitionType.Statement);
   
   const rtvobjdObj = rtvobjd.getObject();
   expect(rtvobjdObj).toBeDefined();
@@ -862,7 +863,7 @@ test('complex parms (ex_trace)', () => {
   expect(rtvobjdParms[`OBJTYPE`][0].value).toBe(`*SRVPGM`);
 
   const crtdtaara = module.statements[12];
-  expect(rtvobjd.type).toBe(`statement`);
+  expect(rtvobjd.type).toBe(DefinitionType.Statement);
 
   const crtdtaaraObj = crtdtaara.getObject();
   expect(crtdtaaraObj).toBeDefined();
@@ -895,7 +896,7 @@ test('complex parms (ex_trace)', () => {
   expect(crtdtaaraParms[`TEXT`][0].value).toBe(`'SQL trace enabled'`);
 
   const rtvjoba = module.statements[15];
-  expect(rtvjoba.type).toBe(`statement`);
+  expect(rtvjoba.type).toBe(DefinitionType.Statement);
 
   const rtvjobaObj = rtvjoba.getObject();
   expect(rtvjobaObj).toBeDefined();
