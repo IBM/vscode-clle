@@ -1,11 +1,12 @@
 import Statement from "./statement";
+import { DefinitionType } from "./types";
 
 export default class Subroutine extends Statement {
   name: string|undefined;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
-    this.type = "subroutine";
+    this.type = DefinitionType.Subroutine;
     this.name = this.processName();
   }
 
