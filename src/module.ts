@@ -1,5 +1,6 @@
 import Variable from "./variable";
 import File from "./file";
+import Subroutine from "./subroutine";
 import Statement from "./statement";
 import { DefinitionType } from "./types";
 
@@ -18,6 +19,9 @@ export default class Module {
         break;
       case `DCLF`:
         this.statements.push(new File(statement.tokens, statement.range));
+        break;
+      case `SUBR`:
+        this.statements.push(new Subroutine(statement.tokens, statement.range));
         break;
       default:
         this.statements.push(statement);
@@ -76,7 +80,7 @@ export default class Module {
   }
 
   getDefinitions() {
-    return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File)[]
+    return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File|Subroutine)[]
   }
 
   getSpecificDefinitions<T>(type: DefinitionType): T[] {
@@ -96,6 +100,9 @@ export default class Module {
       }
       if (stmt instanceof File) {
         return stmt.file?.name.toUpperCase() === upperName;
+      }
+      if (stmt instanceof Subroutine) {
+        return stmt.name?.toUpperCase() === upperName;
       }
     }) as T;
   }

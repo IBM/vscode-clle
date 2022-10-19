@@ -10,8 +10,10 @@ export enum DataType {
   UInteger
 }
 
+
 export enum DefinitionType {
   Statement,
   Variable,
-  File
+  File,
+  Subroutine
 }
