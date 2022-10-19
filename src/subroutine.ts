@@ -2,11 +2,10 @@ import Statement from "./statement";
 
 export default class Subroutine extends Statement {
   name: string|undefined;
-  //TODO: what else can we really do with subroutines in CL?
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
 
-    this.type = "variable";
+    this.type = "subroutine";
     this.name = this.processName();
   }
 
