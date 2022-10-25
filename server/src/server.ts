@@ -25,6 +25,7 @@ import {
 import { connection, documents } from './instance';
 import completionProvider from './providers/completion';
 import definitionProvider from './providers/definition';
+import documentSymbolProvider from './providers/documentSymbol';
 
 
 let hasConfigurationCapability = false;
@@ -53,9 +54,10 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				triggerCharacters: [` `, `&`]
+				triggerCharacters: [` `, `&`, `(`]
 			},
-			definitionProvider: true
+			definitionProvider: true,
+			documentSymbolProvider: true
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -81,7 +83,8 @@ connection.onInitialized(() => {
 });
 
 connection.onCompletion(completionProvider);
-connection.onDefinition(definitionProvider)
+connection.onDefinition(definitionProvider);
+connection.onDocumentSymbol(documentSymbolProvider);
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.

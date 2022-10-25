@@ -7,6 +7,7 @@ import simple_def from "./cl/simple_def";
 import simple_def_two from "./cl/simple_def_two";
 import many_types_ds from './cl/many_types_ds';
 import Variable from '../src/variable';
+import cuid from './cl/cuid';
 
 test('getting a definiton list', () => {
   const lines = simple_def;
@@ -43,6 +44,27 @@ test('getting a specific definiton', () => {
     expect(cmd.type).toBe(DefinitionType.Variable );
     expect(cmd.name?.value).toBe(`&CMD`);
     expect(cmd.dataType).toBe(DataType.Character);
+  }
+});
+
+test('decimal type test', () => {
+  const lines = cuid;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const cuidDef = module.getDefinition<Variable>(`&cuid`);
+  expect(cuidDef).toBeDefined();
+
+	console.log(cuidDef);
+
+  if (cuidDef) {
+    expect(cuidDef.type).toBe(DefinitionType.Variable );
+    expect(cuidDef?.name?.value).toBe(`&CUID`);
+    expect(cuidDef.dataType).toBe(DataType.Packed);
   }
 });
 

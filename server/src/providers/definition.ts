@@ -1,6 +1,4 @@
-import { CLParser, Module, Variable, DefinitionType } from 'language';
-import Statement from 'language/src/statement';
-import Subroutine from 'language/src/subroutine';
+import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, Location, Range } from 'vscode-languageserver';
 import { documents } from '../instance';
 
@@ -24,22 +22,28 @@ export default function definitionProvider(params: DefinitionParams): Location|u
 		return;
 	}
 
-	const variable = module.getDefinition<Variable>(token.value!);
-
-	if (variable) {
-		const startingToken = variable.tokens[0];
-		const endingToken = variable.tokens[variable.tokens.length-1];
-
-		return Location.create(
-			uri,
-			Range.create(
-				document.positionAt(startingToken.range.start),
-				document.positionAt(endingToken.range.end)
-			)
-		)
-	} else {
-		const subroutine = module.getDefinition<Subroutine>(token.value!);
+	const statement = module.getDefinition<Statement>(token.value!);
+	
+	if (statement) {
+		let nameToken: Token|undefined;
 		
+		if (statement instanceof Variable){
+			nameToken = (statement as Variable).name;
+		}
 
+		if (statement instanceof Subroutine){
+			nameToken = (statement as Subroutine).name;
+		}
+
+		if (nameToken) {
+			return Location.create(
+				uri,
+				Range.create(
+					document.positionAt(nameToken.range.start),
+					document.positionAt(nameToken.range.end)
+				)
+			)
+		}
+		
 	}
 }
