@@ -5,13 +5,13 @@ import Statement from "./statement";
 import { DefinitionType, IRange, Token } from "./types";
 
 export default class Module {
-  statements: (Statement|Variable|File)[];
+  statements: (Statement|Variable|File|Subroutine)[];
   constructor() {
     this.statements = [];
   }
 
   private addStatement(statement: Statement) {
-    const command = statement.getObject()?.name.toUpperCase();
+    const command = statement.getObject()?.name?.toUpperCase();
 
     switch (command) {
       case `DCL`:
@@ -104,19 +104,19 @@ export default class Module {
     
     return defs.find(stmt => {
       if (stmt instanceof Variable) {
-        return stmt.name?.toUpperCase() === upperName;
+        return stmt.name?.value?.toUpperCase() === upperName;
       }
       if (stmt instanceof File) {
         return stmt.file?.name.toUpperCase() === upperName;
       }
       if (stmt instanceof Subroutine) {
-        return stmt.name?.toUpperCase() === upperName;
+        return stmt.name?.value?.toUpperCase() === upperName;
       }
     }) as T;
   }
 
   getReferences(variable: Variable): IRange[] {
-    const name = variable.name?.toUpperCase();
+    const name = variable.name?.value?.toUpperCase();
     let references: IRange[] = [];
 
     const scanBlock = (block: Token[]) => {

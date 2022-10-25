@@ -51,7 +51,7 @@ test('get files and vars', () => {
   expect(files.length).toBe(1);
 
   const varDef = defs[0];
-  expect(varDef.name).toBe(`&LOOP`);
+  expect(varDef.name?.value).toBe(`&LOOP`);
   expect(varDef.dataType).toBe(DataType.Logical);
 
   const fileDef = files[0];

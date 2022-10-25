@@ -20,14 +20,14 @@ test('getting a subroutine list', () => {
   expect(definitions.length).toBe(2);
 
   const TOFILE = definitions[0];
-  expect(TOFILE.name).toBe(`TOFILE`);
+  expect(TOFILE.name?.value).toBe(`TOFILE`);
   expect(lines.substring(
     TOFILE.range.start,
     TOFILE.range.end
   )).toBe(`SUBR       SUBR(TOFILE)`);
 
   const FROMFILE = definitions[1];
-  expect(FROMFILE.name).toBe(`FROMFILE`);
+  expect(FROMFILE.name?.value).toBe(`FROMFILE`);
   expect(lines.substring(
     FROMFILE.range.start,
     FROMFILE.range.end
@@ -47,7 +47,7 @@ test('getting specific subroutine', () => {
   expect(FROMFILE).toBeDefined();
 
   if (FROMFILE) {
-    expect(FROMFILE.name).toBe(`FROMFILE`);
+    expect(FROMFILE.name?.value).toBe(`FROMFILE`);
     expect(lines.substring(
       FROMFILE.range.start,
       FROMFILE.range.end

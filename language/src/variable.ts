@@ -13,7 +13,7 @@ const TypeValue: {[typeString: string]: DataType} = {
 const TypeSpecials = Object.keys(TypeValue);
 
 export default class Variable extends Statement {
-  name: string|undefined;
+  name: Token|undefined;
   dataType: DataType;
   constructor(public tokens: Token[], public range: IRange) {
     super(tokens, range);
@@ -45,20 +45,20 @@ export default class Variable extends Statement {
   }
 
   processName() {
-    let possibleName: string|undefined;
+    let possibleToken: Token|undefined;
     const parms = this.getParms();
 
     if (parms[`VAR`] && parms[`VAR`].length === 1 && parms[`VAR`][0].type === `variable`) {
-      possibleName = parms[`VAR`][0].value;
+      possibleToken = parms[`VAR`][0];
       
     } else {
       // Search all pieces for a special that is the type
       // DCL &ABC *CHAR 20
       const foundName = this.tokens.find(piece => piece.type === `variable` && piece.value);
       if (foundName)
-        possibleName = foundName.value;
+        possibleToken = foundName;
     }
 
-    return possibleName;
+    return possibleToken;
   }
 }
