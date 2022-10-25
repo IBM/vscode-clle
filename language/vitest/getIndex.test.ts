@@ -17,14 +17,29 @@ test('sample test', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(48);
+    const statement = module.getStatementByOffset(48);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
 
     const object = statement?.getObject();
     expect(object?.library).toBeUndefined();
     expect(object?.name).toBe(`DCL`);
-})
+});
+
+test('token by index', () => {
+	const lines = simple_def;
+
+	const parser = new CLParser();
+	const tokens = parser.parseDocument(lines);
+
+	const module = new Module();
+	module.parseStatements(tokens);
+
+	const token = module.getTokenByOffset(43);
+	expect(token).toBeDefined();
+	expect(token?.type).toBe(`parameter`);
+	expect(token?.value).toBe(`VAR`);
+});
 
 test('Statement at the middle of the line', () => {
     const lines = many_types_ds;
@@ -35,7 +50,7 @@ test('Statement at the middle of the line', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(22);
+    const statement = module.getStatementByOffset(22);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
 })
@@ -49,7 +64,7 @@ test('Lowercase statements', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(97);
+    const statement = module.getStatementByOffset(97);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
 })
@@ -63,7 +78,7 @@ test('Statement inside parentheses', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(208);
+    const statement = module.getStatementByOffset(208);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
 })
@@ -77,7 +92,7 @@ test('Statement line not begin with DCL', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(351);
+    const statement = module.getStatementByOffset(351);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Statement);
 })
@@ -91,7 +106,7 @@ test('Index at the middle of the statement', () => {
     const module = new Module();
     module.parseStatements(tokens);
 
-    const statement = module.getStatementByIndex(185);
+    const statement = module.getStatementByOffset(185);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
 })

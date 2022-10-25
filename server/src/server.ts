@@ -22,14 +22,10 @@ import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 
-import {CLParser, Module, DefinitionType, Variable} from "language";
+import { connection, documents } from './instance';
+import completionProvider from './providers/completion';
+import definitionProvider from './providers/definition';
 
-// Create a connection for the server, using Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
-const connection = createConnection(ProposedFeatures.all);
-
-// Create a simple text document manager.
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -58,7 +54,8 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				triggerCharacters: [` `, `&`]
-			}
+			},
+			definitionProvider: true
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -83,28 +80,8 @@ connection.onInitialized(() => {
 	}
 });
 
-connection.onCompletion((params: CompletionParams): CompletionItem[] => {
-  const document = documents.get(params.textDocument.uri);
-
-  if (document) {
-    const content = document.getText();
-    const parser = new CLParser();
-    const tokens = parser.parseDocument(content);
-    const module = new Module();
-    module.parseStatements(tokens);
-
-    const variables = module.getDefinitionsOfType<Variable>(DefinitionType.Variable);
-    return variables
-      .filter(variable => variable.name !== undefined)
-      .map(variable => {
-        const item = CompletionItem.create(variable.name!);
-        item.kind = CompletionItemKind.Variable;
-        return item;
-      });
-  }
-
-  return [];
-})
+connection.onCompletion(completionProvider);
+connection.onDefinition(definitionProvider)
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.

@@ -72,12 +72,20 @@ export default class Module {
     }
   }
 
-  getStatementByIndex(index: number) {
+  getStatementByOffset(offset: number) {
     return this.statements.find((statement, i) => {
       const end = (this.statements[i+1] ? this.statements[i+1].range.start : statement.range.end);
-      return index >= statement.range.start && index < end;
+      return offset >= statement.range.start && offset < end;
     })
   }
+
+	getTokenByOffset(offset: number): Token|undefined {
+		const statement = this.getStatementByOffset(offset);
+
+		if (statement) {
+			return statement.getTokenByOffset(offset);
+		}
+	}
 
   getDefinitions() {
     return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File|Subroutine)[]
