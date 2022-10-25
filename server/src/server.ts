@@ -26,6 +26,7 @@ import { connection, documents } from './instance';
 import completionProvider from './providers/completion';
 import definitionProvider from './providers/definition';
 import documentSymbolProvider from './providers/documentSymbol';
+import { renameProvider, prepareRenameProvider } from './providers/rename';
 
 
 let hasConfigurationCapability = false;
@@ -57,7 +58,10 @@ connection.onInitialize((params: InitializeParams) => {
 				triggerCharacters: [` `, `&`, `(`]
 			},
 			definitionProvider: true,
-			documentSymbolProvider: true
+			documentSymbolProvider: true,
+			renameProvider: {
+				prepareProvider: true
+			}
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -85,6 +89,8 @@ connection.onInitialized(() => {
 connection.onCompletion(completionProvider);
 connection.onDefinition(definitionProvider);
 connection.onDocumentSymbol(documentSymbolProvider);
+connection.onPrepareRename(prepareRenameProvider);
+connection.onRenameRequest(renameProvider);
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
