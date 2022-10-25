@@ -1,3 +1,4 @@
+import { Token } from './types';
 
 interface Matcher {
   name: string;

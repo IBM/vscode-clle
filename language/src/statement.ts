@@ -1,4 +1,4 @@
-import { DefinitionType } from "./types";
+import { DefinitionType, IRange, QualifiedObject, Token } from "./types";
 
 export default class Statement {
   type: DefinitionType;

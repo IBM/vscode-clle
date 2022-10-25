@@ -1,10 +1,39 @@
 {
-  "devDependencies": {
-    "@types/node": "^18.7.14",
-    "typescript": "^4.8.2",
-    "vitest": "^0.23.4"
-  },
-  "scripts": {
-    "test": "vitest"
-  }
+	"name": "vscode-clle",
+	"description": "CLLE language tool",
+	"author": "IBM",
+	"license": "MIT",
+	"version": "1.0.0",
+	"publisher": "IBM",
+	"categories": [],
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.63.0"
+	},
+	"activationEvents": [
+		"onLanguage:cl"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"build": "cd language && tsc -b && cd .. && npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
+	},
+	"devDependencies": {
+		"@types/mocha": "^9.1.0",
+		"@types/node": "^16.11.7",
+		"@typescript-eslint/eslint-plugin": "^5.30.0",
+		"@typescript-eslint/parser": "^5.30.0",
+		"eslint": "^8.13.0",
+		"mocha": "^9.2.1",
+		"typescript": "^4.8.4"
+	}
 }

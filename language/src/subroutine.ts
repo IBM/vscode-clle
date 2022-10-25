@@ -1,5 +1,5 @@
 import Statement from "./statement";
-import { DefinitionType } from "./types";
+import { DefinitionType, IRange, Token } from "./types";
 
 export default class Subroutine extends Statement {
   name: string|undefined;

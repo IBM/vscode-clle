@@ -1,5 +1,5 @@
 import Statement from "./statement";
-import { DataType, DefinitionType } from "./types";
+import { DataType, DefinitionType, IRange, Token } from "./types";
 
 const TypeValue: {[typeString: string]: DataType} = {
   '*CHAR': DataType.Character,

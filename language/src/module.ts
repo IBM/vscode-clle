@@ -2,7 +2,7 @@ import Variable from "./variable";
 import File from "./file";
 import Subroutine from "./subroutine";
 import Statement from "./statement";
-import { DefinitionType } from "./types";
+import { DefinitionType, IRange, Token } from "./types";
 
 export default class Module {
   statements: (Statement|Variable|File)[];

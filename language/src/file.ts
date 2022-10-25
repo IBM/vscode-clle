@@ -1,5 +1,5 @@
 import Statement from "./statement";
-import { DefinitionType } from "./types";
+import { DefinitionType, IRange, QualifiedObject, Token } from "./types";
 
 export default class File extends Statement {
   file: QualifiedObject|undefined;
