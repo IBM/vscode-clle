@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@types/node": "^18.7.14",
+    "typescript": "^4.8.2",
+    "vitest": "^0.23.4"
+  },
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc -b"
+  },
+  "name": "clle-language",
+  "description": "Language server for the ILE CL language in IBM i",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "author": "IBM",
+  "license": "MIT"
+}
