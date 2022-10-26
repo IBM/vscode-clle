@@ -2,6 +2,7 @@ import { CLParser, Module, Variable, DefinitionType, Subroutine } from 'language
 import { CompletionItem, CompletionItemKind, CompletionParams } from 'vscode-languageserver';
 import { CLModules } from '../data';
 import { documents } from '../instance';
+import { buildDescription } from '../utils';
 
 export default function completionProvider(params: CompletionParams): CompletionItem[] {
   const document = documents.get(params.textDocument.uri);
@@ -25,6 +26,7 @@ export default function completionProvider(params: CompletionParams): Completion
 
         const item = CompletionItem.create(name);
         item.kind = CompletionItemKind.Variable;
+				item.detail = buildDescription(variable);
         return item;
       }));
 
