@@ -1,18 +1,8 @@
 import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token, File, DataType } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, DocumentSymbol, DocumentSymbolParams, Location, Range , SymbolKind} from 'vscode-languageserver';
 import { documents } from '../instance';
+import { buildDescription, varDescription } from '../utils';
 
-const typeMap = {
-	[DataType.Character]: 'Character',
-	[DataType.Integer]: 'Integer',
-	[DataType.Label]: 'Label',
-	[DataType.Logical]: 'Logical',
-	[DataType.Packed]: 'Decimal',
-	[DataType.Pointer]: 'Pointer',
-	[DataType.Subroutine]: 'Subroutine',
-	[DataType.UInteger]: 'Unsigned Integer',
-	[DataType.Unknown]: 'Unknown'
-};
 
 export default function documentSymbolProvider(params: DocumentSymbolParams): DocumentSymbol[]|undefined {
 	const uri = params.textDocument.uri;
@@ -38,58 +28,29 @@ export default function documentSymbolProvider(params: DocumentSymbolParams): Do
 		let statementRange: Range;
 		let selectionRange: Range|undefined;
 
-		if (def instanceof Variable) {
-			// We check if def.name exists because they might literally be writing the statement
-			if (def.name) {
-				nameValue = def.name?.value;
-				kind = SymbolKind.Variable;
-				selectionRange = Range.create(
-					document.positionAt(def.name!.range.start),
-					document.positionAt(def.name!.range.end),
-				);
+		if (def instanceof Variable && def.name) {
+			nameValue = def.name?.value;
+			kind = SymbolKind.Variable;
+			selectionRange = Range.create(
+				document.positionAt(def.name!.range.start),
+				document.positionAt(def.name!.range.end),
+			);
 
-				const varDesc = [];
-
-				if (typeMap[def.dataType]) {
-					varDesc.push(typeMap[def.dataType]);
-
-					const parms = def.getParms();
-
-					if (parms['LEN']) {
-						const lenTokens = parms['LEN'];
-						const parmVal = lenTokens
-							.map(token => token.value)
-							.join(`, `);
-						varDesc.push(`(${parmVal})`);
-					}
-				}
-
-				description = varDesc.join(' ');
-			}
+			description = buildDescription(def);
 		} else
 
-		if (def instanceof File) {
-			if (def.file) {
-				nameValue = def.file?.name;
-				kind = SymbolKind.File;
-
-				const openId = def.getOpenID();
-				description = [
-					[def.file.library, def.file.name].filter(v => v).join(`/`),
-					openId ? `OPNID(${openId})` : undefined
-				].filter(v => v).join(` `)
-			}
-		} else
-		
-		if (def instanceof Subroutine) {
-			if (def.name) {
-				nameValue = def.name?.value;
-				kind = SymbolKind.Function;
-				selectionRange = Range.create(
-					document.positionAt(def.name!.range.start),
-					document.positionAt(def.name!.range.end),
-				);
-			}
+		if (def instanceof File && def.file) {
+			nameValue = def.file?.name;
+			kind = SymbolKind.File;
+			description = buildDescription(def);
+		} 
+		else if (def instanceof Subroutine && def.name) {
+			nameValue = def.name?.value;
+			kind = SymbolKind.Function;
+			selectionRange = Range.create(
+				document.positionAt(def.name!.range.start),
+				document.positionAt(def.name!.range.end),
+			);
 		}
 
 		statementRange = Range.create(
