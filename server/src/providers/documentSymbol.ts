@@ -36,27 +36,33 @@ export default function documentSymbolProvider(params: DocumentSymbolParams): Do
 		let selectionRange: Range|undefined;
 
 		if (def instanceof Variable) {
-			nameValue = def.name?.value;
-			kind = SymbolKind.Variable;
-			selectionRange = Range.create(
-				document.positionAt(def.name!.range.start),
-				document.positionAt(def.name!.range.end),
-			);
+			// We check if def.name exists because they might literally be writing the statement
+			if (def.name) {
+				nameValue = def.name?.value;
+				kind = SymbolKind.Variable;
+				selectionRange = Range.create(
+					document.positionAt(def.name!.range.start),
+					document.positionAt(def.name!.range.end),
+				);
 
-			const varDesc = [];
-			varDesc.push(typeMap[def.dataType]);
+				const varDesc = [];
 
-			const parms = def.getParms();
+				if (typeMap[def.dataType]) {
+					varDesc.push(typeMap[def.dataType]);
 
-			if (parms['LEN']) {
-				const lenTokens = parms['LEN'];
-				const parmVal = lenTokens
-					.map(token => token.value)
-					.join(`, `);
-				varDesc.push(`(${parmVal})`);
+					const parms = def.getParms();
+
+					if (parms['LEN']) {
+						const lenTokens = parms['LEN'];
+						const parmVal = lenTokens
+							.map(token => token.value)
+							.join(`, `);
+						varDesc.push(`(${parmVal})`);
+					}
+				}
+
+				description = varDesc.join(' ');
 			}
-
-			description = varDesc.join(' ');
 		} else
 
 		if (def instanceof File) {
@@ -73,12 +79,14 @@ export default function documentSymbolProvider(params: DocumentSymbolParams): Do
 		} else
 		
 		if (def instanceof Subroutine) {
-			nameValue = def.name?.value;
-			kind = SymbolKind.Function;
-			selectionRange = Range.create(
-				document.positionAt(def.name!.range.start),
-				document.positionAt(def.name!.range.end),
-			);
+			if (def.name) {
+				nameValue = def.name?.value;
+				kind = SymbolKind.Function;
+				selectionRange = Range.create(
+					document.positionAt(def.name!.range.start),
+					document.positionAt(def.name!.range.end),
+				);
+			}
 		}
 
 		statementRange = Range.create(
