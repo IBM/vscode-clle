@@ -1,5 +1,6 @@
 import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, Location, Range } from 'vscode-languageserver';
+import { CLModules } from '../data';
 import { documents } from '../instance';
 
 export default function definitionProvider(params: DefinitionParams): Location|undefined {
@@ -10,11 +11,7 @@ export default function definitionProvider(params: DefinitionParams): Location|u
 		return;
 	}
 
-	const content = document.getText();
-	const parser = new CLParser();
-	const tokens = parser.parseDocument(content);
-	const module = new Module();
-	module.parseStatements(tokens);
+	const module = CLModules[document.uri];
 
 	const token = module.getTokenByOffset(document.offsetAt(params.position));
 

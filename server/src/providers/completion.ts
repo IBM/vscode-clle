@@ -1,5 +1,6 @@
 import { CLParser, Module, Variable, DefinitionType, Subroutine } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams } from 'vscode-languageserver';
+import { CLModules } from '../data';
 import { documents } from '../instance';
 
 export default function completionProvider(params: CompletionParams): CompletionItem[] {
@@ -9,12 +10,7 @@ export default function completionProvider(params: CompletionParams): Completion
 	let items: CompletionItem[] = [];
 
   if (document) {
-
-    const content = document.getText();
-    const parser = new CLParser();
-    const tokens = parser.parseDocument(content);
-    const module = new Module();
-    module.parseStatements(tokens);
+    const module = CLModules[document.uri];
 
     const variables = module.getDefinitionsOfType<Variable>(DefinitionType.Variable);
     items.push(...variables
