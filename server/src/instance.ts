@@ -14,3 +14,7 @@ export const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+
+export function getCLDefinition(object: string, library?: string): Promise<any|undefined> {
+	return connection.sendRequest("getCLDefinition", [object, library]);
+}

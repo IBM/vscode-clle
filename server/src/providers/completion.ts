@@ -1,10 +1,11 @@
 import { CLParser, Module, Variable, DefinitionType, Subroutine } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams } from 'vscode-languageserver';
 import { CLModules } from '../data';
-import { documents } from '../instance';
+import { documents, getCLDefinition } from '../instance';
 import { buildDescription } from '../utils';
 
-export default function completionProvider(params: CompletionParams): CompletionItem[] {
+export default async function completionProvider(params: CompletionParams): Promise<CompletionItem[]> {
+	const position = params.position;
   const document = documents.get(params.textDocument.uri);
 	const triggerCharacter = params.context ? params.context.triggerCharacter || `` : ``;
 
@@ -40,6 +41,14 @@ export default function completionProvider(params: CompletionParams): Completion
 					item.kind = CompletionItemKind.Function;
 					return item;
 				}));
+		}
+
+		const statement = module.getStatementByOffset(document.offsetAt(position));
+		if (statement) {
+			const command = statement.getObject();
+			if (command) {
+				const spec = await getCLDefinition(command.name, command.library);
+			}
 		}
   }
 
