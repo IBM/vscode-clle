@@ -1,5 +1,6 @@
 import { CLParser, DefinitionType, Module, Token, Variable } from 'language';
 import { Location, ParameterStructures, PrepareRenameParams, Range, ReferenceParams, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver';
+import { CLModules } from '../data';
 import { documents } from '../instance';
 
 export function referencesProvider(params: ReferenceParams): Location[]|undefined {
@@ -10,11 +11,7 @@ export function referencesProvider(params: ReferenceParams): Location[]|undefine
 		return;
 	}
 
-	const content = document.getText();
-	const parser = new CLParser();
-	const tokens = parser.parseDocument(content);
-	const module = new Module();
-	module.parseStatements(tokens);
+	const module = CLModules[document.uri];
 
 	const token = module.getTokenByOffset(document.offsetAt(params.position));
 

@@ -1,5 +1,6 @@
 import { CLParser, DefinitionType, Module, Token, Variable } from 'language';
 import { ParameterStructures, PrepareRenameParams, Range, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver';
+import { CLModules } from '../data';
 import { documents } from '../instance';
 
 export function prepareRenameProvider(params: PrepareRenameParams): {range: Range, placeholder: string}|undefined {
@@ -10,11 +11,7 @@ export function prepareRenameProvider(params: PrepareRenameParams): {range: Rang
 		return;
 	}
 
-	const content = document.getText();
-	const parser = new CLParser();
-	const tokens = parser.parseDocument(content);
-	const module = new Module();
-	module.parseStatements(tokens);
+	const module = CLModules[document.uri];
 
 	const offset = document.offsetAt(params.position);
 

@@ -15,7 +15,8 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-  CompletionParams
+  CompletionParams,
+	TextDocumentChangeEvent
 } from 'vscode-languageserver/node';
 
 import {
@@ -28,6 +29,8 @@ import definitionProvider from './providers/definition';
 import documentSymbolProvider from './providers/documentSymbol';
 import { renameProvider, prepareRenameProvider } from './providers/rename';
 import { referencesProvider } from './providers/reference';
+import { CLParser, Module } from 'language';
+import { CLModules } from './data';
 
 
 let hasConfigurationCapability = false;
@@ -95,6 +98,16 @@ connection.onPrepareRename(prepareRenameProvider);
 connection.onRenameRequest(renameProvider);
 connection.onReferences(referencesProvider);
 
+documents.onDidChangeContent((event: TextDocumentChangeEvent<TextDocument>) => {
+	const document = event.document;
+
+	const parser = new CLParser();
+	const tokens = parser.parseDocument(document.getText());
+	const module = new Module();
+	module.parseStatements(tokens);
+
+	CLModules[document.uri] = module;
+})
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.

@@ -1,5 +1,6 @@
 import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token, File, DataType } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, DocumentSymbol, DocumentSymbolParams, Location, Range , SymbolKind} from 'vscode-languageserver';
+import { CLModules } from '../data';
 import { documents } from '../instance';
 
 const typeMap = {
@@ -22,11 +23,7 @@ export default function documentSymbolProvider(params: DocumentSymbolParams): Do
 		return;
 	}
 
-	const content = document.getText();
-	const parser = new CLParser();
-	const tokens = parser.parseDocument(content);
-	const module = new Module();
-	module.parseStatements(tokens);
+	const module = CLModules[document.uri];
 
 	let symbols: DocumentSymbol[] = [];
 	const defs = module.getDefinitions();
