@@ -54,7 +54,7 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-
+5
 	// Start the client. This will also launch the server
 	client.start();
 
@@ -62,9 +62,11 @@ export function activate(context: ExtensionContext) {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
 			const handler = await getHandler();
 			
-			const definition = await handler.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
+			if (handler) {
+				const definition = await handler.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
 
-			return definition;
+				return definition;
+			}
 		});
 	})
 }

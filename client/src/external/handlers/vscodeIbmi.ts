@@ -1,7 +1,8 @@
-import { commands, Extension } from 'vscode';
+import * as util from "util";
+
 import Handler from './handler';
 
-import {XMLParser} from "fast-xml-parser";
+import * as xml2js from "xml2js";
 
 export default class vscodeIbmi extends Handler {
 	instance: any;
@@ -27,9 +28,13 @@ export default class vscodeIbmi extends Handler {
 	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<any> {
 		const canRun = await this.canRun();
 		if (canRun) {
-			const results = await this.genDefinition(objectName, library);
+			try {
+				const results = await this.genDefinition(objectName, library);
 
-			return results;
+				return results;
+			} catch (e) {
+				console.log(e);
+			}
 		}
 
 		return;
@@ -80,8 +85,7 @@ export default class vscodeIbmi extends Handler {
 
     const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
 
-		const xmlParser = new XMLParser();
-    const commandData = xmlParser.parse(xml);
+    const commandData = await xml2js.parseStringPromise(xml);
 
     return commandData;
   }
