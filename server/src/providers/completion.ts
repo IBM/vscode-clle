@@ -50,7 +50,7 @@ export default async function completionProvider(params: CompletionParams): Prom
 						const spec = await getCLspec(command.name, command.library);
 		
 						if (spec) {
-							const { parms, commandInfo } = getPrettyDocs(spec);
+							const { parms, commandInfo } = spec;
 
 							// Parms in the existing statement
 							const currentParms = statement.getParms();
@@ -85,7 +85,7 @@ export default async function completionProvider(params: CompletionParams): Prom
 									item.kind = CompletionItemKind.Interface;
 									item.insertTextFormat = InsertTextFormat.Snippet;
 									item.insertText = availableParms.map((parm: any, idx: number) => `${parm.keyword}(\${${idx+1}:})`).join(` `) + `\$0`;
-									item.detail = commandInfo.Prompt;
+									item.detail = commandInfo.prompt;
 									items.push(item);
 								}
 			
@@ -107,42 +107,4 @@ export default async function completionProvider(params: CompletionParams): Prom
   }
 
   return items;
-}
-
-/*
-This takes the ugly spec from the CL XML spec
-and makes it more usable
-TODO: standarise with Merlin teams on this
-*/
-function getPrettyDocs(docs: any) {
-	const commandInfo = docs.QcdCLCmd.Cmd[0][`$`];
-	const paramaters = docs.QcdCLCmd.Cmd[0].Parm;
-
-	const parms = paramaters.map((parm: any) => {
-		const info = parm[`$`];
-		const qual = parm.Qual;
-		const spcVal = parm.SpcVal;
-
-		let specialValues = [];
-
-		if (spcVal && spcVal.length > 0) {
-			const opts = spcVal[0].Value;
-
-			specialValues = opts.map((value: any) => value[`$`].Val);
-		}
-
-		return {
-			keyword: info.Kwd,
-			prompt: info.Prompt,
-			choice: info.Choice,
-			type: info.Type,
-			position: Number(info.PosNbr),
-			specialValues
-		}
-	});
-
-	return {
-		commandInfo,
-		parms
-	}
 }
