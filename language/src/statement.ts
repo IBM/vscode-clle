@@ -31,15 +31,13 @@ export default class Statement {
 
   getParms() {
     const noNewLines = this.tokens.filter(p => p.type !== `newline`);
-    const parms: {[name: string]: Token[]} = {};
+    const parms: {[name: string]: Token} = {};
 
     noNewLines.forEach((piece, i) => {
       if (piece.type === `parameter` && piece.value) {
         const parm = noNewLines[i+1];
         if (parm && parm.type === `block` && parm.block) {
-          parms[piece.value.toUpperCase()] = parm.block;
-        } else {
-          parms[piece.value.toUpperCase()] = [];
+          parms[piece.value.toUpperCase()] = parm;
         }
       }
     });

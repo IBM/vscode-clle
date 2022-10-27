@@ -9,11 +9,13 @@
 		"vscode": "^1.63.0"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^7.0.0"
+		"vscode-languageclient": "^7.0.0",
+		"xml2js": "^0.4.23"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.5",
 		"@types/vscode": "^1.63.0",
+		"@types/xml2js": "^0.4.11",
 		"@vscode/test-electron": "^2.1.2"
 	}
 }

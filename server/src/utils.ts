@@ -27,8 +27,8 @@ export function varDescription(def: Variable): string {
 
 		const parms = def.getParms();
 
-		if (parms['LEN']) {
-			const lenTokens = parms['LEN'];
+		if (parms['LEN'] && parms['LEN'].block) {
+			const lenTokens = parms['LEN'].block;
 			const parmVal = lenTokens
 				.map(token => token.value)
 				.join(`, `);

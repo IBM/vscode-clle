@@ -26,9 +26,10 @@ export default class Variable extends Statement {
   processType(): DataType {
     let possibleType: DataType = DataType.Unknown;
     const parms = this.getParms();
+    const typeParm = parms[`TYPE`];
 
-    if (parms[`TYPE`] && parms[`TYPE`].length === 1) {
-      const typeString = parms[`TYPE`][0].value;
+    if (typeParm && typeParm.block && typeParm.block.length === 1) {
+      const typeString = typeParm.block[0].value;
 
       if (typeString) possibleType = TypeValue[typeString.toUpperCase()];
       
@@ -47,9 +48,10 @@ export default class Variable extends Statement {
   processName() {
     let possibleToken: Token|undefined;
     const parms = this.getParms();
+    const varParm = parms[`VAR`];
 
-    if (parms[`VAR`] && parms[`VAR`].length === 1 && parms[`VAR`][0].type === `variable`) {
-      possibleToken = parms[`VAR`][0];
+    if (varParm && varParm.block &&  varParm.block.length === 1 && varParm.block[0].type === `variable`) {
+      possibleToken = varParm.block[0];
       
     } else {
       // Search all pieces for a special that is the type

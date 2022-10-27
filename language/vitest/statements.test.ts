@@ -772,9 +772,12 @@ test('test8', () => {
 
   const dcl_parms = dcl.getParms();
   expect(Object.keys(dcl_parms).length).toBe(3);
-  expect(dcl_parms[`VAR`].length).toBe(1);
-  expect(dcl_parms[`TYPE`].length).toBe(1);
-  expect(dcl_parms[`LEN`].length).toBe(1);
+  expect(dcl_parms[`VAR`].block).toBeDefined();
+  expect(dcl_parms[`VAR`].block?.length).toBe(1);
+  expect(dcl_parms[`TYPE`].block).toBeDefined();
+  expect(dcl_parms[`TYPE`].block?.length).toBe(1);
+  expect(dcl_parms[`LEN`].block).toBeDefined();
+  expect(dcl_parms[`LEN`].block?.length).toBe(1);
 
   expect(statements[2].tokens.length).toBe(1);
   expect(statements[2].tokens[0].type).toBe(`label`);
@@ -799,8 +802,9 @@ test('get parms on PGM', () => {
   const parms = pgmDef.getParms();
   const parm = parms[`PARM`];
   expect(parm).toBeDefined();
-  expect(parm.length).toBe(1);
-  expect(parm[0].value).toBe(`&CMD`);
+  expect(parm.block).toBeDefined();
+  expect(parm.block?.length).toBe(1);
+  expect(parm.block![0].value).toBe(`&CMD`);
 });
 
 test('test for many parms', () => {
@@ -821,16 +825,19 @@ test('test for many parms', () => {
   
   const parms = dclStatement.getParms();
   expect(parms[`VAR`]).toBeDefined();
-  expect(parms[`VAR`].length).toBe(1);
-  expect(parms[`VAR`][0].value).toBeDefined();
+  expect(parms[`VAR`].block).toBeDefined();
+  expect(parms[`VAR`].block?.length).toBe(1);
+  expect(parms[`VAR`].block![0].value).toBeDefined();
 
   expect(parms[`TYPE`]).toBeDefined();
-  expect(parms[`TYPE`].length).toBe(1);
-  expect(parms[`TYPE`][0].value).toBeDefined();
+  expect(parms[`TYPE`].block).toBeDefined();
+  expect(parms[`TYPE`].block?.length).toBe(1);
+  expect(parms[`TYPE`].block![0].value).toBeDefined();
 
   expect(parms[`LEN`]).toBeDefined();
-  expect(parms[`LEN`].length).toBe(1);
-  expect(parms[`LEN`][0].value).toBeDefined();
+  expect(parms[`LEN`].block).toBeDefined();
+  expect(parms[`LEN`].block?.length).toBe(1);
+  expect(parms[`LEN`].block![0].value).toBeDefined();
 });
 
 test('complex parms (ex_trace)', () => {
@@ -853,14 +860,16 @@ test('complex parms (ex_trace)', () => {
   expect(Object.keys(rtvobjdParms).length).toBe(3);
 
   expect(rtvobjdParms[`OBJ`]).toBeDefined();
-  expect(rtvobjdParms[`OBJ`].length).toBe(1);
-  expect(rtvobjdParms[`OBJ`][0].type).toBe(`word`);
-  expect(rtvobjdParms[`OBJ`][0].value).toBe(`JSONXML`);
+  expect(rtvobjdParms[`OBJ`].block).toBeDefined();
+  expect(rtvobjdParms[`OBJ`].block?.length).toBe(1);
+  expect(rtvobjdParms[`OBJ`].block![0].type).toBe(`word`);
+  expect(rtvobjdParms[`OBJ`].block![0].value).toBe(`JSONXML`);
 
   expect(rtvobjdParms[`OBJTYPE`]).toBeDefined();
-  expect(rtvobjdParms[`OBJTYPE`].length).toBe(1);
-  expect(rtvobjdParms[`OBJTYPE`][0].type).toBe(`special`);
-  expect(rtvobjdParms[`OBJTYPE`][0].value).toBe(`*SRVPGM`);
+  expect(rtvobjdParms[`OBJTYPE`].block).toBeDefined();
+  expect(rtvobjdParms[`OBJTYPE`].block?.length).toBe(1);
+  expect(rtvobjdParms[`OBJTYPE`].block![0].type).toBe(`special`);
+  expect(rtvobjdParms[`OBJTYPE`].block![0].value).toBe(`*SRVPGM`);
 
   const crtdtaara = module.statements[12];
   expect(rtvobjd.type).toBe(DefinitionType.Statement);
@@ -873,27 +882,31 @@ test('complex parms (ex_trace)', () => {
   expect(Object.keys(crtdtaaraParms).length).toBe(4);
 
   expect(crtdtaaraParms[`DTAARA`]).toBeDefined();
-  expect(crtdtaaraParms[`DTAARA`].length).toBe(3);
-  expect(crtdtaaraParms[`DTAARA`][0].type).toBe(`variable`);
-  expect(crtdtaaraParms[`DTAARA`][0].value).toBe(`&LIB`);
-  expect(crtdtaaraParms[`DTAARA`][1].type).toBe(`forwardslash`);
-  expect(crtdtaaraParms[`DTAARA`][2].type).toBe(`word`);
-  expect(crtdtaaraParms[`DTAARA`][2].value).toBe(`SQLTRACE`);
+  expect(crtdtaaraParms[`DTAARA`].block).toBeDefined();
+  expect(crtdtaaraParms[`DTAARA`].block?.length).toBe(3);
+  expect(crtdtaaraParms[`DTAARA`].block![0].type).toBe(`variable`);
+  expect(crtdtaaraParms[`DTAARA`].block![0].value).toBe(`&LIB`);
+  expect(crtdtaaraParms[`DTAARA`].block![1].type).toBe(`forwardslash`);
+  expect(crtdtaaraParms[`DTAARA`].block![2].type).toBe(`word`);
+  expect(crtdtaaraParms[`DTAARA`].block![2].value).toBe(`SQLTRACE`);
 
   expect(crtdtaaraParms[`TYPE`]).toBeDefined();
-  expect(crtdtaaraParms[`TYPE`].length).toBe(1);
-  expect(crtdtaaraParms[`TYPE`][0].type).toBe(`special`);
-  expect(crtdtaaraParms[`TYPE`][0].value).toBe(`*LGL`);
+  expect(crtdtaaraParms[`TYPE`].block).toBeDefined();
+  expect(crtdtaaraParms[`TYPE`].block?.length).toBe(1);
+  expect(crtdtaaraParms[`TYPE`].block![0].type).toBe(`special`);
+  expect(crtdtaaraParms[`TYPE`].block![0].value).toBe(`*LGL`);
 
   expect(crtdtaaraParms[`VALUE`]).toBeDefined();
-  expect(crtdtaaraParms[`VALUE`].length).toBe(1);
-  expect(crtdtaaraParms[`VALUE`][0].type).toBe(`string`);
-  expect(crtdtaaraParms[`VALUE`][0].value).toBe(`'0'`);
+  expect(crtdtaaraParms[`VALUE`].block).toBeDefined();
+  expect(crtdtaaraParms[`VALUE`].block?.length).toBe(1);
+  expect(crtdtaaraParms[`VALUE`].block![0].type).toBe(`string`);
+  expect(crtdtaaraParms[`VALUE`].block![0].value).toBe(`'0'`);
 
   expect(crtdtaaraParms[`TEXT`]).toBeDefined();
-  expect(crtdtaaraParms[`TEXT`].length).toBe(1);
-  expect(crtdtaaraParms[`TEXT`][0].type).toBe(`string`);
-  expect(crtdtaaraParms[`TEXT`][0].value).toBe(`'SQL trace enabled'`);
+  expect(crtdtaaraParms[`TEXT`].block).toBeDefined();
+  expect(crtdtaaraParms[`TEXT`].block?.length).toBe(1);
+  expect(crtdtaaraParms[`TEXT`].block![0].type).toBe(`string`);
+  expect(crtdtaaraParms[`TEXT`].block![0].value).toBe(`'SQL trace enabled'`);
 
   const rtvjoba = module.statements[15];
   expect(rtvjoba.type).toBe(DefinitionType.Statement);

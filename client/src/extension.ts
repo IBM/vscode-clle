@@ -13,6 +13,8 @@ import {
 	TransportKind
 } from 'vscode-languageclient/node';
 
+import {getHandler} from "./external";
+
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
@@ -52,9 +54,21 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-
+5
 	// Start the client. This will also launch the server
 	client.start();
+
+	client.onReady().then(() => {
+		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
+			const handler = await getHandler();
+			
+			if (handler) {
+				const definition = await handler.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
+
+				return definition;
+			}
+		});
+	})
 }
 
 export function deactivate(): Thenable<void> | undefined {

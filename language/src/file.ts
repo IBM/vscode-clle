@@ -12,9 +12,10 @@ export default class File extends Statement {
 
   processFile(): QualifiedObject|undefined {
     const parms = this.getParms();
+    const fileParm = parms[`FILE`];
 
-    if (parms[`FILE`]) {
-      const blockTokens = parms[`FILE`];
+    if (fileParm && fileParm.block) {
+      const blockTokens = fileParm.block;
 
       if (blockTokens.length === 3 && blockTokens[1].type === `forwardslash` && blockTokens[0].value && blockTokens[2].value) {
         return {
@@ -33,9 +34,10 @@ export default class File extends Statement {
 
   getOpenID(): string|undefined {
     const parms = this.getParms();
+    const opnId = parms[`OPNID`];
 
-    if (parms[`OPNID`]) {
-      const blockTokens = parms[`OPNID`];
+    if (opnId && opnId.block) {
+      const blockTokens = opnId.block;
       if (blockTokens.length === 1 &&  blockTokens[0].type === `word` && blockTokens[0].value) {
         return blockTokens[0].value;
       }

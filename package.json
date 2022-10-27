@@ -20,7 +20,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"build": "cd language && tsc -b && cd .. && npm run compile",
+		"build": "cd language && tsc -b && cd .. && cd server && npm i && cd .. && npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
