@@ -42,7 +42,8 @@ export default async function completionProvider(params: CompletionParams): Prom
 					return item;
 				}));
 
-				const statement = module. getStatementByOffset(document.offsetAt(position));
+				const offset = document.offsetAt(position);
+				const statement = module.getStatementByOffset(offset);
 				if (statement) {
 					const command = statement.getObject();
 					if (command) {
@@ -50,32 +51,55 @@ export default async function completionProvider(params: CompletionParams): Prom
 		
 						if (spec) {
 							const { parms, commandInfo } = getPrettyDocs(spec);
-							// TODO: what about special values inside a parm?
-							// TODO: check if inside parm in the statement
-		
-							// We don't want to show parms that the user is already using
-							const existingParms: string[] = Object.keys(statement.getParms());
-							const availableParms: any[] = parms.filter((parm: any) => !existingParms.includes(parm.keyword));
-		
-							if (availableParms.length > 0) {
-								const item = CompletionItem.create(`All parameters`);
-								item.kind = CompletionItemKind.Interface;
-								item.insertTextFormat = InsertTextFormat.Snippet;
-								item.insertText = availableParms.map((parm: any, idx: number) => `${parm.keyword}(\${${idx+1}:})`).join(` `) + `\$0`;
-								item.detail = commandInfo.Prompt;
-								items.push(item);
-							}
-		
-							items.push(
-								...availableParms.map(parm => {
-									const item = CompletionItem.create(parm.keyword);
-									item.kind = CompletionItemKind.TypeParameter;
+
+							// Parms in the existing statement
+							const currentParms = statement.getParms();
+
+							// Parms where cursor is
+							const currentParm = Object.keys(currentParms).find(parmKey => {
+								const block = currentParms[parmKey];
+								return (offset >= block.range.start && offset <= block.range.end);
+							})
+
+							// If we are inside a parameter, show the special values
+							if (currentParm) {
+								const singleParm = parms.find((parm: any) => parm.keyword === currentParm);
+								if (singleParm) {
+									const specialValues: string[] = singleParm.specialValues;
+									items.push(
+										...specialValues.map(specialValue => {
+											const item = CompletionItem.create(specialValue);
+											item.kind = CompletionItemKind.Property;
+											return item;
+										})
+									);
+								}
+
+							} else {
+								// We don't want to show parms that the user is already using
+								const existingParms: string[] = Object.keys(statement.getParms());
+								const availableParms: any[] = parms.filter((parm: any) => !existingParms.includes(parm.keyword));
+			
+								if (availableParms.length > 0) {
+									const item = CompletionItem.create(`All parameters`);
+									item.kind = CompletionItemKind.Interface;
 									item.insertTextFormat = InsertTextFormat.Snippet;
-									item.insertText = `${parm.keyword}(\${1:})\$0`;
-									item.detail = parm.prompt + ` ${parm.type ? `(${parm.choice || parm.type})` : ``}`.trimEnd();
-									return item;
-								})
-							);
+									item.insertText = availableParms.map((parm: any, idx: number) => `${parm.keyword}(\${${idx+1}:})`).join(` `) + `\$0`;
+									item.detail = commandInfo.Prompt;
+									items.push(item);
+								}
+			
+								items.push(
+									...availableParms.map(parm => {
+										const item = CompletionItem.create(parm.keyword);
+										item.kind = CompletionItemKind.TypeParameter;
+										item.insertTextFormat = InsertTextFormat.Snippet;
+										item.insertText = `${parm.keyword}(\${1:})\$0`;
+										item.detail = parm.prompt + ` ${parm.type ? `(${parm.choice || parm.type})` : ``}`.trimEnd();
+										return item;
+									})
+								);
+							}
 						}
 					}
 				}

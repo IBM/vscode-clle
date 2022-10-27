@@ -120,8 +120,9 @@ test('getting different definitions by name', () => {
     const cmdParms = cmd.getParms();
     const lengthParm = cmdParms[`LEN`];
     expect(lengthParm).toBeDefined();
-    expect(lengthParm.length).toBe(1);
-    expect(lengthParm[0].value).toBe(`128`);
+    expect(lengthParm.block).toBeDefined();
+    expect(lengthParm.block?.length).toBe(1);
+    expect(lengthParm.block![0].value).toBe(`128`);
   }
 
   const text = module.getDefinition<Variable>(`&TEXT`);
@@ -135,8 +136,9 @@ test('getting different definitions by name', () => {
     const cmdParms = text.getParms();
     const lengthParm = cmdParms[`LEN`];
     expect(lengthParm).toBeDefined();
-    expect(lengthParm.length).toBe(1);
-    expect(lengthParm[0].value).toBe(`256`);
+    expect(lengthParm.block).toBeDefined();
+    expect(lengthParm.block?.length).toBe(1);
+    expect(lengthParm.block![0].value).toBe(`256`);
   }
 });
 
