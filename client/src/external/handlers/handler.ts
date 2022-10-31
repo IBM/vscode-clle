@@ -12,7 +12,11 @@ export default class Handler {
 	}
 
 	// Is run when prompted on a CL command
-	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<any> {
+	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<string> {
+		return;
+	}
+	
+	async getFileDefinition(objectName: string, library = `*LIBL`): Promise<any> {
 		return;
 	}
 }

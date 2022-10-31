@@ -64,6 +64,16 @@ export function activate(context: ExtensionContext) {
 				return definition;
 			}
 		});
+
+		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
+			const handler = await getHandler();
+			
+			if (handler) {
+				const definition = await handler.getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
+
+				return definition;
+			}
+		});
 	})
 }
 
