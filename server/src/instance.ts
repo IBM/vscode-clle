@@ -7,7 +7,7 @@ import {
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import { ColumnDescription } from './data';
+import { Files } from './spec';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -20,6 +20,6 @@ export function getCLDefinition(object: string, library?: string): Promise<any|u
 	return connection.sendRequest("getCLDefinition", [object, library]);
 }
 
-export function getFileDefinition(object: string, library?: string): Promise<ColumnDescription[]|undefined> {
+export function getFileDefinition(object: string, library?: string): Promise<Files.ColumnDescription[]|undefined> {
 	return connection.sendRequest("getFileDefinition", [object, library]);
 }

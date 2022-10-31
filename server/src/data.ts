@@ -1,11 +1,11 @@
 import { Module } from 'language';
 import { getCLDefinition, getFileDefinition } from './instance';
-import { CommandDoc, getPrettyDocs } from './spec';
+import { Files, CommandDoc, getPrettyDocs } from './spec';
 
 export const CLModules: {[uri: string]: Module} = {}
 
-export const CLCommands: {[qualifiedObject: string]: any} = {};
-export const FileDefinitions: {[qualifiedObject: string]: ColumnDescription[]} = {};
+export const CLCommands: {[qualifiedObject: string]: CommandDoc|undefined} = {};
+export const FileDefinitions: {[qualifiedObject: string]: Files.ColumnDefinition[]|undefined} = {};
 
 export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc|undefined> {
 	const validObject = object.toUpperCase();
@@ -21,7 +21,15 @@ export async function getCLspec(object: string, library = '*LIBL'): Promise<Comm
 	return CLCommands[qualifiedPath];
 }
 
-export async function getFileSpec(object: string, library = '*LIBL'): Promise<ColumnDescription[]|undefined> {
+export function getFileSpecCache(object: string, library = '*LIBL'): Files.ColumnDefinition[]|undefined {
+	const validObject = object.toUpperCase();
+	const validLibrary = (library || `*LIBL`).toUpperCase();
+	const qualifiedPath = `${validObject}/${validLibrary}`;
+
+	return FileDefinitions[qualifiedPath];
+}
+
+export async function getFileSpec(object: string, library = '*LIBL'): Promise<Files.ColumnDefinition[]|undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
@@ -30,33 +38,7 @@ export async function getFileSpec(object: string, library = '*LIBL'): Promise<Co
 	if (FileDefinitions[qualifiedPath]) return FileDefinitions[qualifiedPath];
 
 	const spec = await getFileDefinition(validObject, validLibrary);
-	if (spec) FileDefinitions[qualifiedPath] = spec;
+	FileDefinitions[qualifiedPath] = (spec ? Files.getTypes(spec) : undefined);
 
 	return FileDefinitions[qualifiedPath];
-}
-
-/**
- * DSPFFD outfile row
- */
- export interface ColumnDescription {
-	/** from object */
-	WHFILE: string;
-	/** from library */
-	WHLIB: string;
-	/** format name */
-	WHNAME: string;
-	/** system name */
-	WHFLDE: string;
-	/** string length */
-	WHFLDB: number;
-	/** digits */
-	WHFLDD: number;
-	/** decimals */
-	WHFLDP: number;
-	/** text */
-	WHFTXT: string;
-	/** data type */
-	WHFLDT: string;
-	/** alias name */
-	WHALIS: string;
 }

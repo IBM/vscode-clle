@@ -1,3 +1,4 @@
+import { DataType, DefinitionType } from 'language';
 
 export interface CommandDoc {
 	commandInfo: CommandInfo;
@@ -59,5 +60,76 @@ export function getPrettyDocs(docs: any): CommandDoc {
 	return {
 		commandInfo,
 		parms
+	}
+}
+
+export namespace Files {
+
+	/**
+	 * DSPFFD outfile row
+	 */
+	export interface ColumnDescription {
+		/** from object */
+		WHFILE: string;
+		/** from library */
+		WHLIB: string;
+		/** format name */
+		WHNAME: string;
+		/** system name */
+		WHFLDE: string;
+		/** string length */
+		WHFLDB: number;
+		/** digits */
+		WHFLDD: number;
+		/** decimals */
+		WHFLDP: number;
+		/** text */
+		WHFTXT: string;
+		/** data type */
+		WHFLDT: string;
+		/** alias name */
+		WHALIS: string;
+	}
+
+	interface typeMap {
+		[type: string]: DataType;
+	}
+
+	const mappedTypes: typeMap = {
+		'A': DataType.Character,
+		'I': DataType.Integer,
+		'N': DataType.Logical,
+		'P': DataType.Packed,
+		'S': DataType.Packed, // Is zoned in the database
+		'U': DataType.UInteger,
+	};
+	const supportedTypes = Object.keys(mappedTypes);
+
+	export interface ColumnDefinition {
+		name: string;
+		dataType: DataType;
+		length?: number;
+		decimals?: number;
+	};
+
+	export function getTypes(columns: ColumnDescription[]): ColumnDefinition[] {
+		return columns
+			.filter(column => supportedTypes.includes(column.WHFLDT))
+			.map(column => {
+				const definition: ColumnDefinition = {
+					name: column.WHFLDE,
+					dataType: mappedTypes[column.WHFLDT] || DataType.Unknown
+				};
+
+				if ([DataType.Character, DataType.Logical].includes(definition.dataType)) {
+					definition.length = column.WHFLDB;
+				} else {
+					definition.length = column.WHFLDD;
+					if (column.WHFLDP > 0)
+						definition.decimals = column.WHFLDP;
+				}
+
+				return definition;
+			});
 	}
 }

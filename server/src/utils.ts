@@ -1,4 +1,5 @@
 import { DataType, DefinitionType, File, Statement, Variable } from 'language';
+import {Files} from "./spec";
 
 const typeMap = {
 	[DataType.Character]: 'Character',
@@ -46,4 +47,21 @@ export function fileDescription(def: File): string {
 		def.file ? [def.file.library, def.file.name].filter(v => v).join(`/`) : undefined,
 		openId ? `OPNID(${openId})` : undefined
 	].filter(v => v).join(` `)
+}
+
+export function columnDescription(column: Files.ColumnDefinition): string {
+	const varDesc = [];
+
+	if (typeMap[column.dataType]) {
+		varDesc.push(typeMap[column.dataType]);
+
+		if (column.length) {
+			const parmVal = [column.length, column.decimals]
+				.filter(v => v)
+				.join(`, `);
+			varDesc.push(`(${parmVal})`);
+		}
+	}
+
+	return varDesc.filter(v => v).join(' ');
 }
