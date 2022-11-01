@@ -82,9 +82,8 @@ export default async function completionProvider(params: CompletionParams): Prom
 									}));
 								}
 							}
-						})
+						});
 						
-
 						const singleParm = parms.find((parm: any) => parm.keyword === currentParm);
 						if (singleParm) {
 							const specialValues: string[] = singleParm.specialValues;

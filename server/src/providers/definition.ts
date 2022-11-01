@@ -1,6 +1,6 @@
-import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token } from 'language';
+import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token, File } from 'language';
 import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, Location, Range } from 'vscode-languageserver';
-import { CLModules } from '../data';
+import { CLModules, getFileSpecCache } from '../data';
 import { documents } from '../instance';
 
 export default function definitionProvider(params: DefinitionParams): Location|undefined {
@@ -41,6 +41,26 @@ export default function definitionProvider(params: DefinitionParams): Location|u
 				)
 			)
 		}
-		
+	} else {
+		const upperName = token.value!.toUpperCase();
+
+		// Perhaps it's variable from a file?
+		const files = module.getDefinitionsOfType<File>(DefinitionType.File);
+		const foundFile = files.find(def => {
+			if (def.file) {
+				const variables = getFileSpecCache(def.file.name, def.file.library, def.getOpenID());
+				return variables?.some(column => column.name === upperName);
+			}
+		});
+
+		if (foundFile) {
+			return Location.create(
+				uri,
+				Range.create(
+					document.positionAt(foundFile.range.start),
+					document.positionAt(foundFile.range.end)
+				)
+			)
+		}
 	}
 }

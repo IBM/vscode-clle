@@ -10,7 +10,7 @@ export default class File extends Statement {
     this.file = this.processFile();
   }
 
-  processFile(): QualifiedObject|undefined {
+  private processFile(): QualifiedObject|undefined {
     const parms = this.getParms();
     const fileParm = parms[`FILE`];
 
