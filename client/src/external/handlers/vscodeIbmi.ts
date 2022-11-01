@@ -3,6 +3,7 @@ import * as util from "util";
 import Handler from './handler';
 
 import * as xml2js from "xml2js";
+import { commands } from 'vscode';
 
 export default class vscodeIbmi extends Handler {
 	instance: any;
@@ -25,8 +26,45 @@ export default class vscodeIbmi extends Handler {
 		return false;
 	}
 
+	/**
+	 * Returns DSPFFD outfile rows
+	 */
+	async getFileDefinition(objectName: string, library?: string): Promise<any> {
+		if (this.hasConnection()) {
+			const validLibrary = library || `*LIBL`;
+			const instance = this.instance;
+			
+			const content = instance.getContent();
+	
+			/** @type {Configuration} */
+			const config = instance.getConfig();
+
+			const dateStr = Date.now().toString().substr(-6);
+			const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
+			const fullPath = `${config.tempLibrary}/${randomFile}`;
+
+			const outfileRes: any = await commands.executeCommand(`code-for-ibmi.runCommand`, {
+				environment: `ile`,
+				command: `DSPFFD FILE(${validLibrary}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`
+			});
+
+			console.log(outfileRes);
+			const resultCode = outfileRes.code || 0;
+
+			if (resultCode === 0) {
+				const data: object[] = await content.getTable(config.tempLibrary, randomFile);
+
+				console.log(`Temp OUTFILE read. ${data.length} rows.`);
+
+				return data;
+			}
+		}
+
+		return;
+	}
+
 	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<any> {
-		const canRun = await this.canRun();
+		const canRun = await this.canGetCL();
 		if (canRun) {
 			try {
 				const results = await this.genDefinition(objectName, library);
@@ -40,7 +78,7 @@ export default class vscodeIbmi extends Handler {
 		return;
 	}
 
-	private async canRun(): Promise<boolean> {
+	private async canGetCL(): Promise<boolean> {
 		if (this.hasConnection()) {
 			const installed = await this.checkProgramInstalled();
 			return installed;
@@ -57,7 +95,7 @@ export default class vscodeIbmi extends Handler {
 	private async checkProgramInstalled(): Promise<boolean> {
 		if (this.installed) return true;
 		if (this.instance) {
-			// TODO...
+			// TODO: check it is installed
 			this.installed = true;
 		}
 

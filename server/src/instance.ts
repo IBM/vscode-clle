@@ -7,6 +7,7 @@ import {
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
+import { Files } from './spec';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -17,4 +18,8 @@ export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocu
 
 export function getCLDefinition(object: string, library?: string): Promise<any|undefined> {
 	return connection.sendRequest("getCLDefinition", [object, library]);
+}
+
+export function getFileDefinition(object: string, library?: string): Promise<Files.ColumnDescription[]|undefined> {
+	return connection.sendRequest("getFileDefinition", [object, library]);
 }
