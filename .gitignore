@@ -3,3 +3,4 @@ out
 dist
 .whitesource
 .DS_Store
+*.vsix
