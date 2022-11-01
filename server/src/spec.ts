@@ -112,12 +112,12 @@ export namespace Files {
 		decimals?: number;
 	};
 
-	export function getTypes(columns: ColumnDescription[]): ColumnDefinition[] {
+	export function getVariables(columns: ColumnDescription[], openId?: string): ColumnDefinition[] {
 		return columns
 			.filter(column => supportedTypes.includes(column.WHFLDT))
 			.map(column => {
 				const definition: ColumnDefinition = {
-					name: column.WHFLDE,
+					name: `&` + (openId ? `${openId}_${column.WHFLDE}` : column.WHFLDE),
 					dataType: mappedTypes[column.WHFLDT] || DataType.Unknown
 				};
 

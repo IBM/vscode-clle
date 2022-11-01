@@ -5,7 +5,7 @@ import { Files, CommandDoc, getPrettyDocs } from './spec';
 export const CLModules: {[uri: string]: Module} = {}
 
 export const CLCommands: {[qualifiedObject: string]: CommandDoc|undefined} = {};
-export const FileDefinitions: {[qualifiedObject: string]: Files.ColumnDefinition[]|undefined} = {};
+export const FileDefinitions: {[qualifiedObject: string]: Files.ColumnDescription[]|undefined} = {};
 
 export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc|undefined> {
 	const validObject = object.toUpperCase();
@@ -21,24 +21,27 @@ export async function getCLspec(object: string, library = '*LIBL'): Promise<Comm
 	return CLCommands[qualifiedPath];
 }
 
-export function getFileSpecCache(object: string, library = '*LIBL'): Files.ColumnDefinition[]|undefined {
+export function getFileSpecCache(object: string, library = '*LIBL', openId?: string): Files.ColumnDefinition[]|undefined {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
 
-	return FileDefinitions[qualifiedPath];
+	const spec = FileDefinitions[qualifiedPath];
+	return (spec ? Files.getVariables(spec, openId) : undefined);
 }
 
-export async function getFileSpec(object: string, library = '*LIBL'): Promise<Files.ColumnDefinition[]|undefined> {
+export async function getFileSpec(object: string, library = '*LIBL', openId?: string): Promise<Files.ColumnDefinition[]|undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
 
 	// Return from cache if it exists
-	if (FileDefinitions[qualifiedPath]) return FileDefinitions[qualifiedPath];
+	if (FileDefinitions[qualifiedPath]) {
+		return Files.getVariables(FileDefinitions[qualifiedPath] || [], openId);
+	}
 
 	const spec = await getFileDefinition(validObject, validLibrary);
-	FileDefinitions[qualifiedPath] = (spec ? Files.getTypes(spec) : undefined);
+	FileDefinitions[qualifiedPath] = spec;
 
-	return FileDefinitions[qualifiedPath];
+	return (spec ? Files.getVariables(spec, openId) : undefined);
 }

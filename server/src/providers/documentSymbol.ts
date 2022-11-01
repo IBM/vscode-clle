@@ -58,11 +58,11 @@ export default async function documentSymbolProvider(params: DocumentSymbolParam
 			kind = SymbolKind.File;
 			description = buildDescription(def);
 
-			const columns = getFileSpecCache(def.file.name, def.file.library);
-			if (columns) {
-				children = columns.map(column => 
+			const variables = getFileSpecCache(def.file.name, def.file.library, def.getOpenID());
+			if (variables) {
+				children = variables.map(column => 
 					DocumentSymbol.create(
-						`&${column.name}`,
+						column.name,
 						columnDescription(column),
 						SymbolKind.Property,
 						statementRange,
