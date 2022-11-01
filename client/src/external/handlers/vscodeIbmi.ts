@@ -5,9 +5,15 @@ import Handler from './handler';
 import * as xml2js from "xml2js";
 import { commands } from 'vscode';
 
+enum Status {
+	NotChecked,
+	Installed,
+	NotInstalled
+};
+
 export default class vscodeIbmi extends Handler {
 	instance: any;
-	installed: boolean = false;
+	installed: Status = Status.NotChecked;
 
 	constructor(extensionId: string) {
 		super(extensionId);
@@ -79,7 +85,7 @@ export default class vscodeIbmi extends Handler {
 	}
 
 	private async canGetCL(): Promise<boolean> {
-		if (this.hasConnection()) {
+		if (this.hasConnection() && this.installed !== Status.NotInstalled) {
 			const installed = await this.checkProgramInstalled();
 			return installed;
 		}
@@ -93,10 +99,20 @@ export default class vscodeIbmi extends Handler {
 	}
 
 	private async checkProgramInstalled(): Promise<boolean> {
-		if (this.installed) return true;
+		if (this.installed === Status.Installed) return true;
 		if (this.instance) {
-			// TODO: check it is installed
-			this.installed = true;
+			const connection = this.instance.getConnection();
+			const config = this.instance.getConfig();
+			const tempLib = config.tempLibrary;
+
+			try {
+				await connection.remoteCommand(`CHKOBJ OBJ(${tempLib}/GENCMDXML) OBJTYPE(*PGM)`);
+				this.installed = Status.Installed;
+				return true;
+			} catch (e) {
+				// Throws an error if CHKOBJ fails. Usually means no authority or doesn't exist
+				this.installed = Status.NotInstalled;
+			}
 		}
 
 		return false;
