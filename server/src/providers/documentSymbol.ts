@@ -64,12 +64,11 @@ export default async function documentSymbolProvider(params: DocumentSymbolParam
 					DocumentSymbol.create(
 						column.name,
 						columnDescription(column),
-						SymbolKind.Property,
+						SymbolKind.Field,
 						statementRange,
 						statementRange
 					)
 				);
-
 			}
 		}
 
