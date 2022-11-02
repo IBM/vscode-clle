@@ -1,13 +1,16 @@
 {
 	"name": "vscode-clle",
-	"description": "CLLE language tool",
+	"displayName": "CL",
+	"description": "CLLE language tools",
 	"author": "IBM",
 	"license": "MIT",
 	"version": "1.0.0",
 	"publisher": "IBM",
-	"categories": [],
+	"categories": ["Programming Languages"],
+	"icon": "media/logo.png",
 	"keywords": [
-		"multi-root ready"
+		"multi-root ready",
+		"ibmi", "as400", "iseries"
 	],
 	"engines": {
 		"vscode": "^1.63.0"
