@@ -98,7 +98,7 @@ export default async function completionProvider(params: CompletionParams): Prom
 
 					} else {
 						// We don't want to show parms that the user is already using
-						const existingParms: string[] = Object.keys(statement.getParms());
+						const existingParms: string[] = Object.keys(currentParms);
 						const availableParms: any[] = parms.filter((parm: any) => !existingParms.includes(parm.keyword));
 
 						if (availableParms.length > 0) {
