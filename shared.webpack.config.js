@@ -5,6 +5,7 @@
 
 const path = require(`path`);
 const merge = require(`merge-options`);
+const webpack = require('webpack');
 
 module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
 
@@ -47,7 +48,12 @@ module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
       libraryTarget: `commonjs`,
     },
     // yes, really source maps
-    devtool: `source-map`
+    devtool: `source-map`,
+    plugins: [
+      new webpack.BannerPlugin({
+        banner: `Licensed Materials - Property of IBM. (c) Copyright IBM Corp. 2022`
+      })
+    ]
   };
 
   return merge(defaultConfig, extConfig);
