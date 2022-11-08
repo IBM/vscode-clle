@@ -1,4 +1,4 @@
-// From MIT repo.
+// From MIT repo: https://github.com/sitemule/noxDB
 
 export default [
   `/* ------------------------------------------------------------- */`,
