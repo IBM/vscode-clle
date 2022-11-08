@@ -3,7 +3,6 @@
 	"displayName": "CL",
 	"description": "CLLE language tools",
 	"author": "IBM",
-	"license": "MIT",
 	"version": "1.0.0",
 	"publisher": "IBM",
 	"categories": ["Programming Languages"],
@@ -31,7 +30,7 @@
 
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
 		"postinstall": "cd client && npm install && cd ../language && npm i && npm run build && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh",
+		"test": "npm run lang:test",
 
 		"clean": "rimraf out && rimraf language/out && rimraf client/out && rimraf server/out",
 		"webpack": "npm run clean && webpack --mode production --config ./client/webpack.config.js && webpack --mode production --config ./server/webpack.config.js",

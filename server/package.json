@@ -3,7 +3,6 @@
 	"description": "CLLE language server",
 	"version": "1.0.0",
 	"author": "IBM",
-	"license": "MIT",
 	"engines": {
 		"node": "*"
 	},

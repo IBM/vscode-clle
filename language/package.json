@@ -12,6 +12,5 @@
   "description": "Language server for the ILE CL language in IBM i",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "author": "IBM",
-  "license": "MIT"
+  "author": "IBM"
 }
