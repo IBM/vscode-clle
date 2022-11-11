@@ -6,7 +6,7 @@
 	"version": "0.0.1",
 	"publisher": "vscode",
 	"engines": {
-		"vscode": "^1.63.0"
+		"vscode": "^1.50.0"
 	},
 	"dependencies": {
 		"vscode-languageclient": "^7.0.0",
@@ -14,7 +14,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.5",
-		"@types/vscode": "^1.63.0",
+		"@types/vscode": "^1.50.0",
 		"@types/xml2js": "^0.4.11",
 		"@vscode/test-electron": "^2.1.2"
 	}
