@@ -31,59 +31,58 @@ export default async function completionProvider(params: CompletionParams): Prom
 			if (command) {
 				const spec = await getCLspec(command.name, command.library);
 
-				if (spec) {
-					const { parms, commandInfo } = spec;
+				// Parms in the existing statement
+				const currentParms = statement.getParms();
 
-					// Parms in the existing statement
-					const currentParms = statement.getParms();
+				// Parms where cursor is
+				const currentParm = Object.keys(currentParms).find(parmKey => {
+					const block = currentParms[parmKey];
+					return (offset >= block.range.start && offset <= block.range.end);
+				})
 
-					// Parms where cursor is
-					const currentParm = Object.keys(currentParms).find(parmKey => {
-						const block = currentParms[parmKey];
-						return (offset >= block.range.start && offset <= block.range.end);
-					})
-
-					// If we are inside a parameter, show the special values
-					if (currentParm) {
-						const localVariables = module.getDefinitionsOfType<Variable>(DefinitionType.Variable);
-						items.push(...localVariables
-							.filter(variable => variable.name !== undefined)
-							.map(variable => {
-								const token = variable.name || {value: ``};
-								// Take the & away if there is one.
-								let name = token.value || ``;
-								if (name.startsWith(triggerCharacter)) {
-									name = name.substring(triggerCharacter.length);
-								}
-				
-								const item = CompletionItem.create(name);
-								item.kind = CompletionItemKind.Variable;
-								item.detail = buildDescription(variable);
-								return item;
-							}));
-
-						const files = module.getDefinitionsOfType<File>(DefinitionType.File);
-						files.forEach(def => {
-							if (def.file) {
-								const qualifiedObject = def.file;
-
-								const fileItem = CompletionItem.create(qualifiedObject.name);
-								fileItem.kind = CompletionItemKind.File;
-								fileItem.detail = buildDescription(def);
-								items.push(fileItem);
-					
-								const columns = getFileSpecCache(def.file.name, def.file.library, def.getOpenID());
-								if (columns) {
-									items.push(...columns.map(column => {
-										const subItem = CompletionItem.create(column.name);
-										subItem.kind = CompletionItemKind.Field;
-										subItem.detail = columnDescription(column);
-										return subItem;
-									}));
-								}
+				// If we are inside a parameter, show the special values
+				if (currentParm) {
+					const localVariables = module.getDefinitionsOfType<Variable>(DefinitionType.Variable);
+					items.push(...localVariables
+						.filter(variable => variable.name !== undefined)
+						.map(variable => {
+							const token = variable.name || { value: `` };
+							// Take the & away if there is one.
+							let name = token.value || ``;
+							if (name.startsWith(triggerCharacter)) {
+								name = name.substring(triggerCharacter.length);
 							}
-						});
-						
+
+							const item = CompletionItem.create(name);
+							item.kind = CompletionItemKind.Variable;
+							item.detail = buildDescription(variable);
+							return item;
+						}));
+
+					const files = module.getDefinitionsOfType<File>(DefinitionType.File);
+					files.forEach(def => {
+						if (def.file) {
+							const qualifiedObject = def.file;
+
+							const fileItem = CompletionItem.create(qualifiedObject.name);
+							fileItem.kind = CompletionItemKind.File;
+							fileItem.detail = buildDescription(def);
+							items.push(fileItem);
+
+							const columns = getFileSpecCache(def.file.name, def.file.library, def.getOpenID());
+							if (columns) {
+								items.push(...columns.map(column => {
+									const subItem = CompletionItem.create(column.name);
+									subItem.kind = CompletionItemKind.Field;
+									subItem.detail = columnDescription(column);
+									return subItem;
+								}));
+							}
+						}
+					});
+
+					if (spec) {
+						const { parms, commandInfo } = spec;
 						const singleParm = parms.find((parm: any) => parm.keyword === currentParm);
 						if (singleParm) {
 							const specialValues: string[] = singleParm.specialValues;
@@ -95,8 +94,12 @@ export default async function completionProvider(params: CompletionParams): Prom
 								})
 							);
 						}
+					}
 
-					} else {
+				} else {
+
+					if (spec) {
+						const { parms, commandInfo } = spec;
 						// We don't want to show parms that the user is already using
 						const existingParms: string[] = Object.keys(currentParms);
 						const availableParms: any[] = parms.filter((parm: any) => !existingParms.includes(parm.keyword));
