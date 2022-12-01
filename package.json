@@ -8,6 +8,9 @@
 	"categories": [
 		"Programming Languages"
 	],
+	"repository": {
+		"url": "https://github.com/IBM/vscode-clle"
+	},
 	"icon": "media/logo.png",
 	"keywords": [
 		"multi-root ready",
