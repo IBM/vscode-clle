@@ -1,6 +1,8 @@
 
 # CLLE language server
 
+<img src="./media/logo.png" align="right" height="200px">
+
 This extension adds language features for CL into the IDE, including:
 
 * Outline view
