@@ -1,4 +1,4 @@
-import { CLParser, DefinitionType, Module, Token, Variable } from 'language';
+import { CLParser, DefinitionType, Module, Statement, Subroutine, Token, Variable } from 'language';
 import { Location, ParameterStructures, PrepareRenameParams, Range, ReferenceParams, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver';
 import { CLModules } from '../data';
 import { documents } from '../instance';
@@ -19,11 +19,10 @@ export function referencesProvider(params: ReferenceParams): Location[]|undefine
 		return;
 	}
 
-	// TODO: support subroutines
-	if (token && token.value && token.type === `variable`) {
-		const variable = module.getDefinition<Variable>(token.value);
-		if (variable){
-			const refs = module.getReferences(variable);
+	if (token && token.value) {
+		const def = module.getDefinition<Variable|Subroutine>(token.value!);
+		if (def) {
+			const refs = module.getReferences(def);
 			return refs.map(ref =>
 				Location.create(
 					document.uri,
