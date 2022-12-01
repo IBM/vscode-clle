@@ -59,8 +59,6 @@ test('decimal type test', () => {
   const cuidDef = module.getDefinition<Variable>(`&cuid`);
   expect(cuidDef).toBeDefined();
 
-	console.log(cuidDef);
-
   if (cuidDef) {
     expect(cuidDef.type).toBe(DefinitionType.Variable );
     expect(cuidDef?.name?.value).toBe(`&CUID`);
