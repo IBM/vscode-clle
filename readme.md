@@ -16,7 +16,7 @@ This extension adds language features for CL into the IDE, including:
 ### Developing and debugging
 
 1. clone
-2. `npm run postinstall`
+2. `npm i`
 3. 'Launch Client' through VS Code
 4. After the extension is activated, use 'Attach to Server'
 
