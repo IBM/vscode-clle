@@ -54,3 +54,31 @@ test('getting specific subroutine', () => {
     )).toBe(`SUBR       SUBR(FROMFILE)`);
   }
 })
+
+test('getting specific subroutine references', () => {
+  const lines = zsavfcl;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  const FROMFILE = module.getDefinition<Subroutine>(`fromfile`);
+  expect(FROMFILE).toBeDefined();
+
+  if (FROMFILE) {
+    const references = module.getReferences(FROMFILE);
+    expect(references.length).toBe(2);
+
+    expect(references[0]).toMatchObject({
+      start: 542,
+      end: 550
+    });
+
+    expect(references[1]).toMatchObject({
+      start: 1019,
+      end: 1027
+    });
+  }
+})

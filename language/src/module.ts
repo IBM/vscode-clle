@@ -115,34 +115,36 @@ export default class Module {
     }) as T;
   }
 
-  getReferences(variable: Variable): IRange[] {
-    const name = variable.name?.value?.toUpperCase();
-    let references: IRange[] = [];
+  getReferences(definition: Variable|Subroutine): IRange[] {
+    const name = definition.name?.value?.toUpperCase();
+    const expectedTokenType = (definition.type === DefinitionType.Variable ? `variable` : `word`);
 
+    let references: IRange[] = [];
+    
     const scanBlock = (block: Token[]) => {
       let found: IRange[] = [];
 
       block.forEach(token => {
-        switch (token.type) {
-          case `variable`:
-            if (token.value && token.value.toUpperCase() === name) {
-              found.push(token.range);
-            }
-            break;
-          case `block`:
-            if (token.block) {
-              found.push(...scanBlock(token.block));
-            }
-            break;
+        if (token.type === expectedTokenType) {
+          if (token.value && token.value.toUpperCase() === name) {
+            found.push(token.range);
+          }
+        } else
+        if (token.type === `block`) {
+          if (token.block) {
+            found.push(...scanBlock(token.block));
+          }
         }
       });
 
       return found;
     }
 
-    this.statements.forEach(stmt => {
-      references.push(...scanBlock(stmt.tokens));
-    })
+    if (name) {
+      this.statements.forEach(stmt => {
+        references.push(...scanBlock(stmt.tokens));
+      });
+    }
 
     return references;
   }
