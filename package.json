@@ -3,7 +3,7 @@
 	"displayName": "CL",
 	"description": "CLLE language tools",
 	"author": "IBM",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"publisher": "IBM",
 	"categories": [
 		"Programming Languages"
@@ -29,7 +29,7 @@
 	"scripts": {
 		"package": "vsce package",
 		"vscode:prepublish": "npm run webpack",
-		"lang:setup": "npm run lang:build && cd server && npm i",
+		"lang:setup": "npm run lang:build && cd server && rimraf node_modules && npm i",
 		"lang:build": "cd language && tsc -b",
 		"lang:test": "cd language && npm run test",
 		"lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
