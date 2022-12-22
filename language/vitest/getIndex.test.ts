@@ -44,6 +44,21 @@ test('token by index', () => {
 	expect(token?.value).toBe(`VAR`);
 });
 
+test('Very last statement', () => {
+    const lines = [
+        `RUNSQL `
+    ].join(`\n`);
+
+    const parser = new CLParser();
+    const tokens = parser.parseDocument(lines);
+
+    const module = new Module();
+    module.parseStatements(tokens);
+
+    const statement = module.getStatementByOffset(7);
+    expect(statement).toBeDefined();
+});
+
 test('Statement at the middle of the line', () => {
     const lines = many_types_ds;
 
@@ -56,7 +71,7 @@ test('Statement at the middle of the line', () => {
     const statement = module.getStatementByOffset(22);
     expect(statement).toBeDefined();
     expect(statement?.type).toBe(DefinitionType.Variable);
-})
+});
 
 test('Lowercase statements', () => {
     const lines = many_types_ds;

@@ -75,7 +75,7 @@ export default class Module {
   getStatementByOffset(offset: number) {
     return this.statements.find((statement, i) => {
       const end = (this.statements[i+1] ? this.statements[i+1].range.start : statement.range.end);
-      return offset >= statement.range.start && offset < end;
+      return (offset >= statement.range.start && offset < end) || (i === (this.statements.length-1) && offset >= end);
     })
   }
 
