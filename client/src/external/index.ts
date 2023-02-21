@@ -1,12 +1,15 @@
-import { Extension, extensions } from 'vscode';
+
 import Handler from './handlers/handler';
+import Merlin from './handlers/merlin';
 import vscodeIbmi from './handlers/vscodeIbmi';
 
-const handlerIds = [`halcyontechltd.code-for-ibmi`];
+const handlerIds = [`halcyontechltd.code-for-ibmi`, `IBM.ibmideveloper`];
 function getHandlerType(id: string): Handler|undefined {
 	switch (id) {
 		case `halcyontechltd.code-for-ibmi`:
 			return new vscodeIbmi(`halcyontechltd.code-for-ibmi`);
+		case `IBM.ibmideveloper`:
+			return new Merlin(`IBM.ibmideveloper`);
 	}
 	return;
 }

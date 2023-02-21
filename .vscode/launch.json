@@ -17,6 +17,7 @@
 			"sourceMapPathOverrides": {
 				"webpack://client/./*": "${workspaceFolder}/client/*"
 			},
+			"env":{"DEBUG_MODE": "true", "IBMIDEVELOPER_NOT_IN_MERLIN":"true","RSE_CA_PATH": "/Users/barry/Downloads/RSEAPI-CA.pem"}
 		},
 		{
 			"type": "node",
