@@ -1,7 +1,4 @@
-import * as util from "util";
-
 import Handler from './handler';
-
 import * as xml2js from "xml2js";
 import { commands } from 'vscode';
 
@@ -12,11 +9,12 @@ enum Status {
 };
 
 export default class vscodeIbmi extends Handler {
+	static extensionId = `halcyontechltd.code-for-ibmi`;
 	instance: any;
 	installed: Status = Status.NotChecked;
 
-	constructor(extensionId: string) {
-		super(extensionId);
+	constructor() {
+		super(vscodeIbmi.extensionId);
 	}
 
 	async initialise(): Promise<boolean> {
@@ -39,9 +37,9 @@ export default class vscodeIbmi extends Handler {
 		if (this.hasConnection()) {
 			const validLibrary = library || `*LIBL`;
 			const instance = this.instance;
-			
+
 			const content = instance.getContent();
-	
+
 			/** @type {Configuration} */
 			const config = instance.getConfig();
 
@@ -121,26 +119,26 @@ export default class vscodeIbmi extends Handler {
 	private async genDefinition(command, library = `*LIBL`) {
 		const validLibrary = library || `*LIBL`;
 		const instance = this.instance;
-		
-    /** @type {IBMi} */
-    const connection = instance.getConnection();
 
-    const content = instance.getContent();
+		/** @type {IBMi} */
+		const connection = instance.getConnection();
 
-    /** @type {Configuration} */
-    const config = instance.getConfig();
+		const content = instance.getContent();
 
-    const tempLib = config.tempLibrary;
+		/** @type {Configuration} */
+		const config = instance.getConfig();
 
-    const targetCommand = command.padEnd(10) + validLibrary.padEnd(10);
-    const targetName = command.toUpperCase().padEnd(10);
+		const tempLib = config.tempLibrary;
 
-    await connection.remoteCommand(`CALL PGM(${tempLib}/GENCMDXML) PARM('${targetName}' '${targetCommand}')`);
+		const targetCommand = command.padEnd(10) + validLibrary.padEnd(10);
+		const targetName = command.toUpperCase().padEnd(10);
 
-    const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
+		await connection.remoteCommand(`CALL PGM(${tempLib}/GENCMDXML) PARM('${targetName}' '${targetCommand}')`);
 
-    const commandData = await xml2js.parseStringPromise(xml);
+		const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
 
-    return commandData;
-  }
+		const commandData = await xml2js.parseStringPromise(xml);
+
+		return commandData;
+	}
 }

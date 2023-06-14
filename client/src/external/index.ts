@@ -3,19 +3,19 @@ import Handler from './handlers/handler';
 import Merlin from './handlers/merlin';
 import vscodeIbmi from './handlers/vscodeIbmi';
 
-const handlerIds = [`halcyontechltd.code-for-ibmi`, `IBM.ibmideveloper`];
-function getHandlerType(id: string): Handler|undefined {
+const handlerIds = [Merlin.extensionId, vscodeIbmi.extensionId];
+function getHandlerType(id: string): Handler | undefined {
 	switch (id) {
-		case `halcyontechltd.code-for-ibmi`:
-			return new vscodeIbmi(`halcyontechltd.code-for-ibmi`);
-		case `IBM.ibmideveloper`:
-			return new Merlin(`IBM.ibmideveloper`);
+		case vscodeIbmi.extensionId:
+			return new vscodeIbmi();
+		case Merlin.extensionId:
+			return new Merlin();
 	}
 	return;
 }
 
-export let currentHandler: Handler|undefined;
-export async function getHandler(): Promise<Handler|undefined> {
+export let currentHandler: Handler | undefined;
+export async function getHandler(): Promise<Handler | undefined> {
 	if (currentHandler) return currentHandler;
 
 	for (const id of handlerIds) {
