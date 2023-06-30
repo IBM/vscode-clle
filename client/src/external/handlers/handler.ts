@@ -15,7 +15,7 @@ export default class Handler {
 	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<any> {
 		return;
 	}
-	
+
 	async getFileDefinition(objectName: string, library = `*LIBL`): Promise<any> {
 		return;
 	}

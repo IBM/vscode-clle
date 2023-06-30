@@ -1,13 +1,5 @@
-import { commands } from 'vscode';
-import Handler from './handler';
-
-import * as xml2js from "xml2js";
-
-interface GetClDefinitionResponse {
-	statusCode?: number,
-	definition?: string,
-	error?: string
-}
+import { commands, extensions } from 'vscode';
+import vscodeIbmi from './vscodeIbmi';
 
 export interface GetRecordFormatOutput {
 	recordFormats?: object[];
@@ -15,40 +7,24 @@ export interface GetRecordFormatOutput {
 	message?: string;
 }
 
-export default class Merlin extends Handler {
-	constructor(public extensionId: string) {
-		super(extensionId);
+export default class Merlin extends vscodeIbmi {
+	static extensionId = `IBM.ibmideveloper`;
+
+	constructor() {
+		super();
 	}
 
-	// Checks the extension is active
+	// Check both extensions are active
 	async initialise(): Promise<boolean> {
-		return this.backend ? true : false;
+		const merlinBackend = extensions.getExtension(Merlin.extensionId);
+		return await super.initialise() && (merlinBackend ? true : false);
 	}
 
-	// Is run when prompted on a CL command
-	async getCLDefinition(objectName: string, library = `*LIBL`): Promise<any> {
-		const results = await this.genDefinition(objectName, library);
-
-		return results;
-	}
-	
 	async getFileDefinition(objectName: string, library = `*LIBL`): Promise<any> {
-		const result: GetRecordFormatOutput = await commands.executeCommand(`ibmi.rseapi.getRecordFormats`, [library, objectName].join(`/`))
+		const result: GetRecordFormatOutput = await commands.executeCommand(`ibmi.getRecordFormats`, [library, objectName].join(`/`))
 
 		if (result.recordFormats) {
 			return result.recordFormats;
-		}
-
-		return;
-	}
-
-	private async genDefinition(objectName: string, library = `*LIBL`): Promise<any> {
-		const result: GetClDefinitionResponse = await commands.executeCommand(`ibmi.rseapi.executeGetCLDefinition`, objectName, library);
-
-		if (result.definition) {
-			const commandData = await xml2js.parseStringPromise(result.definition);
-
-			return commandData;
 		}
 
 		return;
