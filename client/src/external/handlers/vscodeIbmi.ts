@@ -1,6 +1,6 @@
 import Handler from './handler';
 import * as xml2js from "xml2js";
-import { commands } from 'vscode';
+import { getInstance } from '../api/ibmi';
 
 enum Status {
 	NotChecked,
@@ -47,7 +47,8 @@ export default class vscodeIbmi extends Handler {
 			const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
 			const fullPath = `${config.tempLibrary}/${randomFile}`;
 
-			const outfileRes: any = await commands.executeCommand(`code-for-ibmi.runCommand`, {
+			const ibmi = getInstance();
+			const outfileRes: any = await ibmi.getConnection().runCommand({
 				environment: `ile`,
 				command: `DSPFFD FILE(${validLibrary}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`
 			});
