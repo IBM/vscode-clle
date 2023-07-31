@@ -10,10 +10,13 @@ import {
 } from 'vscode-languageclient';
 
 import {getHandler} from "./external";
+import { loadBase } from './external/api/ibmi';
 
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
+	loadBase();
+
 	// The server is implemented in node
 	const serverModule = context.asAbsolutePath(
 		path.join('out', 'server.js')
