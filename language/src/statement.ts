@@ -12,7 +12,7 @@ export default class Statement {
       return {
         name: noNewLines[0].value
       };
-    } else if (noNewLines.length >= 3) {
+    } else if (noNewLines.length >= 2) {
       if (noNewLines[1].type === `forwardslash` && noNewLines[0].value && noNewLines[2].value) {
         return {
           library: noNewLines[0].value,
