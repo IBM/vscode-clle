@@ -48,7 +48,7 @@ export default class vscodeIbmi extends Handler {
 			const fullPath = `${config.tempLibrary}/${randomFile}`;
 
 			const ibmi = getInstance();
-			const outfileRes: any = await ibmi.getConnection().runCommand({
+			const outfileRes = await ibmi.getConnection().runCommand({
 				environment: `ile`,
 				command: `DSPFFD FILE(${validLibrary}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`
 			});
