@@ -34,28 +34,30 @@ export function getPrettyDocs(docs: any): CommandDoc {
 	};
 
 	const paramaters = docs.QcdCLCmd.Cmd[0].Parm;
-	const parms: Parameter[] = paramaters.map((parm: any) => {
-		const info = parm[`$`];
-		const qual = parm.Qual;
-		const spcVal = parm.SpcVal;
+	const parms: Parameter[] =
+		paramaters ?
+			paramaters.map((parm: any) => {
+				const info = parm[`$`];
+				const qual = parm.Qual;
+				const spcVal = parm.SpcVal;
 
-		let specialValues = [];
+				let specialValues = [];
 
-		if (spcVal && spcVal.length > 0) {
-			const opts = spcVal[0].Value;
+				if (spcVal && spcVal.length > 0) {
+					const opts = spcVal[0].Value;
 
-			specialValues = opts.map((value: any) => value[`$`].Val);
-		}
+					specialValues = opts.map((value: any) => value[`$`].Val);
+				}
 
-		return {
-			keyword: info.Kwd,
-			prompt: info.Prompt,
-			choice: info.Choice,
-			type: info.Type,
-			position: Number(info.PosNbr),
-			specialValues
-		}
-	});
+				return {
+					keyword: info.Kwd,
+					prompt: info.Prompt,
+					choice: info.Choice,
+					type: info.Type,
+					position: Number(info.PosNbr),
+					specialValues
+				}
+			}) : [];
 
 	return {
 		commandInfo,
