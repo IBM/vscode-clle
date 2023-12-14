@@ -38,10 +38,12 @@ export default class CLParser {
     }
   ];
   readonly spaces = [` `];
-  readonly splitParts: string[] = [`(`, `)`, `/`, `*`, `+`, `:`, `&`, `%`, `\n`, `\r`, ...this.spaces];
+  readonly OPENBRACKET = `(`;
+  readonly CLOSEBRACKET = `)`;
+  readonly splitParts: string[] = [this.OPENBRACKET, this.CLOSEBRACKET, `/`, `*`, `+`, `:`, `&`, `%`, `\n`, `\r`, ...this.spaces];
   readonly types: {[part: string]: string} = {
-    '(': `openbracket`,
-    ')': `closebracket`,
+    [this.OPENBRACKET]: `openbracket`,
+    [this.CLOSEBRACKET]: `closebracket`,
     '/': `forwardslash`,
     '*': `asterisk`,
     '+': `plus`,
@@ -67,8 +69,20 @@ export default class CLParser {
     let startsAt = 0;
     let currentText = ``;
 
+    let bracketLevel = 0;
+
     for (let i = 0; i < content.length; i++) {
-      if (content[i] && content[i+1] && this.comments.includes(content.substring(i, i+2))) {
+      if (!inComment) {
+        if (content[i] === this.OPENBRACKET) {
+          bracketLevel++;
+        }
+
+        if (content[i] === this.CLOSEBRACKET) {
+          bracketLevel--;
+        }
+      }
+
+      if (bracketLevel === 0 && content[i] && content[i+1] && this.comments.includes(content.substring(i, i+2))) {
         inComment = !inComment;
         
         if (inComment) {

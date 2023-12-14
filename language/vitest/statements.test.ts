@@ -915,3 +915,21 @@ test('complex parms (ex_trace)', () => {
   expect(rtvjobaObj).toBeDefined();
   expect(rtvjobaObj?.name).toBe(`RTVJOBA`);
 })
+
+test('test with special paramater', () => {
+  const lines = simple_def;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(`DSPOBJD OBJTYPE(*ALL) OBJ(QSYS/*ALL)`);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  expect(module.statements.length).toBe(1);
+  const DSPOBJD = module.statements[0];
+
+  const parms = DSPOBJD.getParms();
+  expect(Object.keys(parms).length).toBe(2);
+  expect(parms[`OBJTYPE`]).toBeDefined();
+  expect(parms[`OBJ`]).toBeDefined();
+});
