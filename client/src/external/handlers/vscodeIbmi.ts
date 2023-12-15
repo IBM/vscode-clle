@@ -1,6 +1,7 @@
 import Handler from './handler';
 import * as xml2js from "xml2js";
 import { getInstance } from '../api/ibmi';
+import Instance from '@halcyontech/vscode-ibmi-types/api/Instance';
 
 enum Status {
 	NotChecked,
@@ -10,7 +11,7 @@ enum Status {
 
 export default class vscodeIbmi extends Handler {
 	static extensionId = `halcyontechltd.code-for-ibmi`;
-	instance: any;
+	instance: Instance;
 	installed: Status = Status.NotChecked;
 
 	constructor() {
@@ -57,7 +58,7 @@ export default class vscodeIbmi extends Handler {
 			const resultCode = outfileRes.code || 0;
 
 			if (resultCode === 0) {
-				const data: object[] = await content.getTable(config.tempLibrary, randomFile);
+				const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
 
 				console.log(`Temp OUTFILE read. ${data.length} rows.`);
 
@@ -93,7 +94,7 @@ export default class vscodeIbmi extends Handler {
 	}
 
 	private hasConnection(): boolean {
-		if (this.instance && this.instance.connection) return true;
+		if (this.instance && this.instance.getConnection()) return true;
 		return false;
 	}
 
@@ -104,14 +105,17 @@ export default class vscodeIbmi extends Handler {
 			const config = this.instance.getConfig();
 			const tempLib = config.tempLibrary;
 
-			try {
-				await connection.remoteCommand(`CHKOBJ OBJ(${tempLib}/GENCMDXML) OBJTYPE(*PGM)`);
+			const checkResult = await connection.runCommand({
+				command: `CHKOBJ OBJ(${tempLib}/GENCMDXML) OBJTYPE(*PGM)`,
+				noLibList: true
+			});
+
+			if (checkResult.code === 0) {
 				this.installed = Status.Installed;
 				return true;
-			} catch (e) {
-				// Throws an error if CHKOBJ fails. Usually means no authority or doesn't exist
-				this.installed = Status.NotInstalled;
 			}
+
+			this.installed = Status.NotInstalled;
 		}
 
 		return false;
@@ -134,12 +138,20 @@ export default class vscodeIbmi extends Handler {
 		const targetCommand = command.padEnd(10) + validLibrary.padEnd(10);
 		const targetName = command.toUpperCase().padEnd(10);
 
-		await connection.remoteCommand(`CALL PGM(${tempLib}/GENCMDXML) PARM('${targetName}' '${targetCommand}')`);
+		const callResult = await connection.runCommand({
+			command: `CALL PGM(${tempLib}/GENCMDXML) PARM('${targetName}' '${targetCommand}')`,
+		});
 
-		const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
+		if (callResult.code === 0) {
+			console.log(callResult);
 
-		const commandData = await xml2js.parseStringPromise(xml);
+			const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
+	
+			const commandData = await xml2js.parseStringPromise(xml);
+	
+			return commandData;
+		}
 
-		return commandData;
+		return undefined;
 	}
 }

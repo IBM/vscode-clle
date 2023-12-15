@@ -17,6 +17,6 @@
 		"@types/vscode": "^1.50.0",
 		"@types/xml2js": "^0.4.11",
 		"@vscode/test-electron": "^2.1.2",
-		"@halcyontech/vscode-ibmi-types": "^2.1.0"
+		"@halcyontech/vscode-ibmi-types": "^2.6.1"
 	}
 }
