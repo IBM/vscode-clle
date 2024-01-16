@@ -29,6 +29,19 @@ export default class Statement {
     return null;
   }
 
+  getPreParm() {
+    const noNewLines = this.tokens.filter(p => p.type !== `newline`);
+    const firstParm = noNewLines.findIndex(p => p.type === `parameter`);
+    const object = this.getObject();
+    const fromIndex = object?.library === undefined ? 1 : 3;
+
+    if (firstParm > 0) {
+      return noNewLines.slice(fromIndex, firstParm);
+    }
+
+    return noNewLines.slice(fromIndex);
+  }
+
   getParms() {
     const noNewLines = this.tokens.filter(p => p.type !== `newline`);
     const parms: {[name: string]: Token} = {};

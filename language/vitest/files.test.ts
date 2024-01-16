@@ -4,6 +4,7 @@ import File from '../src/file';
 import CLParser from "../src/parser";
 
 import file_a from './cl/file';
+import file_short from './cl/file_short';
 import file_var from './cl/file_var';
 import { DataType, DefinitionType } from '../src/types';
 import files_openid from './cl/files_openid';
@@ -32,6 +33,34 @@ test('basic file definition', () => {
   expect(fileDefOpenId).toBeUndefined();
 
   const rcvfStatement = module.statements[2];
+  expect(rcvfStatement.type).toBe(DefinitionType.Statement);
+});
+
+test('basic file definition with no explicit parm', () => {
+  console.log('hi');
+  const lines = file_short;
+
+  const parser = new CLParser();
+  const tokens = parser.parseDocument(lines);
+
+  const module = new Module();
+  module.parseStatements(tokens);
+
+  expect(module.statements.length).toBe(5);
+
+  const files = module.getDefinitionsOfType<File>(DefinitionType.File);
+
+  const fileA = files[0];
+  expect(fileA.file).toBeDefined();
+  expect(fileA.file?.library).toBeUndefined();
+  expect(fileA.file?.name).toBe(`L012`);
+
+  const fileB = files[1];
+  expect(fileB.file).toBeDefined();
+  expect(fileB.file?.library).toBe(`THELIB`);
+  expect(fileB.file?.name).toBe(`L013`);
+
+  const rcvfStatement = module.statements[3];
   expect(rcvfStatement.type).toBe(DefinitionType.Statement);
 });
 

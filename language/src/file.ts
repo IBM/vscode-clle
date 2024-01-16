@@ -13,10 +13,17 @@ export default class File extends Statement {
   private processFile(): QualifiedObject|undefined {
     const parms = this.getParms();
     const fileParm = parms[`FILE`];
+    let blockTokens: Token[]|undefined;
 
-    if (fileParm && fileParm.block) {
-      const blockTokens = fileParm.block;
+    if (fileParm) {
+      if (fileParm.block) {
+        blockTokens = fileParm.block;
+      }
+    } else {
+      blockTokens = this.getPreParm();
+    }
 
+    if (blockTokens) {
       if (blockTokens.length === 3 && blockTokens[1].type === `forwardslash` && blockTokens[0].value && blockTokens[2].value) {
         return {
           library: blockTokens[0].value,
