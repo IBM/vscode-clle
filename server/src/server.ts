@@ -56,7 +56,7 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				triggerCharacters: [` `, `&`, `(`]
+				triggerCharacters: [`&`, `(`]
 			},
 			definitionProvider: true,
 			documentSymbolProvider: true,
