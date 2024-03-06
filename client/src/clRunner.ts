@@ -3,7 +3,7 @@ import { getInstance } from './external/api/ibmi';
 
 export function initialiseRunner(context: ExtensionContext) {
   context.subscriptions.push(
-    commands.registerCommand(`code-for-ibmi.cl.runSelected`, async () => {
+    commands.registerCommand(`vscode-clle.runSelected`, async () => {
 			const instance = getInstance();
       const editor = window.activeTextEditor;
 
