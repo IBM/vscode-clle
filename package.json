@@ -25,7 +25,14 @@
 		"onLanguage:cl"
 	],
 	"main": "./out/extension",
-	"contributes": {},
+	"contributes": {
+		"snippets": [
+			{
+				"path": "./schemas/cl.code-snippets",
+				"language": "cl"
+			}
+		]
+	},
 	"scripts": {
 		"package": "vsce package",
 		"vscode:prepublish": "npm run webpack",
