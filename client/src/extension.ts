@@ -11,6 +11,7 @@ import {
 
 import {getHandler} from "./external";
 import { loadBase } from './external/api/ibmi';
+import { initialiseRunner } from './clRunner';
 
 let client: LanguageClient;
 
@@ -53,7 +54,7 @@ export function activate(context: ExtensionContext) {
 		serverOptions,
 		clientOptions
 	);
-5
+
 	// Start the client. This will also launch the server
 	client.start();
 
@@ -77,7 +78,9 @@ export function activate(context: ExtensionContext) {
 				return definition;
 			}
 		});
-	})
+	});
+
+  initialiseRunner(context);
 }
 
 export function deactivate(): Thenable<void> | undefined {

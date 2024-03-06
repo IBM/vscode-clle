@@ -1,7 +1,9 @@
-import Handler from './handler';
+import Handler from '../handler';
 import * as xml2js from "xml2js";
-import { getInstance } from '../api/ibmi';
+import { getInstance } from '../../api/ibmi';
 import Instance from '@halcyontech/vscode-ibmi-types/api/Instance';
+
+import { content as gencmdxml } from './gencmdxml';
 
 enum Status {
 	NotChecked,
@@ -29,6 +31,26 @@ export default class vscodeIbmi extends Handler {
 		}
 
 		return false;
+	}
+
+	async install(): Promise<boolean> {
+		const instance = this.instance;
+		const connection = instance.getConnection()!;
+		const content = instance.getContent()!;
+		const config = instance.getConfig()!;
+	
+		const tempLib = config.tempLibrary;
+	
+		//It may exist already so we just ignore the error
+		await connection.runCommand({ command: `CRTSRCPF ${tempLib}/QTOOLS`, noLibList: true })
+	
+		await content.uploadMemberContent(undefined, tempLib, `QTOOLS`, `GENCMDXML`, gencmdxml.join(`\n`));
+		const createResult = await connection.runCommand({
+			command: `CRTBNDCL PGM(${tempLib}/GENCMDXML) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('vscode-ibmi xml generator for commands')`,
+			noLibList: true
+		});
+	
+		return createResult.code === 0;
 	}
 
 	/**
@@ -102,20 +124,26 @@ export default class vscodeIbmi extends Handler {
 		if (this.installed === Status.Installed) return true;
 		if (this.instance) {
 			const connection = this.instance.getConnection();
+			const content = this.instance.getContent();
 			const config = this.instance.getConfig();
 			const tempLib = config.tempLibrary;
 
-			const checkResult = await connection.runCommand({
-				command: `CHKOBJ OBJ(${tempLib}/GENCMDXML) OBJTYPE(*PGM)`,
-				noLibList: true
-			});
+			const exists = await content.checkObject({ type: `*PGM`, library: tempLib, name: `GENCMDXML`});
 
-			if (checkResult.code === 0) {
+			if (exists) {
 				this.installed = Status.Installed;
 				return true;
 			}
 
 			this.installed = Status.NotInstalled;
+		}
+
+		if (this.installed === Status.NotInstalled) {
+			const installed = await this.install();
+			if (installed) {
+				this.installed = Status.Installed;
+				return true;
+			}
 		}
 
 		return false;
@@ -145,11 +173,15 @@ export default class vscodeIbmi extends Handler {
 		if (callResult.code === 0) {
 			console.log(callResult);
 
-			const xml = await content.downloadStreamfile(`/tmp/${targetName}`);
-	
-			const commandData = await xml2js.parseStringPromise(xml);
-	
-			return commandData;
+			try {
+				const xml = (await content.downloadStreamfileRaw(`/tmp/${targetName}`)).toString();
+		
+				const commandData = await xml2js.parseStringPromise(xml);
+		
+				return commandData;
+			} catch (e) {
+				console.log(`Command likely doesn't exist: ${targetCommand}: ${e.message}`);
+			}
 		}
 
 		return undefined;
