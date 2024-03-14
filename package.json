@@ -25,7 +25,37 @@
 		"onLanguage:cl"
 	],
 	"main": "./out/extension",
-	"contributes": {},
+	"contributes": {
+		"snippets": [
+			{
+				"path": "./schemas/cl.code-snippets",
+				"language": "cl"
+			}
+		],
+		"commands": [
+			{
+				"command": "vscode-clle.runSelected",
+				"title": "Run selected CL command",
+				"category": "IBM i"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "vscode-clle.runSelected",
+				"key": "ctrl+r",
+				"mac": "cmd+r",
+				"when": "editorLangId == cl"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "vscode-clle.runSelected",
+					"when": "code-for-ibmi:connected && editorLangId === cl"
+				}
+			]
+		}
+	},
 	"scripts": {
 		"package": "vsce package",
 		"vscode:prepublish": "npm run webpack",
