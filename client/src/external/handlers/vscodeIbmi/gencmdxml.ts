@@ -32,6 +32,6 @@ export const content = [
   `  chgvar  %sst(&destinfo 33 32) value(&path)`,
   `  call qcdrcmdd (&cmd &destinfo &destfmt +`,
   `                  &rcvvar &rcvfmt &error)`,
-  `  CHGAUT OBJ(&path) USER(*PUBLIC) DTAAUT(*RWX)`,
+  `  /*CHGAUT OBJ(&path) USER(*PUBLIC) DTAAUT(*RWX)*/`,
   `endpgm`,
 ];

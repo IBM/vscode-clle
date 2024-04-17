@@ -13,7 +13,7 @@ enum Status {
 
 export default class vscodeIbmi extends Handler {
 	static extensionId = `halcyontechltd.code-for-ibmi`;
-	static programName = `GENCMD1`;
+	static programName = `GENCMD2`;
 	instance: Instance;
 	installed: Status = Status.NotChecked;
 
@@ -165,8 +165,8 @@ export default class vscodeIbmi extends Handler {
 		const tempLib = config.tempLibrary;
 
 		const targetCommand = command.padEnd(10) + validLibrary.padEnd(10);
-		const targetName = command.toUpperCase().padEnd(10);
-		const resultingFile = `/tmp/${command.toUpperCase()}`;
+		const targetName = makeid();
+		const resultingFile = `/tmp/${targetName}`;
 
 		const callResult = await connection.runCommand({
 			command: `CALL PGM(${tempLib}/${vscodeIbmi.programName}) PARM('${targetName}' '${targetCommand}')`,
@@ -177,6 +177,8 @@ export default class vscodeIbmi extends Handler {
 
 			try {
 				const xml = (await content.downloadStreamfileRaw(resultingFile)).toString();
+
+				connection.sendCommand({ command: `rm -rf ${resultingFile}` });
 		
 				const commandData = await xml2js.parseStringPromise(xml);
 		
@@ -188,4 +190,15 @@ export default class vscodeIbmi extends Handler {
 
 		return undefined;
 	}
+}
+
+export function makeid(length: number = 8) {
+	let text = `O_`;
+	const possible =
+		`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`;
+
+	for (let i = 0; i < length; i++)
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+	return text;
 }
