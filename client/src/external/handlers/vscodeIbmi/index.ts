@@ -13,6 +13,7 @@ enum Status {
 
 export default class vscodeIbmi extends Handler {
 	static extensionId = `halcyontechltd.code-for-ibmi`;
+	static programName = `GENCMD2`;
 	instance: Instance;
 	installed: Status = Status.NotChecked;
 
@@ -44,9 +45,9 @@ export default class vscodeIbmi extends Handler {
 		//It may exist already so we just ignore the error
 		await connection.runCommand({ command: `CRTSRCPF ${tempLib}/QTOOLS`, noLibList: true })
 	
-		await content.uploadMemberContent(undefined, tempLib, `QTOOLS`, `GENCMDXML`, gencmdxml.join(`\n`));
+		await content.uploadMemberContent(undefined, tempLib, `QTOOLS`, vscodeIbmi.programName, gencmdxml.join(`\n`));
 		const createResult = await connection.runCommand({
-			command: `CRTBNDCL PGM(${tempLib}/GENCMDXML) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('vscode-ibmi xml generator for commands')`,
+			command: `CRTBNDCL PGM(${tempLib}/${vscodeIbmi.programName}) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('vscode-ibmi xml generator for commands')`,
 			noLibList: true
 		});
 	
@@ -128,7 +129,7 @@ export default class vscodeIbmi extends Handler {
 			const config = this.instance.getConfig();
 			const tempLib = config.tempLibrary;
 
-			const exists = await content.checkObject({ type: `*PGM`, library: tempLib, name: `GENCMDXML`});
+			const exists = await content.checkObject({ type: `*PGM`, library: tempLib, name: vscodeIbmi.programName});
 
 			if (exists) {
 				this.installed = Status.Installed;
@@ -164,17 +165,20 @@ export default class vscodeIbmi extends Handler {
 		const tempLib = config.tempLibrary;
 
 		const targetCommand = command.padEnd(10) + validLibrary.padEnd(10);
-		const targetName = command.toUpperCase().padEnd(10);
+		const targetName = makeid();
+		const resultingFile = `/tmp/${targetName}`;
 
 		const callResult = await connection.runCommand({
-			command: `CALL PGM(${tempLib}/GENCMDXML) PARM('${targetName}' '${targetCommand}')`,
+			command: `CALL PGM(${tempLib}/${vscodeIbmi.programName}) PARM('${targetName}' '${targetCommand}')`,
 		});
 
 		if (callResult.code === 0) {
 			console.log(callResult);
 
 			try {
-				const xml = (await content.downloadStreamfileRaw(`/tmp/${targetName}`)).toString();
+				const xml = (await content.downloadStreamfileRaw(resultingFile)).toString();
+
+				connection.sendCommand({ command: `rm -rf ${resultingFile}` });
 		
 				const commandData = await xml2js.parseStringPromise(xml);
 		
@@ -186,4 +190,15 @@ export default class vscodeIbmi extends Handler {
 
 		return undefined;
 	}
+}
+
+export function makeid(length: number = 8) {
+	let text = `O_`;
+	const possible =
+		`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`;
+
+	for (let i = 0; i < length; i++)
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+	return text;
 }
