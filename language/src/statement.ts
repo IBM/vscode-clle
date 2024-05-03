@@ -71,4 +71,8 @@ export default class Statement {
 
 		return blockSearch(this.tokens);
 	}
+
+  isDirective() {
+    return this.tokens[0]?.type === `directive`;
+  }
 }
