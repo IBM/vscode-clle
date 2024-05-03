@@ -11,10 +11,11 @@ export enum DataType {
 }
 
 export enum DefinitionType {
-  Statement,
-  Variable,
-  File,
-  Subroutine
+  Directive = "directive",
+  Statement = "statement",
+  Variable = "variable",
+  File = "file",
+  Subroutine = "subroutine"
 }
 
 export interface IRange {

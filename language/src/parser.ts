@@ -35,6 +35,11 @@ export default class CLParser {
       name: `BIF`,
       match: [{type: `percent`}, {type: `word`}],
       becomes: `builtin`,
+    },
+    {
+      name: `DIRECTIVE`,
+      match: [{type: `forwardslash`}, {type: `forwardslash`}],
+      becomes: `directive`,
     }
   ];
   readonly spaces = [` `];

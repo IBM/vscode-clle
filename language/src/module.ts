@@ -3,14 +3,34 @@ import File from "./file";
 import Subroutine from "./subroutine";
 import Statement from "./statement";
 import { DefinitionType, IRange, Token } from "./types";
+import Directive from './directive';
+
+const DefinitionTypes = [DefinitionType.Variable, DefinitionType.File, DefinitionType.Subroutine];
 
 export default class Module {
   statements: (Statement|Variable|File|Subroutine)[];
+  inDataDirective = false;
   constructor() {
     this.statements = [];
   }
 
   private addStatement(statement: Statement) {
+    if (statement.isDirective()) {
+      const directive = new Directive(statement.tokens, statement.range);
+      if (directive.isDataDirective()) {
+        this.inDataDirective = true;
+      } else if (directive.hasParameters() === false && this.inDataDirective) {
+        this.inDataDirective = false;
+        return;
+      }
+
+      this.statements.push(directive);
+      return;
+    } else if (this.inDataDirective) {
+      // Do nothing with this statement inside of a data directive.
+      return;
+    }
+
     const command = statement.getObject()?.name?.toUpperCase();
 
     switch (command) {
@@ -88,7 +108,7 @@ export default class Module {
 	}
 
   getDefinitions() {
-    return this.statements.filter(stmt => stmt.type !== DefinitionType.Statement) as (Variable|File|Subroutine)[]
+    return this.statements.filter(stmt => DefinitionTypes.includes(stmt.type)) as (Variable|File|Subroutine)[]
   }
 
   getDefinitionsOfType<T>(type: DefinitionType): T[] {

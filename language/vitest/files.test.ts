@@ -37,7 +37,6 @@ test('basic file definition', () => {
 });
 
 test('basic file definition with no explicit parm', () => {
-  console.log('hi');
   const lines = file_short;
 
   const parser = new CLParser();
