@@ -43,7 +43,7 @@ export default class vscodeIbmi extends Handler {
 		const tempLib = config.tempLibrary;
 	
 		//It may exist already so we just ignore the error
-		await connection.runCommand({ command: `CRTSRCPF ${tempLib}/QTOOLS`, noLibList: true })
+		await connection.runCommand({ command: `CRTSRCPF ${tempLib}/QTOOLS AUT(*ALL)`, noLibList: true })
 	
 		await content.uploadMemberContent(undefined, tempLib, `QTOOLS`, vscodeIbmi.programName, gencmdxml.join(`\n`));
 		const createResult = await connection.runCommand({
