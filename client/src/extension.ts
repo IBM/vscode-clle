@@ -13,6 +13,9 @@ import {getHandler} from "./external";
 import { loadBase } from './external/api/ibmi';
 import { initialiseRunner } from './clRunner';
 
+import { loadCLSyntaxChecker } from './external/handlers/clChecker/CLSyntaxLoader';
+
+
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
@@ -61,7 +64,7 @@ export function activate(context: ExtensionContext) {
 	client.onReady().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
 			const handler = await getHandler();
-			
+
 			if (handler) {
 				const definition = await handler.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
 
@@ -71,7 +74,7 @@ export function activate(context: ExtensionContext) {
 
 		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
 			const handler = await getHandler();
-			
+
 			if (handler) {
 				const definition = await handler.getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
 
@@ -80,7 +83,9 @@ export function activate(context: ExtensionContext) {
 		});
 	});
 
-  initialiseRunner(context);
+	initialiseRunner(context);
+	loadCLSyntaxChecker(context);
+
 }
 
 export function deactivate(): Thenable<void> | undefined {

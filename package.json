@@ -45,6 +45,12 @@
 				"key": "ctrl+r",
 				"mac": "cmd+r",
 				"when": "editorLangId == cl"
+			},
+			{
+				"command": "vscode-clle.CLSyntaxCheck",
+				"key": "ctrl+f5",
+				"mac": "cmd+f5",
+				"when": "editorLangId == cl"
 			}
 		],
 		"menus": {
@@ -70,6 +76,7 @@
 		"webpack:dev": "npm run clean && npm run lang:setup && webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js"
 	},
 	"devDependencies": {
+		"@halcyontech/vscode-ibmi-types": "^2.16.3",
 		"@types/mocha": "^9.1.0",
 		"@types/node": "^16.11.7",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
