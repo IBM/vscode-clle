@@ -62,6 +62,7 @@ export default class Module {
             this.addStatement(new Statement(
               statementTokens,
               {
+                line: statementTokens[0].range.line,
                 start: statementTokens[0].range.start,
                 end: statementTokens[statementTokens.length-1].range.end
               }
@@ -84,6 +85,7 @@ export default class Module {
         this.addStatement(new Statement(
           statementTokens,
           {
+            line: statementTokens[0].range.line,
             start: statementTokens[0].range.start,
             end: statementTokens[statementTokens.length-1].range.end
           }
