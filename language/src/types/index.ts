@@ -19,6 +19,7 @@ export enum DefinitionType {
 }
 
 export interface IRange {
+  line: number;
   start: number;
   end: number;
 }

@@ -17,6 +17,7 @@ test('test1', () => {
     value: `PGM`,
     type: `command`,
     range: {
+      line: 0,
       start: 4,
       end: 7
     }});
@@ -27,6 +28,7 @@ test('test1', () => {
     value: `PARM`,
     type:  `parameter`,
     range: {
+      line: 0,
       start: 15,
       end: 19
     }
@@ -37,6 +39,7 @@ test('test1', () => {
   expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
+      line: 0,
       start: 19,
       end: 25,
     },
@@ -44,6 +47,7 @@ test('test1', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 0,
         start: 20,
         end: 24
       }
@@ -54,6 +58,7 @@ test('test1', () => {
     value: `DCL`,
     type: `command`,
     range: {
+      line: 2,
       start: 31,
       end: 34
     }
@@ -65,6 +70,7 @@ test('test1', () => {
     value: `VAR`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 42,
       end: 45
     }
@@ -73,6 +79,7 @@ test('test1', () => {
   expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 45,
       end: 51
     },
@@ -80,6 +87,7 @@ test('test1', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 2,
         start: 46,
         end: 50
       }
@@ -90,6 +98,7 @@ test('test1', () => {
     value: `TYPE`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 52,
       end: 56
     }
@@ -98,6 +107,7 @@ test('test1', () => {
   expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 56,
       end: 63
     },
@@ -105,6 +115,7 @@ test('test1', () => {
       type: `special`,
       value: `*CHAR`,
       range: {
+        line: 2,
         start: 57,
         end: 62
       }
@@ -119,6 +130,7 @@ test('test1', () => {
     value: `LEN`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 64,
       end: 67
     }
@@ -127,6 +139,7 @@ test('test1', () => {
   expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 67,
       end: 72
     },
@@ -134,6 +147,7 @@ test('test1', () => {
       type: `word`,
       value: `128`,
       range: {
+        line: 2,
         start: 68,
         end: 71
       }
@@ -144,6 +158,7 @@ test('test1', () => {
     type: `command`,
     value: `STRPCO`,
     range: {
+      line: 4,
       start: 78,
       end: 84
     },
@@ -170,6 +185,7 @@ test('test2', () => {
     value: `PGM`,
     type: `command`,
     range: {
+      line: 0,
       start: 4,
       end: 7
     }});
@@ -180,6 +196,7 @@ test('test2', () => {
     value: `PARM`,
     type:  `parameter`,
     range: {
+      line: 0,
       start: 15,
       end: 19
     }
@@ -190,6 +207,7 @@ test('test2', () => {
   expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
+      line: 0,
       start: 19,
       end: 25,
     },
@@ -197,6 +215,7 @@ test('test2', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 0,
         start: 20,
         end: 24
       }
@@ -207,6 +226,7 @@ test('test2', () => {
     value: `DCL`,
     type: `command`,
     range: {
+      line: 2,
       start: 31,
       end: 34
     }
@@ -218,6 +238,7 @@ test('test2', () => {
     value: `VAR`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 42,
       end: 45
     }
@@ -226,6 +247,7 @@ test('test2', () => {
   expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 45,
       end: 51
     },
@@ -233,6 +255,7 @@ test('test2', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 2,
         start: 46,
         end: 50
       }
@@ -243,6 +266,7 @@ test('test2', () => {
     value: `TYPE`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 52,
       end: 56
     }
@@ -251,6 +275,7 @@ test('test2', () => {
   expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 56,
       end: 63
     },
@@ -258,6 +283,7 @@ test('test2', () => {
       type: `special`,
       value: `*CHAR`,
       range: {
+        line: 2,
         start: 57,
         end: 62
       }
@@ -272,6 +298,7 @@ test('test2', () => {
     value: `LEN`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 64,
       end: 67
     }
@@ -280,6 +307,7 @@ test('test2', () => {
   expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 67,
       end: 72
     },
@@ -287,6 +315,7 @@ test('test2', () => {
       type: `word`,
       value: `128`,
       range: {
+        line: 2,
         start: 68,
         end: 71
       }
@@ -297,6 +326,7 @@ test('test2', () => {
     type: `command`,
     value: `STRPCO`,
     range: {
+      line: 4,
       start: 99,
       end: 105
     },
@@ -324,6 +354,7 @@ test('test3', () => {
     value: `PGM`,
     type: `command`,
     range: {
+      line: 0,
       start: 4,
       end: 7
     }});
@@ -334,6 +365,7 @@ test('test3', () => {
     value: `PARM`,
     type:  `parameter`,
     range: {
+      line: 0,
       start: 15,
       end: 19
     }
@@ -344,6 +376,7 @@ test('test3', () => {
   expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
+      line: 0,
       start: 19,
       end: 25,
     },
@@ -351,6 +384,7 @@ test('test3', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 0,
         start: 20,
         end: 24
       }
@@ -361,6 +395,7 @@ test('test3', () => {
     value: `DCL`,
     type: `command`,
     range: {
+      line: 2,
       start: 31,
       end: 34
     }
@@ -372,6 +407,7 @@ test('test3', () => {
     value: `VAR`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 42,
       end: 45
     }
@@ -380,6 +416,7 @@ test('test3', () => {
   expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 45,
       end: 51
     },
@@ -387,6 +424,7 @@ test('test3', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 2,
         start: 46,
         end: 50
       }
@@ -397,6 +435,7 @@ test('test3', () => {
     value: `TYPE`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 52,
       end: 56
     }
@@ -405,6 +444,7 @@ test('test3', () => {
   expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 56,
       end: 63
     },
@@ -412,6 +452,7 @@ test('test3', () => {
       type: `special`,
       value: `*CHAR`,
       range: {
+        line: 2,
         start: 57,
         end: 62
       }
@@ -426,6 +467,7 @@ test('test3', () => {
     value: `LEN`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 64,
       end: 67
     }
@@ -434,6 +476,7 @@ test('test3', () => {
   expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 67,
       end: 72
     },
@@ -441,6 +484,7 @@ test('test3', () => {
       type: `word`,
       value: `128`,
       range: {
+      line: 2,
         start: 68,
         end: 71
       }
@@ -451,6 +495,7 @@ test('test3', () => {
     type: `command`,
     value: `STRPCO`,
     range: {
+      line: 5,
       start: 120,
       end: 126
     },
@@ -480,6 +525,7 @@ test('test4', () => {
     value: `PGM`,
     type: `command`,
     range: {
+      line: 0,
       start: 4,
       end: 7
     }});
@@ -490,6 +536,7 @@ test('test4', () => {
     value: `PARM`,
     type:  `parameter`,
     range: {
+      line: 0,
       start: 15,
       end: 19
     }
@@ -500,6 +547,7 @@ test('test4', () => {
   expect(tokens[2]).toStrictEqual({
     type: `block`,
     range: {
+      line: 0,
       start: 19,
       end: 25,
     },
@@ -507,6 +555,7 @@ test('test4', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 0,
         start: 20,
         end: 24
       }
@@ -517,6 +566,7 @@ test('test4', () => {
     value: `DCL`,
     type: `command`,
     range: {
+      line: 2,
       start: 31,
       end: 34
     }
@@ -528,6 +578,7 @@ test('test4', () => {
     value: `VAR`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 42,
       end: 45
     }
@@ -536,6 +587,7 @@ test('test4', () => {
   expect(tokens[7]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 45,
       end: 51
     },
@@ -543,6 +595,7 @@ test('test4', () => {
       type: `variable`,
       value: `&CMD`,
       range: {
+        line: 2,
         start: 46,
         end: 50
       }
@@ -553,6 +606,7 @@ test('test4', () => {
     value: `TYPE`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 52,
       end: 56
     }
@@ -561,6 +615,7 @@ test('test4', () => {
   expect(tokens[9]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 56,
       end: 63
     },
@@ -568,6 +623,7 @@ test('test4', () => {
       type: `special`,
       value: `*CHAR`,
       range: {
+        line: 2,
         start: 57,
         end: 62
       }
@@ -582,6 +638,7 @@ test('test4', () => {
     value: `LEN`,
     type: `parameter`,
     range: {
+      line: 2,
       start: 64,
       end: 67
     }
@@ -590,6 +647,7 @@ test('test4', () => {
   expect(tokens[11]).toStrictEqual({
     type: `block`,
     range: {
+      line: 2,
       start: 67,
       end: 72
     },
@@ -597,6 +655,7 @@ test('test4', () => {
       type: `word`,
       value: `128`,
       range: {
+        line: 2,
         start: 68,
         end: 71
       }
@@ -607,6 +666,7 @@ test('test4', () => {
     type: `label`,
     value: `RESTART:`,
     range: {
+      line: 3,
       start: 74,
       end: 82
     },
@@ -618,6 +678,7 @@ test('test4', () => {
     type: `command`,
     value: `STRPCO`,
     range: {
+      line: 6,
       start: 130,
       end: 136
     },

@@ -64,6 +64,7 @@ export default class CLParser {
   constructor() {}
 
   parseDocument(content: string) {
+    let lineNumber = 0;
     let commentStart = -1;
     let inComment = false;
 
@@ -72,11 +73,16 @@ export default class CLParser {
     let result: Token[] = [];
 
     let startsAt = 0;
+    let startsAtLine = 0;
     let currentText = ``;
 
     let bracketLevel = 0;
 
     for (let i = 0; i < content.length; i++) {
+      if (content[i] === `\n`) {
+        lineNumber++;
+      }
+
       if (!inComment) {
         if (content[i] === this.OPENBRACKET) {
           bracketLevel++;
@@ -108,7 +114,7 @@ export default class CLParser {
         case this.stringChar:
           if (inString) {
             currentText += content[i];
-            result.push({value: currentText, type: `string`, range: {start: startsAt, end: startsAt + currentText.length}});
+            result.push({value: currentText, type: `string`, range: {line: startsAtLine,start: startsAt, end: startsAt + currentText.length}});
             currentText = ``;
           } else {
             startsAt = i;
@@ -120,15 +126,16 @@ export default class CLParser {
         default:
           if (this.splitParts.includes(content[i]) && inString === false) {
             if (currentText.trim() !== ``) {
-              result.push({value: currentText, type: `word`, range: {start: startsAt, end: startsAt + currentText.length}});
+              result.push({value: currentText, type: `word`, range: {line: startsAtLine, start: startsAt, end: startsAt + currentText.length}});
               currentText = ``;
             }
 
             if (!this.spaces.includes(content[i])) {
-              result.push({value: content[i], type: this.types[content[i]], range: {start: i, end: i + content[i].length}});
+              result.push({value: content[i], type: this.types[content[i]], range: {line: startsAtLine, start: i, end: i + content[i].length}});
             }
 
             startsAt = i + 1;
+            startsAtLine = lineNumber;
 
           } else {
             currentText += content[i];
@@ -139,7 +146,7 @@ export default class CLParser {
     }
 
     if (currentText.trim() !== ``) {
-      result.push({value: currentText, type: `word`, range: {start: startsAt, end: startsAt + currentText.length}});
+      result.push({value: currentText, type: `word`, range: {line: startsAtLine, start: startsAt, end: startsAt + currentText.length}});
       currentText = ``;
     }
 
@@ -188,6 +195,7 @@ export default class CLParser {
             type: type.becomes,
             value,
             range: {
+              line: matchedTokens[0].range.line,
               start: matchedTokens[0].range.start,
               end: matchedTokens[matchedTokens.length-1].range.end
             }
@@ -221,6 +229,7 @@ export default class CLParser {
             type: `block`,
             block: this.createBlocks(tokens.slice(start+1, i)),
             range: {
+              line: tokens[start].range.line,
               start: tokens[start].range.start,
               end: tokens[i].range.end
             }
