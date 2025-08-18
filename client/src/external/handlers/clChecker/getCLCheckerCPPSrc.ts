@@ -3,10 +3,10 @@ export function getCLCheckerCPPSrc(schema: string, version: number) {
 
     return `// C++ processing program for QCAPCMD SQL Function
   // To compile:
-  //    CRTCPPMOD MODULE(CODE4I/COZ_CAPCMD) SRCFILE(CODE4I/QCSRC) SRCMBR(COZ_CAPCMD)
-  //    CRTPGM    PGM(CODE4I/COZ_CAPCMD) MODULE(CODE4I/COZ_CAPCMD)
+  //    CRTCPPMOD MODULE(<tempLib>/COZCLCHECK) SRCFILE(<tempLib>/QCSRC) SRCMBR(COZCLCHECK)
+  //    CRTPGM    PGM(<tempLib>/COZCLCHECK) MODULE(<tempLib>/COZCLCHECK)
 
-  // be sure to replace the library with your own library name
+  // be sure to replace the <templib> with your own library name
 
     /**********************************************************/
     /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
@@ -30,7 +30,7 @@ export function getCLCheckerCPPSrc(schema: string, version: number) {
 #include <QMHRCVPM.h>
 #include <QMHRTVM.h>
 #include <qcapcmd.h>
-#include <cpybytes.mih>
+#include "/QSYS.LIB/QSYSINC.LIB/MIH.FILE/CPYBYTES.MBR"
 
 #include <unistd.h>
 #include <stdio.h>

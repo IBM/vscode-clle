@@ -6,20 +6,21 @@ let bCLCheckerInstalled = false;
 const clleDiagnostics = vscode.languages.createDiagnosticCollection('clle');
 
 export async function loadCLSyntaxChecker(context: vscode.ExtensionContext) {
-  console.log('[CLChecker] Loader starting...');
+  console.log('[clChecker] Starting CL Syntax Checker starting...');
   const code4iExt = vscode.extensions.getExtension('halcyontechltd.code-for-ibmi');
   if (!code4iExt) {
     vscode.window.showErrorMessage("Code for IBM i extension is not installed or not found.");
     return;
   }
   const exports = await code4iExt.activate();
+  console.log('[clChecker] Code for IBM i extension activated.');
+
   const { instance } = exports;
 
   async function setupCLSyntaxChecker() {
     const clSyntaxChecker = new CLStatementChecker();
-    if (!bCLCheckerInstalled) {
-      bCLCheckerInstalled = await clSyntaxChecker.install();
-    }
+    console.log('[clChecker] Created new CL Stmt Checker object.');
+    bCLCheckerInstalled = await clSyntaxChecker.install();
     registerCLSyntaxChecker(context, clSyntaxChecker);
   }
 
@@ -43,25 +44,29 @@ function registerCLSyntaxChecker(context: vscode.ExtensionContext, clSyntaxCheck
 
       const document = editor.document;
       const langId = document.languageId.toLowerCase();
-      if (!['cl', 'clle', 'clp'].includes(langId)) return;
+      if (!['cl', 'clle', 'clp', 'cmd', 'bnd'].includes(langId)) return;
 
       clleDiagnostics.clear();
 
       const cmdResult = collectCLCmd(editor);
       if (!cmdResult || cmdResult.command.trim() === '') return;
-      const result = await clSyntaxChecker.check(cmdResult.command);
-      if (!result) return;
-      const startPos = new vscode.Position(cmdResult.startLine, 0);
-      const endLineText = document.lineAt(cmdResult.endLine).text;
-      const endPos = new vscode.Position(cmdResult.endLine, endLineText.length);
-      const range = new vscode.Range(startPos, endPos);
-      const diagnostic = new vscode.Diagnostic(
-        range,
-        `${result.msgid}: ${result.text}`,
-        vscode.DiagnosticSeverity.Error
-      );
+      const results = await clSyntaxChecker.check(cmdResult.command);
+      if (!results || results.length === 0) return;
 
-      clleDiagnostics.set(document.uri, [diagnostic]);
+      const diagnostics: vscode.Diagnostic[] = [];
+      for (const result of results) {
+        const startPos = new vscode.Position(cmdResult.startLine, 0);
+        const endLineText = document.lineAt(cmdResult.endLine).text;
+        const endPos = new vscode.Position(cmdResult.endLine, endLineText.length);
+        const range = new vscode.Range(startPos, endPos);
+        const diagnostic = new vscode.Diagnostic(
+          range,
+          `${result.msgid}: ${result.msgtext}`,
+          vscode.DiagnosticSeverity.Error
+        );
+        diagnostics.push(diagnostic);
+      }
+      clleDiagnostics.set(document.uri, diagnostics);
     })
   );
   console.log('[CLChecker] is now active...');

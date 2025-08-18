@@ -1,5 +1,5 @@
 import { CodeForIBMi } from "@halcyontech/vscode-ibmi-types";
-import Instance from "@halcyontech/vscode-ibmi-types/Instance";
+import Instance from "@halcyontech/vscode-ibmi-types/api/Instance";
 import { ConfigurationChangeEvent, Extension, extensions, workspace } from "vscode";
 
 let baseExtension: Extension<CodeForIBMi>|undefined;

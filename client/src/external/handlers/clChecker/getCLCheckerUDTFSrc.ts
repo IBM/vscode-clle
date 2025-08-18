@@ -1,6 +1,6 @@
 export function getCLCheckerUDTFSrc(schema: string, version: number) {
     return `
-CREATE or REPLACE FUNCTION ${schema}.QCAPCMD (
+CREATE or REPLACE FUNCTION ${schema}.CL_SYNTAX_CHECK (
                                   CMD    VARCHAR(6000),
                                   CHECKOPT  VARCHAR(14) DEFAULT '*CL'
                                           )
@@ -16,22 +16,20 @@ CREATE or REPLACE FUNCTION ${schema}.QCAPCMD (
      FINAL CALL
      DISALLOW PARALLEL
      SCRATCHPAD 8400
-     SPECIFIC COZ_CAPCMD
-     EXTERNAL NAME '${schema}/COZ_CAPCMD'
+     SPECIFIC CODE4IBMI_CLCHECK
+     EXTERNAL NAME '${schema}/COZCLCHECK'
      PARAMETER STYLE DB2SQL;
 
 
-LABEL on specific routine ${schema}.COZ_CAPCMD IS
-'Run CL command using QCAPCMD API: CONTAINS SQL';
+LABEL on specific routine ${schema}.CODE4IBMI_CLCHECK IS
+'CL command Syntax Check via QCAPCMD API';
 
-comment on specific FUNCTION ${schema}.COZ_CAPCMD is
-'${version} - QCAPCMD Wrapper to syntax check a CL command.
-This Function uses QCAPCMD instead of QCMDEXC so that it can be used to
-run, syntax-check, restricted users with *LIMIT capabilities.';
+comment on specific FUNCTION ${schema}.CODE4IBMI_CLCHECK is
+'${version} - CL Comman Syntax Checker. QCAPCMD Wrapper by Bob Cozzi.';
 
-comment on parameter specific function ${schema}.COZ_CAPCMD
+comment on parameter specific function ${schema}.CODE4IBMI_CLCHECK
 (
-CMD is 'The CL command to be checked. A command length of up to 32702
+CMD is 'The CL command to be checked. A command length of up to 6000
   bytes is supported by this function',
 
 CHECKOPT IS 'The command processing option(s). Use this parameter
