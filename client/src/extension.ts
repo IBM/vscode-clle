@@ -13,7 +13,7 @@ import {getHandler} from "./external";
 import { loadBase } from './external/api/ibmi';
 import { initialiseRunner } from './clRunner';
 
-import { loadCLSyntaxChecker } from './external/handlers/clChecker/CLSyntaxLoader';
+import { loadCLSyntaxChecker } from './external/handlers/syntaxChecker/CLSyntaxLoader';
 
 
 let client: LanguageClient;
