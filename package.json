@@ -24,6 +24,9 @@
 	"activationEvents": [
 		"onLanguage:cl"
 	],
+	"extensionDependencies": [
+		"halcyontechltd.code-for-ibmi"
+	],
 	"main": "./out/extension",
 	"contributes": {
 		"snippets": [
