@@ -1,7 +1,7 @@
 import Handler from '../handler';
 import * as xml2js from "xml2js";
 import { getInstance } from '../../api/ibmi';
-import Instance from '@halcyontech/vscode-ibmi-types/api/Instance';
+import Instance from '@halcyontech/vscode-ibmi-types/Instance';
 
 import { content as gencmdxml } from './gencmdxml';
 

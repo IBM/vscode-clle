@@ -86,6 +86,11 @@ connection.onInitialized(() => {
 			connection.console.log('Workspace folder change event received.');
 		});
 	}
+
+	connection.onRequest(`getCache`, (uri: string) => {
+		const module = CLModules[uri];
+		return module || undefined;
+	});
 });
 
 connection.onCompletion(completionProvider);
