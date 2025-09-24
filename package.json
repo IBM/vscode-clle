@@ -80,7 +80,7 @@
 				"properties": {
 					"vscode-clle.syntax.checkOnOpen": {
 						"type": "boolean",
-						"description": "If enabled, will check the syntax of the SQL file when it is opened",
+						"description": "If enabled, will check the syntax of the CL file when it is opened",
 						"default": false
 					},
 					"vscode-clle.syntax.checkOnEdit": {
