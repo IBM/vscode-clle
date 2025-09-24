@@ -22,6 +22,7 @@
 		"vscode": "^1.50.0"
 	},
 	"activationEvents": [
+		"onStartupFinished",
 		"onLanguage:cl"
 	],
 	"extensionDependencies": [
@@ -40,6 +41,13 @@
 				"command": "vscode-clle.runSelected",
 				"title": "Run selected CL command",
 				"category": "IBM i"
+			},
+			{
+				"command": "vscode-clle.syntax.checkDocument",
+				"title": "Check CL Syntax",
+				"category": "CLLE",
+				"enablement": "code-for-ibmi:connected == true && vscode-clle.syntax.checkerAvailable == true && vscode-clle.syntax.checkerRunning != true",
+				"icon": "$(check-all)"
 			}
 		],
 		"keybindings": [
@@ -47,12 +55,6 @@
 				"command": "vscode-clle.runSelected",
 				"key": "ctrl+r",
 				"mac": "cmd+r",
-				"when": "editorLangId == cl"
-			},
-			{
-				"command": "vscode-clle.CLSyntaxCheck",
-				"key": "ctrl+f5",
-				"mac": "cmd+f5",
 				"when": "editorLangId == cl"
 			}
 		],
@@ -62,8 +64,38 @@
 					"command": "vscode-clle.runSelected",
 					"when": "code-for-ibmi:connected && editorLangId === cl"
 				}
+			],
+			"editor/title": [
+				{
+					"command": "vscode-clle.syntax.checkDocument",
+					"when": "editorLangId == cl && code-for-ibmi:connected == true",
+					"group": "navigation"
+				}
 			]
-		}
+		},
+		"configuration": [
+			{
+				"id": "vscode-clle.syntax",
+				"title": "CL Syntax Options",
+				"properties": {
+					"vscode-clle.syntax.checkOnOpen": {
+						"type": "boolean",
+						"description": "If enabled, will check the syntax of the SQL file when it is opened",
+						"default": false
+					},
+					"vscode-clle.syntax.checkOnEdit": {
+						"type": "boolean",
+						"description": "Whether the syntax checker should run automatically when the document is edited",
+						"default": true
+					},
+					"vscode-clle.syntax.checkInterval": {
+						"type": "number",
+						"description": "Time between editing (ms) and sending a request to syntax check on the server",
+						"default": 1500
+					}
+				}
+			}
+		]
 	},
 	"scripts": {
 		"package": "vsce package",
