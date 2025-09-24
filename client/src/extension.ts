@@ -1,20 +1,12 @@
-
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
-
-import {
-	LanguageClient,
-	LanguageClientOptions,
-	ServerOptions,
-	TransportKind
-} from 'vscode-languageclient';
-
-import {getHandler} from "./external";
+import { ExtensionContext } from 'vscode';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
+import { getHandler } from "./external";
 import { loadBase } from './external/api/ibmi';
 import { initialiseRunner } from './clRunner';
-
-import { loadCLSyntaxChecker } from './external/handlers/syntaxChecker/CLSyntaxLoader';
-
+import { CLSyntaxChecker } from './external/handlers/syntaxChecker/checker';
+import { ProblemProvider } from './external/handlers/syntaxChecker/problemProvider';
+import { registerCommands } from './commands';
 
 let client: LanguageClient;
 
@@ -84,8 +76,9 @@ export function activate(context: ExtensionContext) {
 	});
 
 	initialiseRunner(context);
-	loadCLSyntaxChecker(context);
-
+	registerCommands(context, client);
+	CLSyntaxChecker.registerComponent(context);
+	ProblemProvider.registerProblemProvider(context);
 }
 
 export function deactivate(): Thenable<void> | undefined {

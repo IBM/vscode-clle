@@ -1,5 +1,6 @@
 import { CodeForIBMi } from "@halcyontech/vscode-ibmi-types";
-import Instance from "@halcyontech/vscode-ibmi-types/api/Instance";
+import { ComponentRegistry } from '@halcyontech/vscode-ibmi-types/api/components/manager';
+import Instance from "@halcyontech/vscode-ibmi-types/Instance";
 import { Extension, extensions } from "vscode";
 
 let baseExtension: Extension<CodeForIBMi> | undefined;
@@ -14,4 +15,8 @@ export function loadBase(): CodeForIBMi | undefined {
 
 export function getInstance(): Instance | undefined {
   return (baseExtension && baseExtension.isActive && baseExtension.exports ? baseExtension.exports.instance : undefined);
+}
+
+export function getComponentRegistry(): ComponentRegistry | undefined {
+    return (baseExtension && baseExtension.isActive && baseExtension.exports ? baseExtension.exports.componentRegistry : undefined);
 }

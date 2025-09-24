@@ -1,7 +1,5 @@
-
-export function getCLCheckerCPPSrc(schema: string, version: number) {
-
-    return `// C++ processing program for QCAPCMD SQL Function
+export function getCLCheckerCPPSrc() {
+  return `// C++ processing program for QCAPCMD SQL Function
   // To compile:
   //    CRTCPPMOD MODULE(<tempLib>/COZCLCHECK) SRCFILE(<tempLib>/QCSRC) SRCMBR(COZCLCHECK)
   //    CRTPGM    PGM(<tempLib>/COZCLCHECK) MODULE(<tempLib>/COZCLCHECK)

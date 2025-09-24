@@ -1,6 +1,9 @@
+export const UDTF_NAME = 'CL_SYNTAX_CHECK';
+export const PGM_NAME = 'COZCLCHECK';
+
 export function getCLCheckerUDTFSrc(schema: string, version: number) {
-    return `
-CREATE or REPLACE FUNCTION ${schema}.CL_SYNTAX_CHECK (
+  return /*sql*/`
+CREATE or REPLACE FUNCTION ${schema}.${UDTF_NAME} (
                                   CMD    VARCHAR(6000),
                                   CHECKOPT  VARCHAR(14) DEFAULT '*CL'
                                           )
@@ -17,7 +20,7 @@ CREATE or REPLACE FUNCTION ${schema}.CL_SYNTAX_CHECK (
      DISALLOW PARALLEL
      SCRATCHPAD 8400
      SPECIFIC CODE4IBMI_CLCHECK
-     EXTERNAL NAME '${schema}/COZCLCHECK'
+     EXTERNAL NAME '${schema}/${PGM_NAME}'
      PARAMETER STYLE DB2SQL;
 
 
@@ -44,5 +47,4 @@ The valid choices are:<ul>
  <li>*LIMIT - Syntax check regular CL as limited user command.</li>
 </ul>'
 );`;
-
 }
