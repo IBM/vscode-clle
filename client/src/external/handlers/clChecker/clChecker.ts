@@ -19,7 +19,7 @@ export interface ClSyntaxError {
 
 const UDTF_NAME = 'CL_SYNTAX_CHECK';
 const PGM_NAME = 'COZCLCHECK';
-const VERSION = 1.0;
+const VERSION = 1.1;
 let tempLib = 'ILEDITOR';
 
 export class CLStatementChecker {
@@ -66,7 +66,9 @@ export class CLStatementChecker {
       const cppBytes = new TextEncoder().encode(cppSource);
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
-      const crtcppmod = `CRTCPPMOD MODULE(${tempLib}/${PGM_NAME}) SRCSTMF('${cppPath}') OUTPUT(*PRINT)`;
+      const crtcppmod = `CRTCPPMOD MODULE(${tempLib}/${PGM_NAME}) SRCSTMF('${cppPath}') ` +
+                        `DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
+
       console.log(`[clPrompter]: ${crtcppmod}`);
       const compileResult = await connection.runCommand({
         command: crtcppmod,
