@@ -3,7 +3,7 @@ import { commands, Diagnostic, DiagnosticSeverity, ExtensionContext, languages, 
 import Configuration from '../../../configuration';
 import { CLSyntaxChecker } from './checker';
 import path = require('path');
-import { getCommandString } from '../../../utils';
+import { CommandDetails, getCommandString } from '../../../utils';
 import { getInstance } from '../../api/ibmi';
 
 export namespace ProblemProvider {
@@ -82,7 +82,7 @@ export namespace ProblemProvider {
         if (['cl', 'clle', 'clp', 'cmd', 'bnd'].includes(languageId)) {
           const modules: any = await commands.executeCommand(`vscode-clle.server.getCache`, document.uri);
           if (modules) {
-            const commandsToCheck = [];
+            const commandsToCheck: CommandDetails[] = [];
 
             if (specificLine !== undefined) {
               // Get the command at the specific line
@@ -107,24 +107,33 @@ export namespace ProblemProvider {
                 }
               }
             }
-            await window.withProgress({ location: ProgressLocation.Window, title: `$(sync-spin) Checking CL Syntax` }, async () => {
-              for (const command of commandsToCheck) {
-                // Run syntax checker and add any new diagnostics
-                const results = await checker.check(command.content);
-                if (results) {
-                  for (const result of results) {
-                    const startLine = command.range.start;
-                    const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
-                    const endLine = command.range.end;
-                    const endCharacter = document.lineAt(endLine).text.length;
-                    const range = new Range(startLine, startCharacter, endLine, endCharacter);
-                    const diagnostic = new Diagnostic(
-                      range,
-                      `${result.msgid}: ${result.msgtext}`,
-                      DiagnosticSeverity.Error
-                    );
-                    diagnostics.push(diagnostic);
+
+            await window.withProgress({ location: ProgressLocation.Window, title: `$(sync-spin) Checking CL Syntax` }, async (progress) => {
+              for (const [index, command] of commandsToCheck.entries()) {
+                try {
+                  progress.report({ message: `(${index}/${commandsToCheck.length})` });
+
+                  if (command.content !== '') {
+                    // Run syntax checker and add any new diagnostics
+                    const results = await checker.check(command.content);
+                    if (results) {
+                      for (const result of results) {
+                        const startLine = command.range.start;
+                        const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
+                        const endLine = command.range.end;
+                        const endCharacter = document.lineAt(endLine).text.length;
+                        const range = new Range(startLine, startCharacter, endLine, endCharacter);
+                        const diagnostic = new Diagnostic(
+                          range,
+                          `${result.msgid}: ${result.msgtext}`,
+                          DiagnosticSeverity.Error
+                        );
+                        diagnostics.push(diagnostic);
+                      }
+                    }
                   }
+                } catch (error) {
+                  console.log(`${basename}: Failed to run CL syntax checker - ${error}`);
                 }
               }
 
@@ -133,10 +142,9 @@ export namespace ProblemProvider {
           } else {
             window.showWarningMessage(`${basename}: Failed to get cache from server`);
           }
-
-        } else {
-          documentLargeError(basename);
         }
+      } else {
+        documentLargeError(basename);
       }
 
       setCheckerRunningContext(false);
@@ -144,8 +152,7 @@ export namespace ProblemProvider {
   }
 
   function isSafeDocument(doc: TextDocument): boolean {
-    const VALID_STATEMENT_LENGTH = 32740;
-    return doc.languageId === `cl` && doc.lineCount < VALID_STATEMENT_LENGTH;
+    return doc.languageId === `cl` && doc.lineCount < CLSyntaxChecker.MAX_DOCUMENT_LENGTH;
   }
 
   function checkerAvailable() {
