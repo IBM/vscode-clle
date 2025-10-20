@@ -84,7 +84,7 @@ export namespace ProblemProvider {
           if (modules) {
             const commandsToCheck = [];
 
-            if (specificLine) {
+            if (specificLine !== undefined) {
               // Get the command at the specific line
               const statementSelection = new Selection(new Position(specificLine, 0), new Position(specificLine, 0));
               commandsToCheck.push(getCommandString(statementSelection, document));
