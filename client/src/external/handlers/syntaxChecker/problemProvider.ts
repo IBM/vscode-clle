@@ -2,12 +2,13 @@
 import { commands, Diagnostic, DiagnosticSeverity, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, Uri, window, workspace } from 'vscode';
 import Configuration from '../../../configuration';
 import { CLSyntaxChecker } from './checker';
-import path = require('path');
 import { CommandDetails, getCommandString } from '../../../utils';
 import { getInstance } from '../../api/ibmi';
+import * as path from "path";
 
 export namespace ProblemProvider {
   let currentTimeout: NodeJS.Timeout;
+  let currentChangedLines: number[] = [];
   let clleDiagnosticCollection = languages.createDiagnosticCollection(`clle`);
 
   export function registerProblemProvider(context: ExtensionContext) {
@@ -53,8 +54,20 @@ export namespace ProblemProvider {
               clearTimeout(currentTimeout);
             }
 
+            for (const change of e.contentChanges) {
+              const startLine = change.range.start.line;
+              const endLine = change.range.end.line;
+
+              for (let line = startLine; line <= endLine; line++) {
+                if (!currentChangedLines.includes(line)) {
+                  currentChangedLines.push(line);
+                }
+              }
+            }
+
             currentTimeout = setTimeout(() => {
-              validateCLDocument(e.document, e.contentChanges[0].range.start.line);
+              validateCLDocument(e.document, currentChangedLines);
+              currentChangedLines = [];
             }, (Configuration.get<number>(`syntax.checkInterval`) || 1500));
           }
         }
@@ -71,7 +84,7 @@ export namespace ProblemProvider {
     });
   }
 
-  async function validateCLDocument(document: TextDocument, specificLine?: number) {
+  async function validateCLDocument(document: TextDocument, specificLines?: number[]) {
     const checker = CLSyntaxChecker.get();
     if (checker) {
       const basename = document.fileName ? path.basename(document.fileName) : `Untitled`;
@@ -82,12 +95,14 @@ export namespace ProblemProvider {
         if (['cl', 'clle', 'clp', 'cmd', 'bnd'].includes(languageId)) {
           const modules: any = await commands.executeCommand(`vscode-clle.server.getCache`, document.uri);
           if (modules) {
-            const commandsToCheck: CommandDetails[] = [];
+            let commandsToCheck: CommandDetails[] = [];
 
-            if (specificLine !== undefined) {
-              // Get the command at the specific line
-              const statementSelection = new Selection(new Position(specificLine, 0), new Position(specificLine, 0));
-              commandsToCheck.push(getCommandString(statementSelection, document));
+            if (specificLines !== undefined && specificLines.length > 0) {
+              // Get the commands at the specific lines
+              for (const line of specificLines) {
+                const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
+                commandsToCheck.push(getCommandString(statementSelection, document));
+              }
             } else {
               // Get all statements in the document
               for (const statement of modules.statements) {
@@ -96,14 +111,27 @@ export namespace ProblemProvider {
               }
             }
 
-            // Get any existing diagnostics for this document and remove any that are within the command ranges
-            const diagnostics: Diagnostic[] = specificLine ? languages.getDiagnostics(document.uri) as Diagnostic[] : [];
+            // Remove duplicate commands to check
+            commandsToCheck = commandsToCheck.filter((command, index, self) =>
+              index === self.findIndex((c) => c.content === command.content && c.range.start === command.range.start && c.range.end === command.range.end)
+            );
+
+            // Get any existing diagnostics for this document
+            const diagnostics: Diagnostic[] = specificLines && specificLines.length > 0 ? languages.getDiagnostics(document.uri) as Diagnostic[] : [];
             for (let i = diagnostics.length - 1; i >= 0; i--) {
               const diag = diagnostics[i];
 
+              // Remove diagnostics outside the documents complete range
+              if (diag.range.end.line >= document.lineCount || diag.range.start.line < 0) {
+                diagnostics.splice(i, 1);
+                continue;
+              }
+
+              // Remove diagnostics that are within the command ranges
               for (const commandToCheck of commandsToCheck) {
                 if (diag.range.start.line >= commandToCheck.range.start && diag.range.end.line <= commandToCheck.range.end) {
                   diagnostics.splice(i, 1);
+                  break;
                 }
               }
             }
@@ -114,7 +142,7 @@ export namespace ProblemProvider {
                   progress.report({ message: `(${index}/${commandsToCheck.length})` });
 
                   if (command.content !== '') {
-                    // Run syntax checker and add any new diagnostics
+                    // Run syntax checker and add new diagnostics
                     const results = await checker.check(command.content);
                     if (results) {
                       for (const result of results) {
