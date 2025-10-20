@@ -118,7 +118,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     const library = this.getLibrary(connection);
     const cmd = [
       `select MSGID, MSGTEXT, CMDSTRING`,
-      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}'))`
+      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}', CHECKOPT=>'*CLLE'))`
     ].join(" ");
 
     const results = await connection.runSQL(cmd);
