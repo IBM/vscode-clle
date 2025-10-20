@@ -28,7 +28,7 @@ LABEL on specific routine ${schema}.CODE4IBMI_CLCHECK IS
 'CL command Syntax Check via QCAPCMD API';
 
 comment on specific FUNCTION ${schema}.CODE4IBMI_CLCHECK is
-'${version} - CL Comman Syntax Checker. QCAPCMD Wrapper by Bob Cozzi.';
+'${version} - CL Command Syntax Checker. QCAPCMD Wrapper by Bob Cozzi.';
 
 comment on parameter specific function ${schema}.CODE4IBMI_CLCHECK
 (

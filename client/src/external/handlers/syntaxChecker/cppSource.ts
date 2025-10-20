@@ -1,10 +1,11 @@
 export function getCLCheckerCPPSrc() {
-  return `// C++ processing program for QCAPCMD SQL Function
+  return `
+  // C++ processing program for QCAPCMD SQL Function
   // To compile:
-  //    CRTCPPMOD MODULE(<tempLib>/COZCLCHECK) SRCFILE(<tempLib>/QCSRC) SRCMBR(COZCLCHECK)
-  //    CRTPGM    PGM(<tempLib>/COZCLCHECK) MODULE(<tempLib>/COZCLCHECK)
+  //    CRTCPPMOD MODULE(CODE4I/COZ_CAPCMD) SRCFILE(CODE4I/QCSRC) SRCMBR(COZ_CAPCMD)
+  //    CRTPGM    PGM(CODE4I/COZ_CAPCMD) MODULE(CODE4I/COZ_CAPCMD)
 
-  // be sure to replace the <templib> with your own library name
+  // be sure to replace the library with your own library name
 
     /**********************************************************/
     /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
@@ -23,12 +24,13 @@ export function getCLCheckerCPPSrc() {
 #include <lecond.h>
 #include <leenv.h>
 #include <qusec.h>
+#include <Qp0ztrc.h>    // Qp0zLprintf
 #include <QMH.h>
 #include <QMHSNDPM.h>
 #include <QMHRCVPM.h>
 #include <QMHRTVM.h>
 #include <qcapcmd.h>
-#include "/QSYS.LIB/QSYSINC.LIB/MIH.FILE/CPYBYTES.MBR"
+// #include <CPYBYTES.MIH>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -59,6 +61,31 @@ export function getCLCheckerCPPSrc() {
 using namespace std;
 
 // Helper functions and classes
+
+// Could not get it to compile with #include <cpybytes.mih> so I inlined it here.
+#ifndef   __cpybytes_h
+  #define __cpybytes_h 1
+
+    #if (__OS400_TGTVRM__>=510)                              /* @B1A */
+        #pragma datamodel(P128)                              /* @B1A */
+    #endif                                                   /* @B1A */
+
+    #ifdef __ILEC400__
+      #pragma linkage( _CPYBYTES,builtin )
+    #else
+      extern "builtin"
+    #endif
+
+     void _CPYBYTES ( void *,           /* Receiver characters       */
+                      const void *,     /* Source characters     @A1C*/
+                      unsigned int );   /* Length of source          */
+
+    #if (__OS400_TGTVRM__>=510)                              /* @B1A */
+        #pragma datamodel(pop)                               /* @B1A */
+    #endif                                                   /* @B1A */
+
+#endif                                  /* #ifndef __cpybytes_h      */
+// end cpybytes.mih
 
 //  QUSEC class wrapper
 
@@ -432,10 +459,11 @@ int main(int argc, char *argv[])
       // Calculate length for updated CMD string workspace
      int  rtnUpdatedCmdLen = 0;
      int  returnedCmdBufferLen = MAXCMD_LEN;
+     int  syntaxOption = 0;
      char returnedCmdString[MAXCMD_LEN];
      char* pRtnCmd = returnedCmdString;
 
-     ctrlBlock.Command_Process_Type = 1;
+     ctrlBlock.Command_Process_Type = 3;  // DFT(Command Entry Syntax checking)
      if (*indyInCHECKOPT >= 0 && strlen(inCHECKOPT) > 0)
      {
         while (*inCHECKOPT == ' ' || *inCHECKOPT == '*') {
@@ -444,8 +472,17 @@ int main(int argc, char *argv[])
         char cmdCheckOption[64];
         strcpy(cmdCheckOption, inCHECKOPT);
         makeUpper(cmdCheckOption);
-        ctrlBlock.Command_Process_Type = xlateCheckOption(cmdCheckOption);
+
+        syntaxOption = xlateCheckOption(cmdCheckOption);
+
+        ctrlBlock.Command_Process_Type = syntaxOption;
+
       }
+      const char lf = 0x25;
+      Qp0zLprintf("[COZCLCHECK] Using CL Syntax Check Option %s Process Type: %d %c",
+                   inCHECKOPT,
+                   ctrlBlock.Command_Process_Type,
+                   lf);
 
 
 #pragma exception_handler(MONMSG, 0, 0, _C2_MH_ESCAPE | _C2_MH_FUNCTION_CHECK,\
@@ -534,35 +571,42 @@ CONTINUE:
 
 }  // end main
 
-
 int xlateCheckOption(const char* pCheckOption)
 {
-    int typeCheck = 1;
+    int typeCheck = 3;  // Default to non-CL Program CL Commands (i.e., Command Entry commands)
+
       // Setup up type of syntax checking to perform
-  if (startsWith(pCheckOption,"CL")     ||  // *CL
-      startsWith(pCheckOption,"CHK")    ||  // *CHK
-      startsWith(pCheckOption,"CHECK")  ||  // *CHECK    (Default: TYPE=>*CHECK)
-      startsWith(pCheckOption,"QCMDCHECK")  || // *QCMDCHECK
-      startsWith(pCheckOption,"QCMDENTRY")  || // *QCMDENTRY
-      startsWith(pCheckOption,"CMDENTRY")  ||  // *CMDENTRY
-      startsWith(pCheckOption,"QCMDCHK"))      // *QCMDCHK
+      // RC: Change this first compare from startsWith to strcmp
+  if (
+      strcmp(pCheckOption,"CHECK")==0  ||
+      strcmp(pCheckOption,"CHK")==0    ||
+      strcmp(pCheckOption,"CLCHECK")==0   ||
+      strcmp(pCheckOption,"SYNTAX")==0    ||
+      strcmp(pCheckOption,"CLSYNTAX")==0  ||
+      strcmp(pCheckOption,"QCMDCHECK")==0 ||
+      strcmp(pCheckOption,"QCMDEXEC")==0  ||
+      strcmp(pCheckOption,"QCMDCHK")==0)
   {
-      typeCheck = 1;     // 1=Command Entry CL Syntax check
+      typeCheck = 1;     // 1=Command Entry CL Syntax check (syntax check any CL command)  s
   }
   else if (startsWith(pCheckOption,"LMT") ||  // *LMTUSER
-            startsWith(pCheckOption,"LIMIT"))  // *LIMITTED
+           startsWith(pCheckOption,"LIMIT"))  // *LIMITTED
   {
       typeCheck = 2; // Command Line environment: Run
   }
-  else if (startsWith(pCheckOption,"CMDLINE")   ||  // *CMDLINECHECK
-            startsWith(pCheckOption,"QCMDLINE")  ||  // *QCMDLINE
-            startsWith(pCheckOption,"LINE"))   // *LIMITEDUSER
+         // DEFAULT CHECKOPT
+  else if (strcmp(pCheckOption,"CL")==0        ||
+           strcmp(pCheckOption,"RUN")==0       ||
+           startsWith(pCheckOption,"CMDENTRY") ||
+           startsWith(pCheckOption,"CMDLINE")  ||
+           startsWith(pCheckOption,"QCMDLINE") ||
+           startsWith(pCheckOption,"LINE"))
   {
       typeCheck = 3; // Command Line environment: Syntax Check Only
   }
   else if (startsWith(pCheckOption,"CLP")   ||  // *CLP
-            startsWith(pCheckOption,"OPM")   ||  // *CLPGM
-            startsWith(pCheckOption,"CLPGM"))    // *PGM
+           startsWith(pCheckOption,"OPM")   ||  // *CLPGM
+           startsWith(pCheckOption,"CLPGM"))    // *PGM
   {
       typeCheck = 4; // Syntax Check CL Program statement
   }
@@ -571,7 +615,7 @@ int xlateCheckOption(const char* pCheckOption)
       typeCheck = 6;  // Command definition statements
   }
   else if (startsWith(pCheckOption,"BND")   ||  // *CLP
-            startsWith(pCheckOption,"BIND"))      // *PGM
+           startsWith(pCheckOption,"BIND"))      // *PGM
   {
       typeCheck = 7; // Binder Language CL command Syntax Check
   }
@@ -582,13 +626,13 @@ int xlateCheckOption(const char* pCheckOption)
       typeCheck = 8; // Syntax Check CL Program statement
   }
   else if (startsWith(pCheckOption,"CLLE")   ||  // *CLP
-            startsWith(pCheckOption,"ILECL") ||  // *CLPGM
-            startsWith(pCheckOption,"ILE"))      // *PGM  or *ILEPGM or *ILECLPGM
+           startsWith(pCheckOption,"ILECL") ||  // *CLPGM
+           startsWith(pCheckOption,"ILE"))      // *PGM  or *ILEPGM or *ILECLPGM
   {
       typeCheck = 9; // Syntax Check CL Program statement
   }
   else if (startsWith(pCheckOption,"PMT")   ||  // *PMT
-            startsWith(pCheckOption,"PROMPT"))  // *PROMPTER
+           startsWith(pCheckOption,"PROMPT"))  // *PROMPTER
   {   // 10 is prep for prompting.
       typeCheck = 10; // Syntax Check CL Program statement
   }
@@ -699,5 +743,6 @@ int getNextSyntaxErrorMsg(char* pMsgKey, char* msgid, char* msgtext)
       return 1;
   }
   return 0;
-}`;
+}
+  `;
 }

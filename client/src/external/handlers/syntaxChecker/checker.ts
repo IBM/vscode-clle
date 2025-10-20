@@ -15,7 +15,7 @@ export interface ClSyntaxError {
 
 export class CLSyntaxChecker implements IBMiComponent {
   static ID = "CLSyntaxChecker";
-  private readonly currentVersion = 1;
+  private readonly currentVersion = 1.1;
   private library: string | undefined;
 
   getIdentification(): ComponentIdentification {
@@ -58,7 +58,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
       // Create C++ module
-      const crtcppmod = `CRTCPPMOD MODULE(${library}/${PGM_NAME}) SRCSTMF('${cppPath}') OUTPUT(*PRINT)`;
+      const crtcppmod = `CRTCPPMOD MODULE(${library}/${PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
       const compileResult = await connection.runCommand({
         command: crtcppmod,
         noLibList: true
