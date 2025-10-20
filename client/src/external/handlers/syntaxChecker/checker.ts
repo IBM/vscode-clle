@@ -17,6 +17,7 @@ export class CLSyntaxChecker implements IBMiComponent {
   static ID = "CLSyntaxChecker";
   static UDTF_NAME = 'CL_SYNTAX_CHECK';
   static PGM_NAME = 'COZCLCHECK';
+  static CHECK_INTERVAL = 3000;
   static MAX_DOCUMENT_LENGTH = 32740;
   private readonly currentVersion = 1.1;
   private library: string | undefined;

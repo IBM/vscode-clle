@@ -68,7 +68,7 @@ export namespace ProblemProvider {
             currentTimeout = setTimeout(() => {
               validateCLDocument(e.document, currentChangedLines);
               currentChangedLines = [];
-            }, (Configuration.get<number>(`syntax.checkInterval`) || 1500));
+            }, (Configuration.get<number>(`syntax.checkInterval`) || CLSyntaxChecker.CHECK_INTERVAL));
           }
         }
       })
