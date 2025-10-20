@@ -65,10 +65,20 @@ export namespace ProblemProvider {
               }
             }
 
-            currentTimeout = setTimeout(() => {
+            const trimmedWhiteSpace = e.contentChanges[0].text.replace(/^[ ]+|[ ]+$/g, '');
+            const isEnterKey = trimmedWhiteSpace === `\n` || trimmedWhiteSpace === `\r\n`;
+
+            if (isEnterKey) {
+              // Run syntax checker right away after enter key is pressed
               validateCLDocument(e.document, currentChangedLines);
               currentChangedLines = [];
-            }, (Configuration.get<number>(`syntax.checkInterval`) || CLSyntaxChecker.CHECK_INTERVAL));
+            } else {
+              // Run syntax checker after check interval
+              currentTimeout = setTimeout(() => {
+                validateCLDocument(e.document, currentChangedLines);
+                currentChangedLines = [];
+              }, (Configuration.get<number>(`syntax.checkInterval`) || CLSyntaxChecker.CHECK_INTERVAL));
+            }
           }
         }
       })
