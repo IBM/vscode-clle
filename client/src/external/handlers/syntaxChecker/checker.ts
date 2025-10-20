@@ -32,10 +32,10 @@ export class CLSyntaxChecker implements IBMiComponent {
     return connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
   }
 
-  async getRemoteState(connection: IBMi): Promise<ComponentState> {
+  async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
     const library = this.getLibrary(connection);
 
-    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library, CLSyntaxChecker.UDTF_NAME);
+    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library!, CLSyntaxChecker.UDTF_NAME);
     if (udtfVersion < this.currentVersion) {
       return `NeedsUpdate`;
     }
@@ -49,7 +49,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     componentRegistry?.registerComponent(context, clSyntaxChecker);
   }
 
-  async update(connection: IBMi): Promise<ComponentState> {
+  async update(connection: IBMi, installDirectory: string): Promise<ComponentState> {
     return await connection.withTempDirectory(async (tempDir: string) => {
       const content = connection.getContent();
       const textEncoder = new TextEncoder();
@@ -83,7 +83,7 @@ export class CLSyntaxChecker implements IBMiComponent {
 
       // Upload UDTF source
       const sqlPath = posix.join(tempDir, `${CLSyntaxChecker.UDTF_NAME}.sql`);
-      const sqlSource = getCLCheckerUDTFSrc(library, this.currentVersion);
+      const sqlSource = getCLCheckerUDTFSrc(library!, this.currentVersion);
       const sqlBytes = textEncoder.encode(sqlSource);
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
@@ -107,10 +107,10 @@ export class CLSyntaxChecker implements IBMiComponent {
 
   async check(clStmt: string): Promise<ClSyntaxError[] | undefined> {
     const instance = getInstance();
-    const connection = instance.getConnection();
+    const connection = instance?.getConnection();
 
     if (!connection) {
-      return null;
+      return undefined;
     }
 
     // Double up any single quotes for SQL compatibility
