@@ -1,9 +1,8 @@
-export const UDTF_NAME = 'CL_SYNTAX_CHECK';
-export const PGM_NAME = 'COZCLCHECK';
+import { CLSyntaxChecker } from './checker';
 
 export function getCLCheckerUDTFSrc(schema: string, version: number) {
   return /*sql*/`
-CREATE or REPLACE FUNCTION ${schema}.${UDTF_NAME} (
+CREATE or REPLACE FUNCTION ${schema}.${CLSyntaxChecker.UDTF_NAME} (
                                   CMD    VARCHAR(6000),
                                   CHECKOPT  VARCHAR(14) DEFAULT '*CL'
                                           )
@@ -20,7 +19,7 @@ CREATE or REPLACE FUNCTION ${schema}.${UDTF_NAME} (
      DISALLOW PARALLEL
      SCRATCHPAD 8400
      SPECIFIC CODE4IBMI_CLCHECK
-     EXTERNAL NAME '${schema}/${PGM_NAME}'
+     EXTERNAL NAME '${schema}/${CLSyntaxChecker.PGM_NAME}'
      PARAMETER STYLE DB2SQL;
 
 

@@ -2,7 +2,7 @@
 import { ComponentIdentification, ComponentState, IBMiComponent } from "@halcyontech/vscode-ibmi-types/api/components/component";
 import IBMi from '@halcyontech/vscode-ibmi-types/api/IBMi';
 import { getCLCheckerCPPSrc } from './cppSource';
-import { getCLCheckerUDTFSrc, PGM_NAME, UDTF_NAME } from './udtfSource';
+import { getCLCheckerUDTFSrc } from './udtfSource';
 import { getComponentRegistry, getInstance } from '../../api/ibmi';
 import { posix } from 'path';
 import { ExtensionContext } from 'vscode';
@@ -15,6 +15,8 @@ export interface ClSyntaxError {
 
 export class CLSyntaxChecker implements IBMiComponent {
   static ID = "CLSyntaxChecker";
+  static UDTF_NAME = 'CL_SYNTAX_CHECK';
+  static PGM_NAME = 'COZCLCHECK';
   private readonly currentVersion = 1.1;
   private library: string | undefined;
 
@@ -31,7 +33,7 @@ export class CLSyntaxChecker implements IBMiComponent {
   async getRemoteState(connection: IBMi): Promise<ComponentState> {
     const library = this.getLibrary(connection);
 
-    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library, UDTF_NAME);
+    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library, CLSyntaxChecker.UDTF_NAME);
     if (udtfVersion < this.currentVersion) {
       return `NeedsUpdate`;
     }
@@ -52,13 +54,13 @@ export class CLSyntaxChecker implements IBMiComponent {
       const library = this.getLibrary(connection);
 
       // Upload C++ source
-      const cppPath = posix.join(tempDir, `${PGM_NAME}.cpp`);
+      const cppPath = posix.join(tempDir, `${CLSyntaxChecker.PGM_NAME}.cpp`);
       const cppSource = getCLCheckerCPPSrc();
       const cppBytes = textEncoder.encode(cppSource);
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
       // Create C++ module
-      const crtcppmod = `CRTCPPMOD MODULE(${library}/${PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
+      const crtcppmod = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
       const compileResult = await connection.runCommand({
         command: crtcppmod,
         noLibList: true
@@ -68,7 +70,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       }
 
       // Create C++ program
-      const crtExtPgm = `CRTPGM PGM(${library}/${PGM_NAME}) MODULE(${library}/${PGM_NAME}) ACTGRP(*CALLER)`;
+      const crtExtPgm = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
       const binderResult = await connection.runCommand({
         command: crtExtPgm,
         noLibList: true
@@ -78,7 +80,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       }
 
       // Upload UDTF source
-      const sqlPath = posix.join(tempDir, `${UDTF_NAME}.sql`);
+      const sqlPath = posix.join(tempDir, `${CLSyntaxChecker.UDTF_NAME}.sql`);
       const sqlSource = getCLCheckerUDTFSrc(library, this.currentVersion);
       const sqlBytes = textEncoder.encode(sqlSource);
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
@@ -116,7 +118,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     const library = this.getLibrary(connection);
     const cmd = [
       `select MSGID, MSGTEXT, CMDSTRING`,
-      `from table(${library}.${UDTF_NAME}('${escapedStmt}'))`
+      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}'))`
     ].join(" ");
 
     const results = await connection.runSQL(cmd);
