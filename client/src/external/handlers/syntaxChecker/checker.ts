@@ -106,10 +106,10 @@ export class CLSyntaxChecker implements IBMiComponent {
 
   async check(clStmt: string): Promise<ClSyntaxError[] | undefined> {
     const instance = getInstance();
-    const connection = instance.getConnection();
+    const connection = instance?.getConnection();
 
     if (!connection) {
-      return null;
+      return undefined;
     }
 
     // Double up any single quotes for SQL compatibility
