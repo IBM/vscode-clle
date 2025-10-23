@@ -1,5 +1,5 @@
 
-import { commands, Diagnostic, DiagnosticSeverity, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, Uri, window, workspace } from 'vscode';
+import { commands, Diagnostic, DiagnosticSeverity, EndOfLine, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, Uri, window, workspace } from 'vscode';
 import Configuration from '../../../configuration';
 import { CLSyntaxChecker } from './checker';
 import { CommandDetails, getCommandString } from '../../../utils';
@@ -66,7 +66,8 @@ export namespace ProblemProvider {
             }
 
             const trimmedWhiteSpace = e.contentChanges[0].text.replace(/^[ ]+|[ ]+$/g, '');
-            const isEnterKey = trimmedWhiteSpace === `\n` || trimmedWhiteSpace === `\r\n`;
+            const eol = e.document.eol === EndOfLine.CRLF ? '\r\n' : '\n';
+            const isEnterKey = trimmedWhiteSpace === eol;
 
             if (isEnterKey) {
               // Run syntax checker right away after enter key is pressed
