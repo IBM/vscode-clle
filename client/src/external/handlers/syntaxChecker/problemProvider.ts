@@ -1,5 +1,5 @@
 
-import { commands, Diagnostic, DiagnosticSeverity, EndOfLine, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, Uri, window, workspace } from 'vscode';
+import { commands, Diagnostic, DiagnosticSeverity, EndOfLine, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, TextDocumentContentChangeEvent, Uri, window, workspace } from 'vscode';
 import Configuration from '../../../configuration';
 import { CLSyntaxChecker } from './checker';
 import { CommandDetails, getCommandString } from '../../../utils';
@@ -46,6 +46,8 @@ export namespace ProblemProvider {
       }),
 
       workspace.onDidChangeTextDocument(e => {
+        shiftDiagnostics(e.document, e.contentChanges);
+
         const isCL = e.document.languageId === `cl`;
         if (isCL) {
           const checkOnChange = Configuration.get<boolean>(`syntax.checkOnEdit`) || false;
@@ -95,6 +97,49 @@ export namespace ProblemProvider {
     });
   }
 
+  function shiftDiagnostics(document: TextDocument, changes: readonly TextDocumentContentChangeEvent[]) {
+    // Iterate over all changes in this event
+    for (const change of changes) {
+      const changeStartLine = change.range.start.line;
+      const changeEndLine = change.range.end.line;
+      const insertedLineCount = change.text.split('\n').length - 1;
+      const deletedLineCount = changeEndLine - changeStartLine;
+
+      // Calculate net line shift
+      const netLineShift = insertedLineCount - deletedLineCount;
+
+      if (netLineShift === 0) {
+        // Nothing to adjust
+        return;
+      }
+
+      // Update diagnostics ranges for this document
+      const currentDiagnostics = clleDiagnosticCollection.get(document.uri) || [];
+      const updatedDiagnostics = currentDiagnostics.map(diag => {
+        const startLine = diag.range.start.line;
+        const endLine = diag.range.end.line;
+
+        if (startLine > changeEndLine) {
+          // Diagnostics below the change are impacted so shift diagnostic lines
+          const newStart = startLine + netLineShift;
+          const newEnd = endLine + netLineShift;
+
+          return new Diagnostic(
+            new Range(newStart, diag.range.start.character, newEnd, diag.range.end.character),
+            diag.message,
+            diag.severity
+          );
+        }
+
+        // Diagnostics above the change stay the same
+        return diag;
+      });
+
+      // Update the diagnostic collection
+      clleDiagnosticCollection.set(document.uri, updatedDiagnostics);
+    };
+  }
+
   async function validateCLDocument(document: TextDocument, specificLines?: number[]) {
     const checker = CLSyntaxChecker.get();
     if (checker) {
@@ -104,7 +149,7 @@ export namespace ProblemProvider {
 
         const languageId = document.languageId.toLowerCase();
         if (['cl', 'clle', 'clp', 'cmd', 'bnd'].includes(languageId)) {
-          const modules: any = await commands.executeCommand(`vscode-clle.server.getCache`, document.uri);
+          const modules: any = await commands.executeCommand(`vscode-clle.server.getModules`, document.uri, document.getText());
           if (modules) {
             let commandsToCheck: CommandDetails[] = [];
 

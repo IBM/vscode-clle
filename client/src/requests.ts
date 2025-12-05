@@ -1,6 +1,6 @@
 import { Uri } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient';
 
-export async function getCache(client: LanguageClient, uri: Uri): Promise<any> {
-	return client.sendRequest(`getCache`, uri.toString());
+export async function getModules(client: LanguageClient, uri: Uri, content: string): Promise<any> {
+	return await client.sendRequest(`getModules`, [uri.toString(), content]);
 }
