@@ -22,7 +22,11 @@
 		"vscode": "^1.50.0"
 	},
 	"activationEvents": [
+		"onStartupFinished",
 		"onLanguage:cl"
+	],
+	"extensionDependencies": [
+		"halcyontechltd.code-for-ibmi"
 	],
 	"main": "./out/extension",
 	"contributes": {
@@ -37,6 +41,13 @@
 				"command": "vscode-clle.runSelected",
 				"title": "Run selected CL command",
 				"category": "IBM i"
+			},
+			{
+				"command": "vscode-clle.syntax.checkDocument",
+				"title": "Check CL Syntax",
+				"category": "CLLE",
+				"enablement": "code-for-ibmi:connected == true && vscode-clle.syntax.checkerAvailable == true && vscode-clle.syntax.checkerRunning != true",
+				"icon": "$(check-all)"
 			}
 		],
 		"keybindings": [
@@ -53,8 +64,38 @@
 					"command": "vscode-clle.runSelected",
 					"when": "code-for-ibmi:connected && editorLangId === cl"
 				}
+			],
+			"editor/title": [
+				{
+					"command": "vscode-clle.syntax.checkDocument",
+					"when": "editorLangId == cl && code-for-ibmi:connected == true",
+					"group": "navigation"
+				}
 			]
-		}
+		},
+		"configuration": [
+			{
+				"id": "vscode-clle.syntax",
+				"title": "CL Syntax Options",
+				"properties": {
+					"vscode-clle.syntax.checkOnOpen": {
+						"type": "boolean",
+						"description": "If enabled, will check the syntax of the CL file when it is opened",
+						"default": false
+					},
+					"vscode-clle.syntax.checkOnEdit": {
+						"type": "boolean",
+						"description": "Whether the syntax checker should run automatically when the document is edited",
+						"default": true
+					},
+					"vscode-clle.syntax.checkInterval": {
+						"type": "number",
+						"description": "Time between editing (ms) and sending a request to syntax check on the server",
+						"default": 1500
+					}
+				}
+			}
+		]
 	},
 	"scripts": {
 		"package": "vsce package",
@@ -70,6 +111,7 @@
 		"webpack:dev": "npm run clean && npm run lang:setup && webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js"
 	},
 	"devDependencies": {
+		"@halcyontech/vscode-ibmi-types": "^2.16.3",
 		"@types/mocha": "^9.1.0",
 		"@types/node": "^16.11.7",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",

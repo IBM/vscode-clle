@@ -12,7 +12,7 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-  CompletionParams,
+	CompletionParams,
 	TextDocumentChangeEvent
 } from 'vscode-languageserver/node';
 
@@ -86,6 +86,20 @@ connection.onInitialized(() => {
 			connection.console.log('Workspace folder change event received.');
 		});
 	}
+
+	connection.onRequest(`getModules`, (uri: string, content: string) => {
+		const module = CLModules[uri];
+		if (module) {
+			return module;
+		} else {
+			const parser = new CLParser();
+			const tokens = parser.parseDocument(content);
+			const module = new Module();
+			module.parseStatements(tokens);
+			CLModules[uri] = module;
+			return module;
+		}
+	});
 });
 
 connection.onCompletion(completionProvider);
