@@ -39,19 +39,19 @@ export function getPrettyDocs(docs: any): CommandDoc {
 			paramaters.map((parm: any) => {
 				const info = parm[`$`];
 				const qual = parm.Qual;
-				const spcVal = parm.SpcVal;
+				const elem = parm.Elem ? [...parm.Elem].flatMap(item => item.SpcVal || []) : [];
+				const val = [...(parm.SpcVal || []), ...(parm.SngVal || []), ...(parm.ChoicePgmValues || []), ...(elem || [])].flatMap(item => item.Value);
 
 				let specialValues = [];
 
-				if (spcVal && spcVal.length > 0) {
-					const opts = spcVal[0].Value;
-
-					specialValues = opts.map((value: any) => value[`$`].Val);
+				if (val && val.length > 0) {
+					specialValues = val.map((value: any) => value[`$`].Val);
 				}
 
 				return {
 					keyword: info.Kwd,
 					prompt: info.Prompt,
+
 					choice: info.Choice,
 					type: info.Type,
 					position: Number(info.PosNbr),
