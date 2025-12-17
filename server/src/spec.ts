@@ -40,6 +40,7 @@ export function getPrettyDocs(docs: any): CommandDoc {
 				const info = parm[`$`];
 				const qual = parm.Qual;
 				const elem = parm.Elem ? [...parm.Elem].flatMap(item => item.SpcVal || []) : [];
+				// Union of all available valid Parmeter Values
 				const val = [...(parm.SpcVal || []), ...(parm.SngVal || []), ...(parm.ChoicePgmValues || []), ...(elem || [])].flatMap(item => item.Value);
 
 				let specialValues = [];
@@ -51,7 +52,6 @@ export function getPrettyDocs(docs: any): CommandDoc {
 				return {
 					keyword: info.Kwd,
 					prompt: info.Prompt,
-
 					choice: info.Choice,
 					type: info.Type,
 					position: Number(info.PosNbr),
