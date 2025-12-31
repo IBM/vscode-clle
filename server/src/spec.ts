@@ -19,7 +19,8 @@ interface Parameter {
 	choice: string;
 	type: string;
 	position: number;
-	specialValues: string[]
+	specialValues: string[],
+	required: boolean;
 };
 
 export function getPrettyDocs(docs: any): CommandDoc {
@@ -55,7 +56,8 @@ export function getPrettyDocs(docs: any): CommandDoc {
 					choice: info.Choice,
 					type: info.Type,
 					position: Number(info.PosNbr),
-					specialValues
+					specialValues,
+					required : Number(parm?.$?.Min) >= 1 ? true : false
 				}
 			}) : [];
 
