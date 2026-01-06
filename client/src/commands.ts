@@ -13,7 +13,7 @@ export function registerCommands(context: ExtensionContext, client: LanguageClie
           if (!handler) {
             throw new Error("IBM i handler not available");
           }
-          const def = library ? await handler.getCLDefinition(object, library) : await handler.getCLDefinition('CPYF');
+          const def = library ? await handler.getCLDefinition(object, library) : await handler.getCLDefinition(object);
           return def;
     })
   )
