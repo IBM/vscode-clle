@@ -52,17 +52,6 @@ export function activate(context: ExtensionContext) {
 
 	// Start the client. This will also launch the server
 	client.start();
-	
-	const clDefinition = {
-		async getCLDefinition(object: string, library: string) {
-			const handler = await getHandler();
-			if (!handler) {
-				throw new Error("IBM i handler not available");
-			}
-			const def = await handler.getCLDefinition(object, library);
-			return { def };
-		}
-	};
 
 	client.onReady().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
@@ -90,7 +79,6 @@ export function activate(context: ExtensionContext) {
 	registerCommands(context, client);
 	CLSyntaxChecker.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
-	return clDefinition;
 }
 
 export function deactivate(): Thenable<void> | undefined {
