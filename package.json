@@ -48,6 +48,10 @@
 				"category": "CLLE",
 				"enablement": "code-for-ibmi:connected == true && vscode-clle.syntax.checkerAvailable == true && vscode-clle.syntax.checkerRunning != true",
 				"icon": "$(check-all)"
+			},
+			{
+				"command": "vscode-clle.getCLDefinition",
+				"title": "Get CL definition"
 			}
 		],
 		"keybindings": [
