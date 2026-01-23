@@ -6,6 +6,10 @@ export function registerCommands(context: ExtensionContext, client: LanguageClie
   context.subscriptions.push(
     commands.registerCommand(`vscode-clle.server.getModules`, async (uri: Uri, content: string) => {
       return await getModules(client, uri, content);
+    }),
+    
+    commands.registerCommand(`vscode-clle.viewFullDocumentation`, async (object: string, library: string) => {
+      return;
     })
   )
 }

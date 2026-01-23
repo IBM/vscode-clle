@@ -1,5 +1,16 @@
 import { DataType, DefinitionType } from 'language';
 
+export interface DetailedCommandDoc {
+	command: {
+		name: string;
+		description: string
+	}
+	parameters: {
+		name: string;
+		description: string;
+	}[];
+}
+
 export interface CommandDoc {
 	commandInfo: CommandInfo;
 	parms: Parameter[];

@@ -1,12 +1,13 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { loadBase } from './api/ibmi';
+import { getInstance, loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
 import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
 import GenCmdXml from './components/gencmdxml/gencmdxml';
+import { GenCmdDoc } from './gencmddoc';
 
 let client: LanguageClient;
 
@@ -69,6 +70,17 @@ export function activate(context: ExtensionContext) {
 				const definition = await genCmdXml.getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
 
 				return definition;
+			}
+		});
+
+		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
+			try {
+				const html = await GenCmdDoc.generateHtml(qualifiedObject[0], qualifiedObject[1]);
+				if (html) {
+					return GenCmdDoc.parseHtml(qualifiedObject[0], html);
+				}
+			} catch (e) {
+				console.log(e);
 			}
 		});
 	});
