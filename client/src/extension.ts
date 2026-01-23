@@ -1,12 +1,12 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { loadBase } from './external/api/ibmi';
+import { loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
-import { CLSyntaxChecker } from './external/handlers/syntaxChecker/checker';
-import { ProblemProvider } from './external/handlers/syntaxChecker/problemProvider';
+import { CLSyntaxChecker } from './components/syntaxChecker/checker';
+import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
-import GenCmdXml from './external/handlers/vscodeIbmi/gencmdxml';
+import GenCmdXml from './components/vscodeIbmi/gencmdxml';
 
 let client: LanguageClient;
 
