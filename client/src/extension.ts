@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 import { getInstance, loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
@@ -37,6 +37,9 @@ export function activate(context: ExtensionContext) {
 	const clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
 		documentSelector: [{ language: 'cl' }],
+		markdown: {
+			isTrusted: true
+		}
 		// synchronize: {
 		// 	// Notify the server about file changes to '.clientrc files contained in the workspace
 		// 	fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
