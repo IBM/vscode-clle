@@ -6,7 +6,7 @@ import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
 import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
-import GenCmdXml from './components/vscodeIbmi/gencmdxml';
+import GenCmdXml from './components/gencmdxml/gencmdxml';
 
 let client: LanguageClient;
 
