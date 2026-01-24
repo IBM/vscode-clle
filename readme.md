@@ -8,8 +8,7 @@ This extension adds language features for CL into the IDE, including:
 * Outline view
 * Content assist / Completion provider
 * Go to or peek definition and references
-* Content assist for CL commands
-   * requires connection to IBM i through Code for IBM i or Merlin IDE.
+* Content assist for CL commands (requires connection to IBM i through Code for IBM i)
 
 ## Developers
 
