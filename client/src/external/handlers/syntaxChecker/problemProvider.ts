@@ -57,20 +57,27 @@ export namespace ProblemProvider {
             }
 
             for (const change of e.contentChanges) {
-              const startLine = change.range.start.line;
-              const endLine = change.range.end.line;
+              const changeStartLine = change.range.start.line;
+              const changeEndLine = change.range.end.line;
+              const insertedLineCount = change.text.split('\n').length - 1;
+              const deletedLineCount = changeEndLine - changeStartLine;
+
+              // The actual changed end line depends on the content change:
+              // 1. Lines added - The change start and end line are the same so adjust based on the number of lines inserted
+              // 2. Lines deleted - The change start and end line are different so we can use the change end line
+              const actualChangeEndLine = changeStartLine + Math.max(insertedLineCount, deletedLineCount);
 
               // Add changed lines if not added before
-              for (let line = startLine; line <= endLine; line++) {
+              for (let line = changeStartLine; line <= actualChangeEndLine; line++) {
                 if (!currentChangedLines.includes(line)) {
                   currentChangedLines.push(line);
                 }
               }
 
-              // Also add the line after the last changed line to catch continuation issues
-              const lineAfter = endLine + 1;
-              if (lineAfter < e.document.lineCount && !currentChangedLines.includes(lineAfter)) {
-                currentChangedLines.push(lineAfter);
+              // Also add the line after the end changed line to catch continuation issues
+              const lineAfterEndLine = actualChangeEndLine + 1;
+              if (lineAfterEndLine < e.document.lineCount && !currentChangedLines.includes(lineAfterEndLine)) {
+                currentChangedLines.push(lineAfterEndLine);
               }
             }
 
