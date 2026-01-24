@@ -2,7 +2,7 @@ import { getInstance } from './api/ibmi';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { JSDOM } from "jsdom";
 
-interface DetailedCommandDoc {
+export interface CLDoc {
 	command: {
 		name: string;
 		description: string
@@ -34,7 +34,7 @@ export namespace GenCmdDoc {
 		}
 	}
 
-	export async function parseHtml(command: string, html: string): Promise<DetailedCommandDoc | undefined> {
+	export function parseHtml(command: string, html: string): CLDoc | undefined {
 		const dom = new JSDOM(html);
 		const doc = dom.window.document;
 
@@ -55,7 +55,7 @@ export namespace GenCmdDoc {
 		// Get parameter names
 		const h3 = doc.querySelector(`h3 > a[name="${command}.PARAMETERS.TABLE"]`).parentElement;
 		const table = h3.nextElementSibling;
-		const parameters: DetailedCommandDoc[`parameters`] = [];
+		const parameters: CLDoc[`parameters`] = [];
 		if (table) {
 			const rows = Array.from(table.querySelectorAll("tr")).slice(1);
 			rows.forEach(row => {

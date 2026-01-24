@@ -1,6 +1,6 @@
 import { DataType, DefinitionType } from 'language';
 
-export interface DetailedCommandDoc {
+export interface CLDoc {
 	command: {
 		name: string;
 		description: string

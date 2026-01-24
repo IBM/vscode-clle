@@ -16,8 +16,8 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 				const command = statement.getObject();
 				if (command) {
 					const commandName = command.name.toUpperCase();
-					const detailedDoc = await getCLDocSpec(commandName, command.library);
-					if (!detailedDoc) {
+					const clDoc = await getCLDocSpec(commandName, command.library);
+					if (!clDoc) {
 						return;
 					}
 
@@ -30,13 +30,14 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 					});
 
 					// Check if hovering on a parameter
+					const viewFullDoc = `\n\n---\n\n[View Full Documentation](command:vscode-clle.viewFullDocumentation?${encodeURI(`["${commandName}"${command.library ? `,"${command.library}"` : ``}]`)})`;
 					if (currentParm) {
-						const parameterDoc = detailedDoc.parameters.find(p => p.name === currentParm);
+						const parameterDoc = clDoc.doc.parameters.find(p => p.name === currentParm);
 						if (parameterDoc && parameterDoc.description) {
 							return {
 								contents: {
 									kind: MarkupKind.Markdown,
-									value: `${parameterDoc.description}\n\n---\n\n[Search on IBM Documentation](https://www.ibm.com/docs/en/search)`
+									value: `${parameterDoc.description}${viewFullDoc}`
 								}
 							};
 						}
@@ -44,11 +45,11 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 						// Check if hovering on a command
 						const token = statement.getTokenByOffset(offset);
 						if (token && token.value && token.value.toUpperCase() === commandName) {
-							if (detailedDoc.command.description) {
+							if (clDoc.doc.command.description) {
 								return {
 									contents: {
 										kind: MarkupKind.Markdown,
-										value: `**${detailedDoc.command.name}**\n\n${detailedDoc.command.description}\n\n---\n\n[View Full Documentation](command:vscode-clle.viewFullDocumentation)`
+										value: `**${clDoc.doc.command.name}**\n\n${clDoc.doc.command.description}${viewFullDoc}`
 									}
 								};
 							}

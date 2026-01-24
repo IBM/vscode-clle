@@ -1,12 +1,12 @@
 import { Module } from 'language';
 import { getCLDefinition, getCLDoc, getFileDefinition } from './instance';
-import { Files, CommandDoc, getPrettyDocs, DetailedCommandDoc } from './spec';
+import { Files, CommandDoc, getPrettyDocs, CLDoc } from './spec';
 
 export const CLModules: { [uri: string]: Module } = {}
 
 export const CLCommands: { [qualifiedObject: string]: CommandDoc | undefined } = {};
 export const FileDefinitions: { [qualifiedObject: string]: Files.ColumnDescription[] | undefined } = {};
-export const ClDocs: { [qualifiedObject: string]: DetailedCommandDoc | undefined } = {};
+export const ClDocs: { [qualifiedObject: string]: { html: string, doc: CLDoc } | undefined } = {};
 
 export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc | undefined> {
 	const validObject = object.toUpperCase();
@@ -47,7 +47,7 @@ export async function getFileSpec(object: string, library = '*LIBL', openId?: st
 	return (spec ? Files.getVariables(spec, openId) : undefined);
 }
 
-export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<DetailedCommandDoc | undefined> {
+export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;

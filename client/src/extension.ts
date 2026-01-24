@@ -80,7 +80,10 @@ export function activate(context: ExtensionContext) {
 			try {
 				const html = await GenCmdDoc.generateHtml(qualifiedObject[0], qualifiedObject[1]);
 				if (html) {
-					return GenCmdDoc.parseHtml(qualifiedObject[0], html);
+					const doc = GenCmdDoc.parseHtml(qualifiedObject[0], html);
+					if (doc) {
+						return { html, doc };
+					}
 				}
 			} catch (e) {
 				console.log(e);
