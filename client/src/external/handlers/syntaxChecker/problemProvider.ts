@@ -215,8 +215,14 @@ export namespace ProblemProvider {
             try {
               progress.report({ message: `(${index}/${commandsToCheck.length})` });
 
-              // Run syntax checker and add new diagnostics
+              // Handle special case in TOBi where a prefix of ! can be used in CL pseudo-source to ignore errors for a command
+              // https://ibm.github.io/ibmi-tobi/#/welcome/features?id=support-cl-pseudo-source
               const languageId = document.languageId as SupportedLanguageId;
+              if (languageId === `cl` && command.content.startsWith(`!`)) {
+                command.content = command.content.slice(1);
+              }
+
+              // Run syntax checker and add new diagnostics
               const results = await checker.check(command.content, languageId);
               if (results) {
                 for (const result of results) {
