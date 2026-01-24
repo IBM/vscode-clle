@@ -60,10 +60,17 @@ export namespace ProblemProvider {
               const startLine = change.range.start.line;
               const endLine = change.range.end.line;
 
+              // Add changed lines if not added before
               for (let line = startLine; line <= endLine; line++) {
                 if (!currentChangedLines.includes(line)) {
                   currentChangedLines.push(line);
                 }
+              }
+
+              // Also add the line after the last changed line to catch continuation issues
+              const lineAfter = endLine + 1;
+              if (lineAfter < e.document.lineCount && !currentChangedLines.includes(lineAfter)) {
+                currentChangedLines.push(lineAfter);
               }
             }
 
@@ -154,6 +161,9 @@ export namespace ProblemProvider {
             let commandsToCheck: CommandDetails[] = [];
 
             if (specificLines !== undefined && specificLines.length > 0) {
+              // Remove specific lines outside the documents complete range
+              specificLines = specificLines.filter(line => line >= 0 && line < document.lineCount);
+
               // Get the commands at the specific lines
               for (const line of specificLines) {
                 const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
@@ -161,8 +171,8 @@ export namespace ProblemProvider {
               }
             } else {
               // Get all statements in the document
-              for (const statement of modules.statements) {
-                const statementSelection = new Selection(document.positionAt(statement.range.start), document.positionAt(statement.range.start));
+              for (let line = 0; line < document.lineCount; line++) {
+                const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
                 commandsToCheck.push(getCommandString(statementSelection, document));
               }
             }
