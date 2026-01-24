@@ -18,8 +18,31 @@ export interface CLDoc {
 	errorMessages: string;
 }
 
-export namespace GenCmdDoc {
-	export async function generateHtml(object: string, library: string): Promise<string | undefined> {
+export class GenCmdDoc {
+	private static cachedClDocs: { [qualifiedObject: string]: { html: string, doc: CLDoc } | undefined } = {};
+
+	public static async getCLDoc(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
+		const validObject = object.toUpperCase();
+		const validLibrary = (library || `*LIBL`).toUpperCase();
+		const qualifiedPath = `${validObject}/${validLibrary}`;
+
+		// Return doc from cache if it exists
+		if (GenCmdDoc.cachedClDocs[qualifiedPath]) {
+			return GenCmdDoc.cachedClDocs[qualifiedPath];
+		}
+
+		// Generate doc
+		const html = await GenCmdDoc.generateHtml(validObject, validLibrary);
+		if (html) {
+			const doc = GenCmdDoc.parseHtml(validObject, html);
+			if (doc) {
+				GenCmdDoc.cachedClDocs[qualifiedPath] = { html, doc };
+				return GenCmdDoc.cachedClDocs[qualifiedPath];
+			}
+		}
+	}
+
+	public static async generateHtml(object: string, library: string): Promise<string | undefined> {
 		const instance = getInstance();
 		const connection = instance.getConnection();
 		const content = connection.getContent();
@@ -40,7 +63,7 @@ export namespace GenCmdDoc {
 		}
 	}
 
-	export function parseHtml(command: string, html: string): CLDoc | undefined {
+	public static parseHtml(command: string, html: string): CLDoc | undefined {
 		const dom = new JSDOM(html);
 		const doc = dom.window.document;
 		// Override default (https://github.com/crosstype/node-html-markdown/blob/master/src/config.ts#L53C17-L53C45) to avoid escaping asterisks

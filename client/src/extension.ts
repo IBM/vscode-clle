@@ -10,7 +10,7 @@ import GenCmdXml from './components/gencmdxml/gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
 
 export interface CLLE {
-	genCmdDoc: typeof GenCmdDoc
+	genCmdDoc: GenCmdDoc
 }
 
 let client: LanguageClient;
@@ -82,13 +82,7 @@ export function activate(context: ExtensionContext): CLLE {
 
 		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
 			try {
-				const html = await GenCmdDoc.generateHtml(qualifiedObject[0], qualifiedObject[1]);
-				if (html) {
-					const doc = GenCmdDoc.parseHtml(qualifiedObject[0], html);
-					if (doc) {
-						return { html, doc };
-					}
-				}
+				return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
 			} catch (e) {
 				console.log(e);
 			}

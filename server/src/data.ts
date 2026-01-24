@@ -6,7 +6,6 @@ export const CLModules: { [uri: string]: Module } = {}
 
 export const CLCommands: { [qualifiedObject: string]: CommandDoc | undefined } = {};
 export const FileDefinitions: { [qualifiedObject: string]: Files.ColumnDescription[] | undefined } = {};
-export const ClDocs: { [qualifiedObject: string]: { html: string, doc: CLDoc } | undefined } = {};
 
 export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc | undefined> {
 	const validObject = object.toUpperCase();
@@ -50,15 +49,5 @@ export async function getFileSpec(object: string, library = '*LIBL', openId?: st
 export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
-	const qualifiedPath = `${validObject}/${validLibrary}`;
-
-	// Return from cache if it exists
-	if (ClDocs[qualifiedPath]) {
-		return ClDocs[qualifiedPath];
-	}
-
-	const doc = await getCLDoc(validObject, validLibrary);
-	ClDocs[qualifiedPath] = doc;
-
-	return ClDocs[qualifiedPath];
+	return await getCLDoc(validObject, validLibrary);
 }
