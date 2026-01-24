@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
-import { getInstance, loadBase } from './api/ibmi';
+import { loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
 import { ProblemProvider } from './components/syntaxChecker/problemProvider';
