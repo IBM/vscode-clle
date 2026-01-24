@@ -23,7 +23,9 @@
 	},
 	"activationEvents": [
 		"onStartupFinished",
-		"onLanguage:cl"
+		"onLanguage:cl",
+		"onLanguage:bnd",
+		"onLanguage:cmd"
 	],
 	"extensionDependencies": [
 		"halcyontechltd.code-for-ibmi"
@@ -68,7 +70,7 @@
 			"editor/title": [
 				{
 					"command": "vscode-clle.syntax.checkDocument",
-					"when": "editorLangId == cl && code-for-ibmi:connected == true",
+					"when": "editorLangId =~ /^(cl|bnd|cmd)$/ && code-for-ibmi:connected == true",
 					"group": "navigation"
 				}
 			]
