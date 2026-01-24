@@ -32,7 +32,7 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 					// Check if hovering on a parameter
 					const viewFullDoc = `\n\n---\n\n[View Full Documentation](command:vscode-clle.viewFullDocumentation?${encodeURI(`["${commandName}"${command.library ? `,"${command.library}"` : ``}]`)})`;
 					if (currentParm) {
-						const parameterDoc = clDoc.doc.parameters.find(p => p.name === currentParm);
+						const parameterDoc = clDoc.doc.parameters.details.find(p => p.name === currentParm);
 						if (parameterDoc && parameterDoc.description) {
 							return {
 								contents: {

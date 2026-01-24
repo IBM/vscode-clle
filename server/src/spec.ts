@@ -6,9 +6,14 @@ export interface CLDoc {
 		description: string
 	}
 	parameters: {
-		name: string;
-		description: string;
-	}[];
+		overview: string;
+		details: {
+			name: string;
+			description: string;
+		}[]
+	};
+	examples: string;
+	errorMessages: string;
 }
 
 export interface CommandDoc {

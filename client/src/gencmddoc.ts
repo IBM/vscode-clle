@@ -8,9 +8,14 @@ export interface CLDoc {
 		description: string
 	}
 	parameters: {
-		name: string;
-		description: string;
-	}[];
+		overview: string;
+		details: {
+			name: string;
+			description: string;
+		}[]
+	};
+	examples: string;
+	errorMessages: string;
 }
 
 export namespace GenCmdDoc {
@@ -37,6 +42,8 @@ export namespace GenCmdDoc {
 	export function parseHtml(command: string, html: string): CLDoc | undefined {
 		const dom = new JSDOM(html);
 		const doc = dom.window.document;
+		// Override default (https://github.com/crosstype/node-html-markdown/blob/master/src/config.ts#L53C17-L53C45) to avoid escaping asterisks
+		const htmlToMd = new NodeHtmlMarkdown({ globalEscape: [/[\\`_~\[\]]/gm, '\\$&'] });
 
 		// Get command name
 		const h2 = doc.querySelector(`h2`);
@@ -47,42 +54,69 @@ export namespace GenCmdDoc {
 
 		// Get command description
 		const tdInfo = doc.querySelector('td[valign="top"][align="left"]');
-		const tdHtml = tdInfo?.innerHTML ?? "";
-		const div = doc.querySelector(`div > a[name="${command}"]`)?.parentElement;
-		const divHtml = div?.innerHTML ?? "";
-		const commandDescription = NodeHtmlMarkdown.translate(`${tdHtml}\n\n${divHtml}`);
+		const tdHtml = tdInfo?.innerHTML ?? ``;
+		const commandDiv = doc.querySelector(`div > a[name="${command}"]`)?.parentElement;
+		const commandDivHtml = commandDiv?.innerHTML ?? ``;
+		const commandDescription = htmlToMd.translate(`${tdHtml}\n\n${commandDivHtml}`);
 
-		// Get parameter names
-		const h3 = doc.querySelector(`h3 > a[name="${command}.PARAMETERS.TABLE"]`).parentElement;
-		const table = h3.nextElementSibling;
-		const parameters: CLDoc[`parameters`] = [];
-		if (table) {
-			const rows = Array.from(table.querySelectorAll("tr")).slice(1);
-			rows.forEach(row => {
-				const cells = row.querySelectorAll("td");
-				const parameterName = cells[0]?.textContent?.trim() ?? "";
+		// Get parameter overview
+		const tableDiv = doc.querySelector(`div > h3 > a[name="${command}.PARAMETERS.TABLE"]`)?.parentElement?.parentElement;
+		const tableH3 = tableDiv?.querySelector(`h3`);
+		tableH3?.remove();
+		const tableTopOfPage = tableDiv?.querySelector(`table[width="100%"]`);
+		tableTopOfPage?.remove();
+		const tableDivHtml = tableDiv?.innerHTML ?? ``;
+		const parametersOverview = htmlToMd.translate(tableDivHtml);
+
+		// Get parameter details
+		const parameterDetails: CLDoc['parameters']['details'] = [];
+		const trInfos = tableDiv?.querySelectorAll(`tr`);
+		const rows = trInfos ? Array.from(trInfos).slice(1) : [];
+		rows.forEach(row => {
+			const cells = row?.querySelectorAll(`td`);
+			if (cells) {
+				const parameterName = cells[0]?.textContent?.trim() ?? ``;
 				if (parameterName) {
-					parameters.push({
+					parameterDetails.push({
 						name: parameterName,
 						description: ``
 					});
 				}
-			});
-		}
-
-		// Get parameter descriptions
-		parameters.forEach(param => {
-			const div = doc.querySelector(`div > a[name="${command}.${param.name}"]`)?.parentElement;
-			const divHtml = div?.innerHTML ?? "";
-			param.description = NodeHtmlMarkdown.translate(divHtml);
+			}
 		});
+
+		// Get parameter detail descriptions
+		parameterDetails.forEach(param => {
+			const parameterDiv = doc.querySelector(`div > a[name="${command}.${param.name}"]`)?.parentElement;
+			const parameterDivHtml = parameterDiv?.innerHTML ?? ``;
+			param.description = htmlToMd.translate(parameterDivHtml);
+		});
+
+		// Get examples
+		const examplesDiv = doc.querySelector(`div > h3 > a[name="${command}.COMMAND.EXAMPLES"]`)?.parentElement?.parentElement;
+		const examplesH3 = examplesDiv?.querySelector(`h3`);
+		examplesH3?.remove();
+		const examplesDivHtml = examplesDiv?.innerHTML ?? ``;
+		const examples = htmlToMd.translate(examplesDivHtml);
+
+		// Get error messages
+		const errorMessageDiv = doc.querySelector(`div > h3 > a[name="${command}.ERROR.MESSAGES"]`)?.parentElement?.parentElement;
+		const errorMessageH3 = errorMessageDiv?.querySelector(`h3`);
+		errorMessageH3?.remove();
+		const errorMessageDivHtml = errorMessageDiv?.innerHTML ?? ``;
+		const errorMessages = htmlToMd.translate(errorMessageDivHtml);
 
 		return {
 			command: {
 				name: commandName,
 				description: commandDescription
 			},
-			parameters
+			parameters: {
+				overview: parametersOverview,
+				details: parameterDetails
+			},
+			examples,
+			errorMessages
 		};
 	}
 }
