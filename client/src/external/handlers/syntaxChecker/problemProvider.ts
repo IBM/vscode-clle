@@ -163,86 +163,81 @@ export namespace ProblemProvider {
 
         const languageId = document.languageId.toLowerCase();
         if (['cl', 'clle', 'clp', 'cmd', 'bnd'].includes(languageId)) {
-          const modules: any = await commands.executeCommand(`vscode-clle.server.getModules`, document.uri, document.getText());
-          if (modules) {
-            let commandsToCheck: CommandDetails[] = [];
+          let commandsToCheck: CommandDetails[] = [];
 
-            if (specificLines !== undefined && specificLines.length > 0) {
-              // Remove specific lines outside the documents complete range
-              specificLines = specificLines.filter(line => line >= 0 && line < document.lineCount);
+          if (specificLines !== undefined && specificLines.length > 0) {
+            // Remove specific lines outside the documents complete range
+            specificLines = specificLines.filter(line => line >= 0 && line < document.lineCount);
 
-              // Get the commands at the specific lines
-              for (const line of specificLines) {
-                const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
-                commandsToCheck.push(getCommandString(statementSelection, document));
-              }
-            } else {
-              // Get all statements in the document
-              for (let line = 0; line < document.lineCount; line++) {
-                const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
-                commandsToCheck.push(getCommandString(statementSelection, document));
-              }
+            // Get the commands at the specific lines
+            for (const line of specificLines) {
+              const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
+              commandsToCheck.push(getCommandString(statementSelection, document));
+            }
+          } else {
+            // Get all statements in the document
+            for (let line = 0; line < document.lineCount; line++) {
+              const statementSelection = new Selection(new Position(line, 0), new Position(line, 0));
+              commandsToCheck.push(getCommandString(statementSelection, document));
+            }
+          }
+
+          // Remove duplicate commands to check
+          commandsToCheck = commandsToCheck.filter((command, index, self) =>
+            index === self.findIndex((c) => c.content === command.content && c.range.start === command.range.start && c.range.end === command.range.end)
+          );
+
+          // Get any existing diagnostics for this document
+          const diagnostics: Diagnostic[] = specificLines && specificLines.length > 0 ? languages.getDiagnostics(document.uri) as Diagnostic[] : [];
+          for (let i = diagnostics.length - 1; i >= 0; i--) {
+            const diag = diagnostics[i];
+
+            // Remove diagnostics outside the documents complete range
+            if (diag.range.end.line >= document.lineCount || diag.range.start.line < 0) {
+              diagnostics.splice(i, 1);
+              continue;
             }
 
-            // Remove duplicate commands to check
-            commandsToCheck = commandsToCheck.filter((command, index, self) =>
-              index === self.findIndex((c) => c.content === command.content && c.range.start === command.range.start && c.range.end === command.range.end)
-            );
-
-            // Get any existing diagnostics for this document
-            const diagnostics: Diagnostic[] = specificLines && specificLines.length > 0 ? languages.getDiagnostics(document.uri) as Diagnostic[] : [];
-            for (let i = diagnostics.length - 1; i >= 0; i--) {
-              const diag = diagnostics[i];
-
-              // Remove diagnostics outside the documents complete range
-              if (diag.range.end.line >= document.lineCount || diag.range.start.line < 0) {
+            // Remove diagnostics that are within the command ranges
+            for (const commandToCheck of commandsToCheck) {
+              if (diag.range.start.line >= commandToCheck.range.start && diag.range.end.line <= commandToCheck.range.end) {
                 diagnostics.splice(i, 1);
-                continue;
-              }
-
-              // Remove diagnostics that are within the command ranges
-              for (const commandToCheck of commandsToCheck) {
-                if (diag.range.start.line >= commandToCheck.range.start && diag.range.end.line <= commandToCheck.range.end) {
-                  diagnostics.splice(i, 1);
-                  break;
-                }
+                break;
               }
             }
+          }
 
-            await window.withProgress({ location: ProgressLocation.Window, title: `$(sync-spin) Checking CL Syntax` }, async (progress) => {
-              for (const [index, command] of commandsToCheck.entries()) {
-                try {
-                  progress.report({ message: `(${index}/${commandsToCheck.length})` });
+          await window.withProgress({ location: ProgressLocation.Window, title: `$(sync-spin) Checking CL Syntax` }, async (progress) => {
+            for (const [index, command] of commandsToCheck.entries()) {
+              try {
+                progress.report({ message: `(${index}/${commandsToCheck.length})` });
 
-                  if (command.content !== '') {
-                    // Run syntax checker and add new diagnostics
-                    const results = await checker.check(command.content);
-                    if (results) {
-                      for (const result of results) {
-                        const startLine = command.range.start;
-                        const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
-                        const endLine = command.range.end;
-                        const endCharacter = document.lineAt(endLine).text.length;
-                        const range = new Range(startLine, startCharacter, endLine, endCharacter);
-                        const diagnostic = new Diagnostic(
-                          range,
-                          `${result.msgid}: ${result.msgtext}`,
-                          DiagnosticSeverity.Error
-                        );
-                        diagnostics.push(diagnostic);
-                      }
+                if (command.content !== '') {
+                  // Run syntax checker and add new diagnostics
+                  const results = await checker.check(command.content);
+                  if (results) {
+                    for (const result of results) {
+                      const startLine = command.range.start;
+                      const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
+                      const endLine = command.range.end;
+                      const endCharacter = document.lineAt(endLine).text.length;
+                      const range = new Range(startLine, startCharacter, endLine, endCharacter);
+                      const diagnostic = new Diagnostic(
+                        range,
+                        `${result.msgid}: ${result.msgtext}`,
+                        DiagnosticSeverity.Error
+                      );
+                      diagnostics.push(diagnostic);
                     }
                   }
-                } catch (error) {
-                  console.log(`${basename}: Failed to run CL syntax checker - ${error}`);
                 }
+              } catch (error) {
+                console.log(`${basename}: Failed to run CL syntax checker - ${error}`);
               }
+            }
 
-              clleDiagnosticCollection.set(document.uri, diagnostics);
-            });
-          } else {
-            window.showWarningMessage(`${basename}: Failed to get cache from server`);
-          }
+            clleDiagnosticCollection.set(document.uri, diagnostics);
+          });
         }
       } else {
         documentLargeError(basename);
