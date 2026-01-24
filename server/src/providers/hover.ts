@@ -11,8 +11,8 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 		if (module) {
 			const offset = document.offsetAt(params.position);
 			const statement = module.getStatementByOffset(offset);
-
-			if (statement) {
+	
+			if (statement && offset >= statement.range.start && offset <= statement.range.end) {
 				const command = statement.getObject();
 				if (command) {
 					const commandName = command.name.toUpperCase();
