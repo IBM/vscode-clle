@@ -23,13 +23,14 @@ export namespace GenCmdDoc {
 		const instance = getInstance();
 		const connection = instance.getConnection();
 		const content = connection.getContent();
+		const config = connection.getConfig();
 
 		if (connection) {
 			const cmd = `${library}/${object}`;
 			const toStmf = `${library.replace('*', '')}_${object}`;
+			const toDir = config.tempDir;
 			const generateResult = await connection.runCommand({
-				command: `GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('/tmp')`,
-				noLibList: true
+				command: `GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
 			});
 
 			if (generateResult.code === 0) {
