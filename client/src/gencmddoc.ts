@@ -28,7 +28,7 @@ export namespace GenCmdDoc {
 		if (connection) {
 			const cmd = `${library}/${object}`;
 			const toStmf = `${library.replace('*', '')}_${object}`;
-			const toDir = config.tempDir;
+			const toDir = `${config.tempDir}/gencmddoc`;
 			const generateResult = await connection.runCommand({
 				command: `GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
 			});
