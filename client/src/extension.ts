@@ -9,9 +9,13 @@ import { registerCommands } from './commands';
 import GenCmdXml from './components/gencmdxml/gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
 
+export interface CLLE {
+	genCmdDoc: typeof GenCmdDoc
+}
+
 let client: LanguageClient;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): CLLE {
 	loadBase();
 
 	// The server is implemented in node
@@ -96,6 +100,10 @@ export function activate(context: ExtensionContext) {
 	CLSyntaxChecker.registerComponent(context);
 	GenCmdXml.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
+
+	return {
+		genCmdDoc: GenCmdDoc
+	}
 }
 
 export function deactivate(): Thenable<void> | undefined {
