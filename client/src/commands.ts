@@ -1,8 +1,7 @@
 import { ExtensionContext, commands, Uri, window, ViewColumn } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { getModules } from './requests';
-import { getCustomUI } from './api/ibmi';
-import { CLDoc, GenCmdDoc } from './gencmddoc';
+import { GenCmdDoc } from './gencmddoc';
 
 export function registerCommands(context: ExtensionContext, client: LanguageClient) {
   context.subscriptions.push(
@@ -11,12 +10,8 @@ export function registerCommands(context: ExtensionContext, client: LanguageClie
     }),
 
     commands.registerCommand(`vscode-clle.viewFullDocumentation`, async (object: string, library: string) => {
-      const clDoc = await GenCmdDoc.getCLDoc(object, library);
-      if (clDoc) {
-        const panel = window.createWebviewPanel(`tab`, `${clDoc.doc.command.name} Documentation`, { viewColumn: ViewColumn.Active }, { enableScripts: true });
-        panel.webview.html = clDoc.html;
-        panel.reveal();
-      } else {
+      const isDocOpened = await GenCmdDoc.openClDoc(object, library);
+      if (!isDocOpened) {
         await window.showErrorMessage(`Documentation for ${object} command not found`);
       }
     })

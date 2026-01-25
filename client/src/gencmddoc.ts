@@ -1,4 +1,5 @@
 import { getInstance } from './api/ibmi';
+import { window, ViewColumn } from 'vscode';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { JSDOM } from "jsdom";
 
@@ -20,6 +21,18 @@ export interface CLDoc {
 
 export class GenCmdDoc {
 	private static cachedClDocs: { [qualifiedObject: string]: { html: string, doc: CLDoc } | undefined } = {};
+
+	public static async openClDoc(object: string, library = '*LIBL'): Promise<boolean> {
+		const clDoc = await GenCmdDoc.getCLDoc(object, library);
+		if (clDoc) {
+			const panel = window.createWebviewPanel(`tab`, `${clDoc.doc.command.name} Documentation`, { viewColumn: ViewColumn.Active }, { enableScripts: true });
+			panel.webview.html = clDoc.html;
+			panel.reveal();
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public static async getCLDoc(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
 		const validObject = object.toUpperCase();
