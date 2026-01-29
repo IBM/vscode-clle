@@ -1,10 +1,16 @@
-import { CLParser, Module, Variable, DefinitionType, Subroutine, File } from 'language';
-import { CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat } from 'vscode-languageserver';
-import { CLModules, getCLspec, getFileSpecCache } from '../data';
+import { Variable, DefinitionType, Subroutine, File } from 'language';
+import { CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat, MarkupKind } from 'vscode-languageserver';
+import { CLModules, getCLspec, getFileSpecCache, getCLDocSpec } from '../data';
 import { documents } from '../instance';
 import { buildDescription, columnDescription } from '../utils';
 
-export default async function completionProvider(params: CompletionParams): Promise<CompletionItem[]> {
+interface CompletionData {
+	commandName: string;
+	commandLibrary: string;
+	name: string;
+}
+
+export async function completionProvider(params: CompletionParams): Promise<CompletionItem[]> {
 	const position = params.position;
 	const document = documents.get(params.textDocument.uri);
 	const triggerCharacter = params.context ? params.context.triggerCharacter || `` : ``;
@@ -120,6 +126,13 @@ export default async function completionProvider(params: CompletionParams): Prom
 								item.insertTextFormat = InsertTextFormat.Snippet;
 								item.insertText = `${parm.keyword}(\${1:})\$0`;
 								item.detail = parm.prompt + ` ${parm.type ? `(${parm.choice || parm.type})` : ``}`.trimEnd();
+
+								item.data = {
+									commandName: command.name.toUpperCase(),
+									commandLibrary: command.library,
+									name: parm.keyword
+								} as CompletionData;
+
 								return item;
 							})
 						);
@@ -130,4 +143,27 @@ export default async function completionProvider(params: CompletionParams): Prom
 	}
 
 	return items;
+}
+
+export async function completionResolveProvider(item: CompletionItem): Promise<CompletionItem> {
+	const data: CompletionData = item.data;
+
+	if (data && data.commandName && data.name) {
+		const clDoc = await getCLDocSpec(data.commandName, data.commandLibrary);
+
+		if (clDoc) {
+			const parameterDoc = clDoc.doc.parameters.details.find(p => p.name === data.name);
+			if (parameterDoc && parameterDoc.description) {
+				// Remove the heading pattern: ### Parameter\n\n
+				const description = parameterDoc.description.replace(/^###[^\n]*\n\n/, '');
+
+				item.documentation = {
+					kind: MarkupKind.Markdown,
+					value: description
+				};
+			}
+		}
+	}
+
+	return item;
 }
