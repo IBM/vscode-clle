@@ -28,6 +28,9 @@ export default class GenCmdXml implements IBMiComponent {
 				return genCmdXmlComponent;
 			}
 		}
+
+		// TODO: When the component version is bumped to 2, replace the above code with:
+		// return connection?.getComponent<GenCmdXml>(GenCmdXml.ID);
 	}
 
 	async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
