@@ -1,5 +1,21 @@
 import { DataType, DefinitionType } from 'language';
 
+export interface CLDoc {
+	command: {
+		name: string;
+		description: string
+	}
+	parameters: {
+		overview: string;
+		details: {
+			name: string;
+			description: string;
+		}[]
+	};
+	examples: string;
+	errorMessages: string;
+}
+
 export interface CommandDoc {
 	commandInfo: CommandInfo;
 	parms: Parameter[];

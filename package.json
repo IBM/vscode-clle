@@ -40,7 +40,7 @@
 			{
 				"command": "vscode-clle.runSelected",
 				"title": "Run selected CL command",
-				"category": "IBM i"
+				"category": "CLLE"
 			},
 			{
 				"command": "vscode-clle.syntax.checkDocument",
@@ -48,6 +48,11 @@
 				"category": "CLLE",
 				"enablement": "code-for-ibmi:connected == true && vscode-clle.syntax.checkerAvailable == true && vscode-clle.syntax.checkerRunning != true",
 				"icon": "$(check-all)"
+			},
+			{
+				"command": "vscode-clle.viewFullDocumentation",
+				"title": "View Full Documentation",
+				"category": "CLLE"
 			}
 		],
 		"keybindings": [
@@ -63,6 +68,10 @@
 				{
 					"command": "vscode-clle.runSelected",
 					"when": "code-for-ibmi:connected && editorLangId === cl"
+				},
+				{
+					"command": "vscode-clle.viewFullDocumentation",
+					"when": "never"
 				}
 			],
 			"editor/title": [
@@ -129,6 +138,6 @@
 		"webpack-cli": "^5.1.4"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^5.1.1"
+		"vscode-languageclient": "^7.0.0"
 	}
 }

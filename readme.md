@@ -6,9 +6,9 @@
 This extension adds language features for CL into the IDE, including:
 
 * Outline view
-* Content assist / Completion provider
+* Content assist / completion provider
 * Go to or peek definition and references
-* Content assist for CL commands (requires connection to IBM i through Code for IBM i)
+* Content assist and hover support for CL commands (requires connection to IBM i through Code for IBM i)
 
 ## Developers
 

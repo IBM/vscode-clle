@@ -25,6 +25,7 @@ import completionProvider from './providers/completion';
 import definitionProvider from './providers/definition';
 import documentSymbolProvider from './providers/documentSymbol';
 import { renameProvider, prepareRenameProvider } from './providers/rename';
+import hoverProvider from './providers/hover';
 import { referencesProvider } from './providers/reference';
 import { CLParser, Module } from 'language';
 import { CLModules } from './data';
@@ -63,7 +64,8 @@ connection.onInitialize((params: InitializeParams) => {
 			renameProvider: {
 				prepareProvider: true
 			},
-			referencesProvider: true
+			referencesProvider: true,
+			hoverProvider: true
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -108,6 +110,7 @@ connection.onDocumentSymbol(documentSymbolProvider);
 connection.onPrepareRename(prepareRenameProvider);
 connection.onRenameRequest(renameProvider);
 connection.onReferences(referencesProvider);
+connection.onHover(hoverProvider);
 
 documents.onDidChangeContent((event: TextDocumentChangeEvent<TextDocument>) => {
 	const document = event.document;
