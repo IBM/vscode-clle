@@ -70,7 +70,7 @@ export class GenCmdDoc {
 			});
 
 			if (generateResult.code === 0) {
-				const html = (await content.downloadStreamfileRaw(`/tmp/${toStmf}`)).toString();
+				const html = (await content.downloadStreamfileRaw(`${toDir}/${toStmf}`)).toString();
 				return html;
 			}
 		}
