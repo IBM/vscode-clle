@@ -18,7 +18,16 @@ export default class GenCmdXml implements IBMiComponent {
 	static get(): GenCmdXml | undefined {
 		const instance = getInstance();
 		const connection = instance?.getConnection();
-		return connection?.getComponent<GenCmdXml>(GenCmdXml.ID);
+		const componentManager = connection.getComponentManager();
+		const componentStates = componentManager.getComponentStates();
+		const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
+		if (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`) {
+			const allAvailableComponents = componentManager.getAllAvailableComponents();
+			const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
+			if (genCmdXmlComponent) {
+				return genCmdXmlComponent;
+			}
+		}
 	}
 
 	async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
