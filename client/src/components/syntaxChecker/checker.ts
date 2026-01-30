@@ -7,6 +7,15 @@ import { getComponentRegistry, getInstance } from '../../api/ibmi';
 import { posix } from 'path';
 import { ExtensionContext } from 'vscode';
 
+export type SupportedLanguageId = 'cl' | 'bnd' | 'cmd';
+export type CheckOption = '*CL' | '*CLLE' | '*CLP' | '*PDM' | '*BND' | '*CMD' | '*LIMIT';
+
+const LANGUAGE_ID_TO_CHECKOPT: Record<SupportedLanguageId, CheckOption> = {
+  'cl': '*CLLE',
+  'bnd': '*BND',
+  'cmd': '*CMD'
+};
+
 export interface ClSyntaxError {
   msgid: string,
   msgtext: string,
@@ -105,7 +114,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     this.library = undefined;
   }
 
-  async check(clStmt: string): Promise<ClSyntaxError[] | undefined> {
+  async check(clStmt: string, languageId: SupportedLanguageId): Promise<ClSyntaxError[] | undefined> {
     const instance = getInstance();
     const connection = instance?.getConnection();
 
@@ -118,9 +127,10 @@ export class CLSyntaxChecker implements IBMiComponent {
 
     // Run the UDTF
     const library = this.getLibrary(connection);
+    const checkOpt = LANGUAGE_ID_TO_CHECKOPT[languageId] || '*CLLE';
     const cmd = [
       `select MSGID, MSGTEXT, CMDSTRING`,
-      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}', CHECKOPT=>'*CLLE'))`
+      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}', CHECKOPT=>'${checkOpt}'))`
     ].join(" ");
 
     const results = await connection.runSQL(cmd);
