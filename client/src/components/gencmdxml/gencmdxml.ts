@@ -18,19 +18,21 @@ export default class GenCmdXml implements IBMiComponent {
 	static get(): GenCmdXml | undefined {
 		const instance = getInstance();
 		const connection = instance?.getConnection();
-		const componentManager = connection.getComponentManager();
-		const componentStates = componentManager.getComponentStates();
-		const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
-		if (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`) {
-			const allAvailableComponents = componentManager.getAllAvailableComponents();
-			const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
-			if (genCmdXmlComponent) {
-				return genCmdXmlComponent;
+		if (connection) {
+			const componentManager = connection.getComponentManager();
+			const componentStates = componentManager.getComponentStates();
+			const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
+			if (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`) {
+				const allAvailableComponents = componentManager.getAllAvailableComponents();
+				const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
+				if (genCmdXmlComponent) {
+					return genCmdXmlComponent;
+				}
 			}
-		}
 
-		// TODO: When the component version is bumped to 2, replace the above code with:
-		// return connection?.getComponent<GenCmdXml>(GenCmdXml.ID);
+			// TODO: When the component version is bumped to 2, replace the above code with:
+			// return connection?.getComponent<GenCmdXml>(GenCmdXml.ID);
+		}
 	}
 
 	async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
@@ -86,27 +88,29 @@ export default class GenCmdXml implements IBMiComponent {
 			try {
 				const instance = getInstance();
 				const connection = instance.getConnection();
-				const content = connection.getContent();
-				const tempLib = this.getLibrary(connection);
+				if (connection) {
+					const content = connection.getContent();
+					const tempLib = this.getLibrary(connection);
 
-				const targetCommand = objectName.padEnd(10) + library.padEnd(10);
-				const vsCodeTools = getVSCodeTools();
-				const targetName = vsCodeTools.makeid();
+					const targetCommand = objectName.padEnd(10) + library.padEnd(10);
+					const vsCodeTools = getVSCodeTools();
+					const targetName = vsCodeTools.makeid();
 
-				const callResult = await connection.runCommand({
-					command: `CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
-				});
-				if (callResult.code === 0) {
-					console.log(callResult);
+					const callResult = await connection.runCommand({
+						command: `CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
+					});
+					if (callResult.code === 0) {
+						console.log(callResult);
 
-					try {
-						const resultingFile = `/tmp/${targetName}`;
-						const xml = (await content.downloadStreamfileRaw(resultingFile)).toString();
-						connection.sendCommand({ command: `rm -rf ${resultingFile}` });
-						const commandData = await xml2js.parseStringPromise(xml);
-						return commandData;
-					} catch (e) {
-						console.log(`Command likely doesn't exist: ${targetCommand}: ${e.message}`);
+						try {
+							const resultingFile = `/tmp/${targetName}`;
+							const xml = (await content.downloadStreamfileRaw(resultingFile)).toString();
+							connection.sendCommand({ command: `rm -rf ${resultingFile}` });
+							const commandData = await xml2js.parseStringPromise(xml);
+							return commandData;
+						} catch (e) {
+							console.log(`Command likely doesn't exist: ${targetCommand}: ${e.message}`);
+						}
 					}
 				}
 			} catch (e) {
@@ -121,25 +125,27 @@ export default class GenCmdXml implements IBMiComponent {
 	async getFileDefinition(objectName: string, library = `*LIBL`): Promise<any | undefined> {
 		const instance = getInstance();
 		const connection = instance.getConnection();
-		const content = connection.getContent();
-		const config = connection.getConfig();
+		if (connection) {
+			const content = connection.getContent();
+			const config = connection.getConfig();
 
-		const tempLib = config.tempLibrary;
-		const dateStr = Date.now().toString().substr(-6);
-		const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
-		const fullPath = `${tempLib}/${randomFile}`;
+			const tempLib = config.tempLibrary;
+			const dateStr = Date.now().toString().substr(-6);
+			const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
+			const fullPath = `${tempLib}/${randomFile}`;
 
-		const outfileRes = await connection.runCommand({
-			command: `DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
-			environment: `ile`
-		});
-		console.log(outfileRes);
-		const resultCode = outfileRes.code || 0;
+			const outfileRes = await connection.runCommand({
+				command: `DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
+				environment: `ile`
+			});
+			console.log(outfileRes);
+			const resultCode = outfileRes.code || 0;
 
-		if (resultCode === 0) {
-			const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
-			console.log(`Temp OUTFILE read. ${data.length} rows.`);
-			return data;
+			if (resultCode === 0) {
+				const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
+				console.log(`Temp OUTFILE read. ${data.length} rows.`);
+				return data;
+			}
 		}
 	}
 

@@ -58,10 +58,11 @@ export class GenCmdDoc {
 	public static async generateHtml(object: string, library: string): Promise<string | undefined> {
 		const instance = getInstance();
 		const connection = instance.getConnection();
-		const content = connection.getContent();
-		const config = connection.getConfig();
 
 		if (connection) {
+			const content = connection.getContent();
+			const config = connection.getConfig();
+
 			const cmd = `${library}/${object}`;
 			const toStmf = `${library.replace('*', '')}_${object}`;
 			const toDir = config.tempDir;
