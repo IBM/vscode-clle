@@ -1,8 +1,8 @@
 
 import { commands, Diagnostic, DiagnosticSeverity, EndOfLine, ExtensionContext, languages, Position, ProgressLocation, Range, Selection, TextDocument, TextDocumentContentChangeEvent, Uri, window, workspace } from 'vscode';
-import Configuration from '../../../configuration';
+import Configuration from '../../configuration';
 import { CLSyntaxChecker, SupportedLanguageId } from './checker';
-import { CommandDetails, getCommandString } from '../../../utils';
+import { CommandDetails, getCommandString } from '../../utils';
 import { getInstance } from '../../api/ibmi';
 import * as path from "path";
 
