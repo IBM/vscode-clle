@@ -76,7 +76,13 @@ export namespace ProblemProvider {
                 }
               }
 
-              // Also add the line after the end changed line to catch continuation issues
+              // Add the line before the start changed line to catch continuation issues
+              const lineBeforeStartLine = changeStartLine - 1;
+              if (lineBeforeStartLine >= 0 && !currentChangedLines.includes(lineBeforeStartLine)) {
+                currentChangedLines.push(lineBeforeStartLine);
+              }
+
+              // Add the line after the end changed line to catch continuation issues
               const lineAfterEndLine = actualChangeEndLine + 1;
               if (lineAfterEndLine < e.document.lineCount && !currentChangedLines.includes(lineAfterEndLine)) {
                 currentChangedLines.push(lineAfterEndLine);
@@ -145,10 +151,11 @@ export namespace ProblemProvider {
             diag.message,
             diag.severity
           );
+        } else if (startLine < changeStartLine) {
+          // Diagnostics above the change stay the same
+          // Diagnostics within the change are removed
+          return diag;
         }
-
-        // Diagnostics above the change stay the same
-        return diag;
       });
 
       // Update the diagnostic collection
@@ -198,9 +205,15 @@ export namespace ProblemProvider {
             continue;
           }
 
-          // Remove diagnostics that are within the command ranges
+          // Remove diagnostics that overlap with the command ranges
           for (const commandToCheck of commandsToCheck) {
-            if (diag.range.start.line >= commandToCheck.range.start && diag.range.end.line <= commandToCheck.range.end) {
+            const diagStart = diag.range.start.line;
+            const diagEnd = diag.range.end.line;
+            const cmdStart = commandToCheck.range.start;
+            const cmdEnd = commandToCheck.range.end;
+            
+            // Check if diagnostic overlaps with command range
+            if (diagStart <= cmdEnd && diagEnd >= cmdStart) {
               diagnostics.splice(i, 1);
               break;
             }
