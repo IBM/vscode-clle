@@ -71,22 +71,22 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
       // Create C++ module
-      const crtcppmod = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
-      const compileResult = await connection.runCommand({
-        command: crtcppmod,
+      const createModule = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
+      const createModuleResult = await connection.runCommand({
+        command: createModule,
         noLibList: true
       });
-      if (compileResult.code !== 0) {
+      if (createModuleResult.code !== 0) {
         return `Error`;
       }
 
       // Create C++ program
-      const crtExtPgm = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
-      const binderResult = await connection.runCommand({
-        command: crtExtPgm,
+      const createProgram = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
+      const createProgramResult = await connection.runCommand({
+        command: createProgram,
         noLibList: true
       });
-      if (binderResult.code !== 0) {
+      if (createProgramResult.code !== 0) {
         return `Error`;
       }
 
@@ -96,12 +96,20 @@ export class CLSyntaxChecker implements IBMiComponent {
       const sqlBytes = textEncoder.encode(sqlSource);
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
-      // Create UDTF
-      const sqlResult = await connection.runCommand({
-        command: `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`,
+      // Drop existing UDTF specific (ignore failure)
+      const dropUdtf = `RUNSQL SQL('DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}') COMMIT(*NONE) NAMING(*SYS)`;
+      const dropUdtfResult = await connection.runCommand({
+        command: dropUdtf,
         noLibList: true
       });
-      if (sqlResult.code !== 0) {
+
+      // Create UDTF
+      const createUdtf = `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
+      const createUdtfResult = await connection.runCommand({
+        command: createUdtf,
+        noLibList: true
+      });
+      if (createUdtfResult.code !== 0) {
         return `Error`
       }
 
