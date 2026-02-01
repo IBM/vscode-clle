@@ -7,8 +7,8 @@ import { ExtensionContext } from 'vscode';
 
 export default class GenCmdXml implements IBMiComponent {
 	static ID = `GENCMDXML`;
-	static PGM_NAME = `GENCMD2`;
-	private readonly currentVersion = 1;
+	static PGM_NAME = `GENCMDXML`;
+	private readonly currentVersion = 2;
 	private library: string | undefined;
 
 	getIdentification(): ComponentIdentification {

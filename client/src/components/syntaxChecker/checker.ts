@@ -24,11 +24,11 @@ export interface ClSyntaxError {
 
 export class CLSyntaxChecker implements IBMiComponent {
   static ID = "CLSyntaxChecker";
-  static UDTF_NAME = 'CL_SYNTAX_CHECK';
-  static PGM_NAME = 'COZCLCHECK';
+  static UDTF_NAME = 'CL_SYNTAX_CHECKER';
+  static PGM_NAME = 'CLSYNCHECK';
   static CHECK_INTERVAL = 1500;
   static MAX_DOCUMENT_LENGTH = 32740;
-  private readonly currentVersion = 1.1;
+  private readonly currentVersion = 2;
   private library: string | undefined;
 
   getIdentification(): ComponentIdentification {

@@ -24,10 +24,10 @@ CREATE or REPLACE FUNCTION ${schema}.${CLSyntaxChecker.UDTF_NAME} (
 
 
 LABEL on specific routine ${schema}.CODE4IBMI_CLCHECK IS
-'CL command Syntax Check via QCAPCMD API';
+'CL Command Syntax Checker via QCAPCMD API';
 
 comment on specific FUNCTION ${schema}.CODE4IBMI_CLCHECK is
-'${version} - CL Command Syntax Checker. QCAPCMD Wrapper by Bob Cozzi.';
+'${version} - CL Command Syntax Checker (QCAPCMD Wrapper)';
 
 comment on parameter specific function ${schema}.CODE4IBMI_CLCHECK
 (
