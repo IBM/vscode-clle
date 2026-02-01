@@ -7,11 +7,6 @@ export function getCLCheckerCPPSrc() {
 
   // be sure to replace the library with your own library name
 
-    /**********************************************************/
-    /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
-    /* All rights reserved.                                   */
-    /* Syntax Check CL Commands via an SQL Fuction            */
-    /**********************************************************/
 
 #include <stdlib.h>
 #include <except.h>
@@ -745,4 +740,5 @@ int getNextSyntaxErrorMsg(char* pMsgKey, char* msgid, char* msgtext)
   return 0;
 }
   `;
+
 }
