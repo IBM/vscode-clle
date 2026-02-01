@@ -3,7 +3,6 @@ import { commands, Diagnostic, DiagnosticSeverity, EndOfLine, ExtensionContext, 
 import Configuration from '../../configuration';
 import { CLSyntaxChecker, SupportedLanguageId } from './checker';
 import { CommandDetails, getCommandString } from '../../utils';
-import { getInstance } from '../../api/ibmi';
 import * as path from "path";
 
 export namespace ProblemProvider {
@@ -108,15 +107,6 @@ export namespace ProblemProvider {
         }
       })
     );
-
-    const instance = getInstance();
-    instance!.subscribe(context, 'connected', 'Set CL syntax checker enablement', async () => {
-      setCheckerAvailableContext();
-    });
-    instance!.subscribe(context, 'disconnected', 'Set CL syntax checker enablement', async () => {
-      setCheckerAvailableContext(false);
-      setCheckerRunningContext(false);
-    });
   }
 
   function shiftDiagnostics(document: TextDocument, changes: readonly TextDocumentContentChangeEvent[]) {
@@ -161,6 +151,10 @@ export namespace ProblemProvider {
       // Update the diagnostic collection
       clleDiagnosticCollection.set(document.uri, updatedDiagnostics);
     };
+  }
+
+  export function clearDiagnostics() {
+    clleDiagnosticCollection.clear();
   }
 
   async function validateCLDocument(document: TextDocument, specificLines?: number[]) {
@@ -211,7 +205,7 @@ export namespace ProblemProvider {
             const diagEnd = diag.range.end.line;
             const cmdStart = commandToCheck.range.start;
             const cmdEnd = commandToCheck.range.end;
-            
+
             // Check if diagnostic overlaps with command range
             if (diagStart <= cmdEnd && diagEnd >= cmdStart) {
               diagnostics.splice(i, 1);
@@ -277,12 +271,12 @@ export namespace ProblemProvider {
     return CLSyntaxChecker.get() !== undefined;
   }
 
-  function setCheckerAvailableContext(additionalState = true) {
+  export function setCheckerAvailableContext(additionalState = true) {
     const available = checkerAvailable() && additionalState;
     commands.executeCommand(`setContext`, `vscode-clle.syntax.checkerAvailable`, available);
   }
 
-  function setCheckerRunningContext(isRunning: boolean) {
+  export function setCheckerRunningContext(isRunning: boolean) {
     commands.executeCommand(`setContext`, `vscode-clle.syntax.checkerRunning`, isRunning);
   }
 
