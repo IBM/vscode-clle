@@ -157,4 +157,8 @@ export class GenCmdDoc {
 			errorMessages
 		};
 	}
+
+	public static clearCLDocCache() {
+		GenCmdDoc.cachedClDocs = {};
+	}
 }
