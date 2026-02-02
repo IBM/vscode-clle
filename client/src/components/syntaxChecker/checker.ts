@@ -96,9 +96,13 @@ export class CLSyntaxChecker implements IBMiComponent {
       const sqlBytes = textEncoder.encode(sqlSource);
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
-      // Drop existing UDTF specific (ignore failure)
+      // Drop existing UDTF specific
       const dropUdtf = `DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}`;
-      const dropUdtfResult = await connection.runSQL(dropUdtf);
+      try {
+        const dropUdtfResult = await connection.runSQL(dropUdtf);
+      } catch (error) {
+        // Ignore error as UDTF may not exist
+      }
 
       // Create UDTF
       const createUdtf = `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
