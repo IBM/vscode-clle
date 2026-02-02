@@ -97,11 +97,8 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
       // Drop existing UDTF specific (ignore failure)
-      const dropUdtf = `RUNSQL SQL('DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}') COMMIT(*NONE) NAMING(*SYS)`;
-      const dropUdtfResult = await connection.runCommand({
-        command: dropUdtf,
-        noLibList: true
-      });
+      const dropUdtf = `DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}`;
+      const dropUdtfResult = await connection.runSQL(dropUdtf);
 
       // Create UDTF
       const createUdtf = `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
