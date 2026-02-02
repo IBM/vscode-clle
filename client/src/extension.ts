@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
-import { loadBase } from './api/ibmi';
+import { getInstance, loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
 import { ProblemProvider } from './components/syntaxChecker/problemProvider';
@@ -94,6 +94,23 @@ export function activate(context: ExtensionContext): CLLE {
 	CLSyntaxChecker.registerComponent(context);
 	GenCmdXml.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
+
+	const instance = getInstance();
+	instance?.subscribe(context, 'connected', '', async () => {
+		// Enable CL syntax checker
+		ProblemProvider.setCheckerAvailableContext();
+	});
+	instance?.subscribe(context, 'disconnected', '', async () => {
+		// Disable CL syntax checker
+		ProblemProvider.setCheckerAvailableContext(false);
+		ProblemProvider.setCheckerRunningContext(false);
+
+		// Clear existing CL syntax checker diagnostics
+		ProblemProvider.clearDiagnostics();
+
+		// Clear previously cached command docs
+		GenCmdDoc.clearCLDocCache();
+	});
 
 	return {
 		genCmdDoc: GenCmdDoc

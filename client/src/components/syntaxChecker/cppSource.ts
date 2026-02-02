@@ -7,12 +7,6 @@ export function getCLCheckerCPPSrc() {
 
   // be sure to replace the library with your own library name
 
-    /**********************************************************/
-    /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
-    /* All rights reserved.                                   */
-    /* Syntax Check CL Commands via an SQL Fuction            */
-    /**********************************************************/
-
 #include <stdlib.h>
 #include <except.h>
 #include <signal.h>
@@ -357,8 +351,6 @@ typedef _Packed struct tagScratch
 int main(int argc, char *argv[])
 {
      /**********************************************************/
-     /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
-     /* All rights reserved.                                   */
      /* Syntax Check CL Commands via an SQL Fuction            */
      /**********************************************************/
 
@@ -427,17 +419,6 @@ int main(int argc, char *argv[])
            int len = pScratch->len; // save scratchpad length
            memset(pScratch,0x00, sizeof(scratchPad));
            pScratch->len = len; // restore scratchpad length
-
-//typedef _Packed struct Qca_PCMD_CPOP0100
-//{
-//      int  Command_Process_Type;
-//      char DBCS_Data_Handling;
-//      char Prompter_Action;
-//      char Command_String_Syntax;
-//      char Message_Key[4];
-//      int  CCSID_Command_String;
-//      char Reserved[5];
-//}  Qca_PCMD_CPOP0100_t;
 
       Qca_PCMD_CPOP0100_t  ctrlBlock;
       int                  ctrlBlockLen = sizeof(ctrlBlock);
@@ -745,4 +726,5 @@ int getNextSyntaxErrorMsg(char* pMsgKey, char* msgid, char* msgtext)
   return 0;
 }
   `;
+
 }
