@@ -3,7 +3,7 @@
 	"displayName": "CL",
 	"description": "CLLE language tools",
 	"author": "IBM",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"publisher": "IBM",
 	"categories": [
 		"Programming Languages"
@@ -85,6 +85,17 @@
 			]
 		},
 		"configuration": [
+			{
+				"id": "vscode-clle",
+				"title": "General",
+				"properties": {
+					"vscode-clle.general.displayCommandDocumentation": {
+						"type": "boolean",
+						"description": "If enabled, fetches and displays CL command documentation in hover tooltips when hovering over commands or parameters",
+						"default": true
+					}
+				}
+			},
 			{
 				"id": "vscode-clle.syntax",
 				"title": "CL Syntax Options",
