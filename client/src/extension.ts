@@ -8,6 +8,7 @@ import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
 import GenCmdXml from './components/gencmdxml/gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
+import Configuration from './configuration';
 
 export interface CLLE {
 	genCmdDoc: GenCmdDoc
@@ -81,10 +82,13 @@ export function activate(context: ExtensionContext): CLLE {
 		});
 
 		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
-			try {
-				return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
-			} catch (e) {
-				console.log(e);
+			const displayCommandDocumentation = Configuration.get<boolean>(`general.displayCommandDocumentation`) ?? true;
+			if (displayCommandDocumentation) {
+				try {
+					return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
+				} catch (e) {
+					console.log(e);
+				}
 			}
 		});
 	});
