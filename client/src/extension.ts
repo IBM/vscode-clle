@@ -9,6 +9,7 @@ import { registerCommands } from './commands';
 import GenCmdXml from './components/gencmdxml/gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
 import Configuration from './configuration';
+import { getFileDefinition } from './utils';
 
 export interface CLLE {
 	genCmdDoc: GenCmdDoc
@@ -73,12 +74,8 @@ export function activate(context: ExtensionContext): CLLE {
 		});
 
 		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
-			const genCmdXml = GenCmdXml.get();
-			if (genCmdXml) {
-				const definition = await genCmdXml.getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
-
-				return definition;
-			}
+			const definition = await getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
+			return definition;
 		});
 
 		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
