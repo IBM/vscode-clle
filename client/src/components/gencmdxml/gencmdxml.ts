@@ -22,7 +22,7 @@ export default class GenCmdXml implements IBMiComponent {
 			const componentManager = connection.getComponentManager();
 			const componentStates = componentManager.getComponentStates();
 			const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
-			if (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`) {
+			if (genCmdXmlComponentState && (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`)) {
 				const allAvailableComponents = componentManager.getAllAvailableComponents();
 				const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
 				if (genCmdXmlComponent) {
@@ -115,36 +115,6 @@ export default class GenCmdXml implements IBMiComponent {
 				}
 			} catch (e) {
 				console.log(e);
-			}
-		}
-	}
-
-	/**
-	 * Returns DSPFFD outfile rows
-	 */
-	async getFileDefinition(objectName: string, library = `*LIBL`): Promise<any | undefined> {
-		const instance = getInstance();
-		const connection = instance.getConnection();
-		if (connection) {
-			const content = connection.getContent();
-			const config = connection.getConfig();
-
-			const tempLib = config.tempLibrary;
-			const dateStr = Date.now().toString().substr(-6);
-			const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
-			const fullPath = `${tempLib}/${randomFile}`;
-
-			const outfileRes = await connection.runCommand({
-				command: `DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
-				environment: `ile`
-			});
-			console.log(outfileRes);
-			const resultCode = outfileRes.code || 0;
-
-			if (resultCode === 0) {
-				const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
-				console.log(`Temp OUTFILE read. ${data.length} rows.`);
-				return data;
 			}
 		}
 	}

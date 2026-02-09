@@ -1,4 +1,5 @@
 import { Selection, TextDocument, Range, EndOfLine } from 'vscode';
+import { getInstance } from './api/ibmi';
 
 export type CommandDetails = { content: string, range?: { start: number, end: number } };
 
@@ -64,4 +65,34 @@ function removePlusJoins(lines: string[]) {
   }
 
   return lines;
+}
+
+/**
+ * Returns DSPFFD outfile rows
+ */
+export async function getFileDefinition(objectName: string, library = `*LIBL`): Promise<any | undefined> {
+	const instance = getInstance();
+	const connection = instance.getConnection();
+	if (connection) {
+		const content = connection.getContent();
+		const config = connection.getConfig();
+
+		const tempLib = config.tempLibrary;
+		const dateStr = Date.now().toString().substr(-6);
+		const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
+		const fullPath = `${tempLib}/${randomFile}`;
+
+		const outfileRes = await connection.runCommand({
+			command: `DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
+			environment: `ile`
+		});
+		console.log(outfileRes);
+		const resultCode = outfileRes.code || 0;
+
+		if (resultCode === 0) {
+			const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
+			console.log(`Temp OUTFILE read. ${data.length} rows.`);
+			return data;
+		}
+	}
 }
