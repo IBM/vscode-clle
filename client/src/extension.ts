@@ -12,7 +12,7 @@ import Configuration from './configuration';
 import { getFileDefinition } from './utils';
 
 export interface CLLE {
-	genCmdDoc: GenCmdDoc
+	genCmdDoc: typeof GenCmdDoc
 }
 
 let client: LanguageClient;
