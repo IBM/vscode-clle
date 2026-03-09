@@ -33,8 +33,8 @@ All notable changes to the CL Syntax Checker component are documented in this fi
 
 ### Added
 - CL Syntax Checker component for real-time CL statement validation
-- C++ module (`COZCLCHECK`) CL syntax validation module via the SQL UDTF
-- SQL UDTF (`CL_SYNTAX_CHECK`) for SQL-based syntax checking interface
+- C++ module (`CLSYNCHECK`) CL syntax validation module via the SQL UDTF
+- SQL UDTF (`CL_SYNTAX_CHECKER`) for SQL-based syntax checking interface
 - Integration with VS Code diagnostics system
 - Command registration for manual syntax checking (`vscode-clle.CLSyntaxCheck`)
 - Automatic installation of required IBM i components

@@ -7,8 +7,12 @@
 			"request": "launch",
 			"name": "Launch Client",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-			"outFiles": ["${workspaceRoot}/out/**/*.js"],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}"
+			],
+			"outFiles": [
+				"${workspaceRoot}/out/**/*.js"
+			],
 			"sourceMaps": true,
 			"preLaunchTask": {
 				"type": "npm",
@@ -17,7 +21,9 @@
 			"sourceMapPathOverrides": {
 				"webpack://client/./*": "${workspaceFolder}/client/*"
 			},
-			"env":{"DEBUG_MODE": "true", "IBMIDEVELOPER_NOT_IN_MERLIN":"true","RSE_CA_PATH": "/Users/barry/Downloads/RSEAPI-CA.pem"}
+			"env": {
+				"DEBUG_MODE": "true"
+			}
 		},
 		{
 			"type": "node",
@@ -25,7 +31,9 @@
 			"name": "Attach to Server",
 			"port": 6009,
 			"restart": true,
-			"outFiles": ["${workspaceRoot}/out/**/*.js"],
+			"outFiles": [
+				"${workspaceRoot}/out/**/*.js"
+			],
 			"sourceMaps": true,
 			"sourceMapPathOverrides": {
 				"webpack://server/./*": "${workspaceFolder}/server/*"
@@ -41,13 +49,18 @@
 				"--extensionTestsPath=${workspaceRoot}/client/out/test/index",
 				"${workspaceRoot}/client/testFixture"
 			],
-			"outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
+			"outFiles": [
+				"${workspaceRoot}/client/out/test/**/*.js"
+			]
 		}
 	],
 	"compounds": [
 		{
 			"name": "Client + Server",
-			"configurations": ["Launch Client", "Attach to Server"]
+			"configurations": [
+				"Launch Client",
+				"Attach to Server"
+			]
 		}
 	]
 }

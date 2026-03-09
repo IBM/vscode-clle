@@ -12,7 +12,7 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-  CompletionParams,
+	CompletionParams,
 	TextDocumentChangeEvent
 } from 'vscode-languageserver/node';
 
@@ -21,10 +21,11 @@ import {
 } from 'vscode-languageserver-textdocument';
 
 import { connection, documents } from './instance';
-import completionProvider from './providers/completion';
+import { completionProvider, completionResolveProvider } from './providers/completion';
 import definitionProvider from './providers/definition';
 import documentSymbolProvider from './providers/documentSymbol';
 import { renameProvider, prepareRenameProvider } from './providers/rename';
+import hoverProvider from './providers/hover';
 import { referencesProvider } from './providers/reference';
 import { CLParser, Module } from 'language';
 import { CLModules } from './data';
@@ -56,14 +57,16 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				triggerCharacters: [`&`, `(`]
+				triggerCharacters: [`&`, `(`],
+				resolveProvider: true
 			},
 			definitionProvider: true,
 			documentSymbolProvider: true,
 			renameProvider: {
 				prepareProvider: true
 			},
-			referencesProvider: true
+			referencesProvider: true,
+			hoverProvider: true
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -87,18 +90,29 @@ connection.onInitialized(() => {
 		});
 	}
 
-	connection.onRequest(`getCache`, (uri: string) => {
+	connection.onRequest(`getModules`, (uri: string, content: string) => {
 		const module = CLModules[uri];
-		return module || undefined;
+		if (module) {
+			return module;
+		} else {
+			const parser = new CLParser();
+			const tokens = parser.parseDocument(content);
+			const module = new Module();
+			module.parseStatements(tokens);
+			CLModules[uri] = module;
+			return module;
+		}
 	});
 });
 
 connection.onCompletion(completionProvider);
+connection.onCompletionResolve(completionResolveProvider);
 connection.onDefinition(definitionProvider);
 connection.onDocumentSymbol(documentSymbolProvider);
 connection.onPrepareRename(prepareRenameProvider);
 connection.onRenameRequest(renameProvider);
 connection.onReferences(referencesProvider);
+connection.onHover(hoverProvider);
 
 documents.onDidChangeContent((event: TextDocumentChangeEvent<TextDocument>) => {
 	const document = event.document;

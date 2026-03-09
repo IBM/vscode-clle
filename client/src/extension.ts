@@ -1,16 +1,23 @@
 import * as path from 'path';
 import { ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { getHandler } from "./external";
-import { loadBase } from './external/api/ibmi';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
+import { getInstance, loadBase } from './api/ibmi';
 import { initialiseRunner } from './clRunner';
-import { CLSyntaxChecker } from './external/handlers/syntaxChecker/checker';
-import { ProblemProvider } from './external/handlers/syntaxChecker/problemProvider';
+import { CLSyntaxChecker } from './components/syntaxChecker/checker';
+import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
+import GenCmdXml from './components/gencmdxml/gencmdxml';
+import { GenCmdDoc } from './gencmddoc';
+import Configuration from './configuration';
+import { getFileDefinition } from './utils';
+
+export interface CLLE {
+	genCmdDoc: typeof GenCmdDoc
+}
 
 let client: LanguageClient;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): CLLE {
 	loadBase();
 
 	// The server is implemented in node
@@ -36,6 +43,9 @@ export function activate(context: ExtensionContext) {
 	const clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
 		documentSelector: [{ language: 'cl' }],
+		markdown: {
+			isTrusted: true
+		}
 		// synchronize: {
 		// 	// Notify the server about file changes to '.clientrc files contained in the workspace
 		// 	fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
@@ -55,22 +65,27 @@ export function activate(context: ExtensionContext) {
 
 	client.onReady().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
-			const handler = await getHandler();
-
-			if (handler) {
-				const definition = await handler.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
+			const genCmdXml = GenCmdXml.get();
+			if (genCmdXml) {
+				const definition = await genCmdXml.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
 
 				return definition;
 			}
 		});
 
 		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
-			const handler = await getHandler();
+			const definition = await getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
+			return definition;
+		});
 
-			if (handler) {
-				const definition = await handler.getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
-
-				return definition;
+		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
+			const displayCommandDocumentation = Configuration.get<boolean>(`general.displayCommandDocumentation`) ?? true;
+			if (displayCommandDocumentation) {
+				try {
+					return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
+				} catch (e) {
+					console.log(e);
+				}
 			}
 		});
 	});
@@ -78,7 +93,29 @@ export function activate(context: ExtensionContext) {
 	initialiseRunner(context);
 	registerCommands(context, client);
 	CLSyntaxChecker.registerComponent(context);
+	GenCmdXml.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
+
+	const instance = getInstance();
+	instance?.subscribe(context, 'connected', '', async () => {
+		// Enable CL syntax checker
+		ProblemProvider.setCheckerAvailableContext();
+	});
+	instance?.subscribe(context, 'disconnected', '', async () => {
+		// Disable CL syntax checker
+		ProblemProvider.setCheckerAvailableContext(false);
+		ProblemProvider.setCheckerRunningContext(false);
+
+		// Clear existing CL syntax checker diagnostics
+		ProblemProvider.clearDiagnostics();
+
+		// Clear previously cached command docs
+		GenCmdDoc.clearCLDocCache();
+	});
+
+	return {
+		genCmdDoc: GenCmdDoc
+	}
 }
 
 export function deactivate(): Thenable<void> | undefined {

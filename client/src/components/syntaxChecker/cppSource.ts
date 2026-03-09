@@ -2,16 +2,10 @@ export function getCLCheckerCPPSrc() {
   return `
   // C++ processing program for QCAPCMD SQL Function
   // To compile:
-  //    CRTCPPMOD MODULE(CODE4I/COZ_CAPCMD) SRCFILE(CODE4I/QCSRC) SRCMBR(COZ_CAPCMD)
-  //    CRTPGM    PGM(CODE4I/COZ_CAPCMD) MODULE(CODE4I/COZ_CAPCMD)
+  //    CRTCPPMOD MODULE(ILEDITOR/CLSYNCHECK) SRCFILE(ILEDITOR/QCSRC) SRCMBR(CLSYNCHECK)
+  //    CRTPGM    PGM(ILEDITOR/CLSYNCHECK) MODULE(ILEDITOR/CLSYNCHECK)
 
   // be sure to replace the library with your own library name
-
-    /**********************************************************/
-    /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
-    /* All rights reserved.                                   */
-    /* Syntax Check CL Commands via an SQL Fuction            */
-    /**********************************************************/
 
 #include <stdlib.h>
 #include <except.h>
@@ -357,8 +351,6 @@ typedef _Packed struct tagScratch
 int main(int argc, char *argv[])
 {
      /**********************************************************/
-     /* Copyright 2018-2025 by R. Cozzi, Jr.                   */
-     /* All rights reserved.                                   */
      /* Syntax Check CL Commands via an SQL Fuction            */
      /**********************************************************/
 
@@ -428,17 +420,6 @@ int main(int argc, char *argv[])
            memset(pScratch,0x00, sizeof(scratchPad));
            pScratch->len = len; // restore scratchpad length
 
-//typedef _Packed struct Qca_PCMD_CPOP0100
-//{
-//      int  Command_Process_Type;
-//      char DBCS_Data_Handling;
-//      char Prompter_Action;
-//      char Command_String_Syntax;
-//      char Message_Key[4];
-//      int  CCSID_Command_String;
-//      char Reserved[5];
-//}  Qca_PCMD_CPOP0100_t;
-
       Qca_PCMD_CPOP0100_t  ctrlBlock;
       int                  ctrlBlockLen = sizeof(ctrlBlock);
 
@@ -479,7 +460,7 @@ int main(int argc, char *argv[])
 
       }
       const char lf = 0x25;
-      Qp0zLprintf("[COZCLCHECK] Using CL Syntax Check Option %s Process Type: %d %c",
+      Qp0zLprintf("[CLSYNCHECK] Using CL Syntax Check Option %s Process Type: %d %c",
                    inCHECKOPT,
                    ctrlBlock.Command_Process_Type,
                    lf);
@@ -745,4 +726,5 @@ int getNextSyntaxErrorMsg(char* pMsgKey, char* msgid, char* msgtext)
   return 0;
 }
   `;
+
 }

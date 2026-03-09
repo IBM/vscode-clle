@@ -1,13 +1,13 @@
 import { Module } from 'language';
-import { getCLDefinition, getFileDefinition } from './instance';
-import { Files, CommandDoc, getPrettyDocs } from './spec';
+import { getCLDefinition, getCLDoc, getFileDefinition } from './instance';
+import { Files, CommandDoc, getPrettyDocs, CLDoc } from './spec';
 
-export const CLModules: {[uri: string]: Module} = {}
+export const CLModules: { [uri: string]: Module } = {}
 
-export const CLCommands: {[qualifiedObject: string]: CommandDoc|undefined} = {};
-export const FileDefinitions: {[qualifiedObject: string]: Files.ColumnDescription[]|undefined} = {};
+export const CLCommands: { [qualifiedObject: string]: CommandDoc | undefined } = {};
+export const FileDefinitions: { [qualifiedObject: string]: Files.ColumnDescription[] | undefined } = {};
 
-export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc|undefined> {
+export async function getCLspec(object: string, library = '*LIBL'): Promise<CommandDoc | undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
@@ -21,7 +21,7 @@ export async function getCLspec(object: string, library = '*LIBL'): Promise<Comm
 	return CLCommands[qualifiedPath];
 }
 
-export function getFileSpecCache(object: string, library = '*LIBL', openId?: string): Files.ColumnDefinition[]|undefined {
+export function getFileSpecCache(object: string, library = '*LIBL', openId?: string): Files.ColumnDefinition[] | undefined {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
@@ -30,7 +30,7 @@ export function getFileSpecCache(object: string, library = '*LIBL', openId?: str
 	return (spec ? Files.getVariables(spec, openId) : undefined);
 }
 
-export async function getFileSpec(object: string, library = '*LIBL', openId?: string): Promise<Files.ColumnDefinition[]|undefined> {
+export async function getFileSpec(object: string, library = '*LIBL', openId?: string): Promise<Files.ColumnDefinition[] | undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	const qualifiedPath = `${validObject}/${validLibrary}`;
@@ -44,4 +44,10 @@ export async function getFileSpec(object: string, library = '*LIBL', openId?: st
 	FileDefinitions[qualifiedPath] = spec;
 
 	return (spec ? Files.getVariables(spec, openId) : undefined);
+}
+
+export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
+	const validObject = object.toUpperCase();
+	const validLibrary = (library || `*LIBL`).toUpperCase();
+	return await getCLDoc(validObject, validLibrary);
 }

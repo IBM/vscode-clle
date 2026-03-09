@@ -3,7 +3,7 @@
 	"displayName": "CL",
 	"description": "CLLE language tools",
 	"author": "IBM",
-	"version": "1.1.7",
+	"version": "1.2.4",
 	"publisher": "IBM",
 	"categories": [
 		"Programming Languages"
@@ -23,7 +23,9 @@
 	},
 	"activationEvents": [
 		"onStartupFinished",
-		"onLanguage:cl"
+		"onLanguage:cl",
+		"onLanguage:bnd",
+		"onLanguage:cmd"
 	],
 	"extensionDependencies": [
 		"halcyontechltd.code-for-ibmi"
@@ -40,7 +42,7 @@
 			{
 				"command": "vscode-clle.runSelected",
 				"title": "Run selected CL command",
-				"category": "IBM i"
+				"category": "CLLE"
 			},
 			{
 				"command": "vscode-clle.syntax.checkDocument",
@@ -48,6 +50,11 @@
 				"category": "CLLE",
 				"enablement": "code-for-ibmi:connected == true && vscode-clle.syntax.checkerAvailable == true && vscode-clle.syntax.checkerRunning != true",
 				"icon": "$(check-all)"
+			},
+			{
+				"command": "vscode-clle.viewFullDocumentation",
+				"title": "View Full Documentation",
+				"category": "CLLE"
 			}
 		],
 		"keybindings": [
@@ -63,17 +70,32 @@
 				{
 					"command": "vscode-clle.runSelected",
 					"when": "code-for-ibmi:connected && editorLangId === cl"
+				},
+				{
+					"command": "vscode-clle.viewFullDocumentation",
+					"when": "never"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "vscode-clle.syntax.checkDocument",
-					"when": "editorLangId == cl && code-for-ibmi:connected == true",
+					"when": "editorLangId =~ /^(cl|bnd|cmd)$/ && code-for-ibmi:connected == true",
 					"group": "navigation"
 				}
 			]
 		},
 		"configuration": [
+			{
+				"id": "vscode-clle",
+				"title": "General",
+				"properties": {
+					"vscode-clle.general.displayCommandDocumentation": {
+						"type": "boolean",
+						"description": "If enabled, fetches and displays CL command documentation in hover tooltips when hovering over commands or parameters",
+						"default": true
+					}
+				}
+			},
 			{
 				"id": "vscode-clle.syntax",
 				"title": "CL Syntax Options",
@@ -129,6 +151,6 @@
 		"webpack-cli": "^5.1.4"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^5.1.1"
+		"vscode-languageclient": "^7.0.0"
 	}
 }

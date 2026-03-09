@@ -1,5 +1,5 @@
 import { ExtensionContext, Position, Selection, commands, window } from "vscode";
-import { getInstance } from './external/api/ibmi';
+import { getInstance } from './api/ibmi';
 import { getCommandString } from './utils';
 
 export function initialiseRunner(context: ExtensionContext) {

@@ -13,5 +13,10 @@ module.exports = withDefaults({
     filename: `server.js`,
     path: path.join(__dirname, `..`, `out`)
   },
+  resolve: {
+      mainFields: [`module`, `main`],
+      extensions: [`.ts`, `.js`], // support ts-files and js-files
+			conditionNames: ['import', 'require'],
+  },
   plugins: [],
 });

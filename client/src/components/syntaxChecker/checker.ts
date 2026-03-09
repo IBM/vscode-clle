@@ -7,6 +7,15 @@ import { getComponentRegistry, getInstance } from '../../api/ibmi';
 import { posix } from 'path';
 import { ExtensionContext } from 'vscode';
 
+export type SupportedLanguageId = 'cl' | 'bnd' | 'cmd';
+export type CheckOption = '*CL' | '*CLLE' | '*CLP' | '*PDM' | '*BND' | '*CMD' | '*LIMIT';
+
+const LANGUAGE_ID_TO_CHECKOPT: Record<SupportedLanguageId, CheckOption> = {
+  'cl': '*CLLE',
+  'bnd': '*BND',
+  'cmd': '*CMD'
+};
+
 export interface ClSyntaxError {
   msgid: string,
   msgtext: string,
@@ -15,10 +24,11 @@ export interface ClSyntaxError {
 
 export class CLSyntaxChecker implements IBMiComponent {
   static ID = "CLSyntaxChecker";
-  static UDTF_NAME = 'CL_SYNTAX_CHECK';
-  static PGM_NAME = 'COZCLCHECK';
+  static UDTF_NAME = 'CL_SYNTAX_CHECKER';
+  static PGM_NAME = 'CLSYNCHECK';
+  static CHECK_INTERVAL = 1500;
   static MAX_DOCUMENT_LENGTH = 32740;
-  private readonly currentVersion = 1.1;
+  private readonly currentVersion = 2;
   private library: string | undefined;
 
   getIdentification(): ComponentIdentification {
@@ -31,10 +41,10 @@ export class CLSyntaxChecker implements IBMiComponent {
     return connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
   }
 
-  async getRemoteState(connection: IBMi): Promise<ComponentState> {
+  async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
     const library = this.getLibrary(connection);
 
-    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library, CLSyntaxChecker.UDTF_NAME);
+    const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library!, CLSyntaxChecker.UDTF_NAME);
     if (udtfVersion < this.currentVersion) {
       return `NeedsUpdate`;
     }
@@ -48,7 +58,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     componentRegistry?.registerComponent(context, clSyntaxChecker);
   }
 
-  async update(connection: IBMi): Promise<ComponentState> {
+  async update(connection: IBMi, installDirectory: string): Promise<ComponentState> {
     return await connection.withTempDirectory(async (tempDir: string) => {
       const content = connection.getContent();
       const textEncoder = new TextEncoder();
@@ -61,37 +71,46 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
       // Create C++ module
-      const crtcppmod = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
-      const compileResult = await connection.runCommand({
-        command: crtcppmod,
+      const createModule = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
+      const createModuleResult = await connection.runCommand({
+        command: createModule,
         noLibList: true
       });
-      if (compileResult.code !== 0) {
+      if (createModuleResult.code !== 0) {
         return `Error`;
       }
 
       // Create C++ program
-      const crtExtPgm = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
-      const binderResult = await connection.runCommand({
-        command: crtExtPgm,
+      const createProgram = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
+      const createProgramResult = await connection.runCommand({
+        command: createProgram,
         noLibList: true
       });
-      if (binderResult.code !== 0) {
+      if (createProgramResult.code !== 0) {
         return `Error`;
       }
 
       // Upload UDTF source
       const sqlPath = posix.join(tempDir, `${CLSyntaxChecker.UDTF_NAME}.sql`);
-      const sqlSource = getCLCheckerUDTFSrc(library, this.currentVersion);
+      const sqlSource = getCLCheckerUDTFSrc(library!, this.currentVersion);
       const sqlBytes = textEncoder.encode(sqlSource);
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
+      // Drop existing UDTF specific
+      const dropUdtf = `DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}`;
+      try {
+        const dropUdtfResult = await connection.runSQL(dropUdtf);
+      } catch (error) {
+        // Ignore error as UDTF may not exist
+      }
+
       // Create UDTF
-      const sqlResult = await connection.runCommand({
-        command: `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`,
+      const createUdtf = `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
+      const createUdtfResult = await connection.runCommand({
+        command: createUdtf,
         noLibList: true
       });
-      if (sqlResult.code !== 0) {
+      if (createUdtfResult.code !== 0) {
         return `Error`
       }
 
@@ -104,7 +123,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     this.library = undefined;
   }
 
-  async check(clStmt: string): Promise<ClSyntaxError[] | undefined> {
+  async check(clStmt: string, languageId: SupportedLanguageId): Promise<ClSyntaxError[] | undefined> {
     const instance = getInstance();
     const connection = instance?.getConnection();
 
@@ -117,9 +136,10 @@ export class CLSyntaxChecker implements IBMiComponent {
 
     // Run the UDTF
     const library = this.getLibrary(connection);
+    const checkOpt = LANGUAGE_ID_TO_CHECKOPT[languageId] || '*CLLE';
     const cmd = [
       `select MSGID, MSGTEXT, CMDSTRING`,
-      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}', CHECKOPT=>'*CLLE'))`
+      `from table(${library}.${CLSyntaxChecker.UDTF_NAME}('${escapedStmt}', CHECKOPT=>'${checkOpt}'))`
     ].join(" ");
 
     const results = await connection.runSQL(cmd);

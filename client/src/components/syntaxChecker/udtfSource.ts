@@ -18,18 +18,18 @@ CREATE or REPLACE FUNCTION ${schema}.${CLSyntaxChecker.UDTF_NAME} (
      FINAL CALL
      DISALLOW PARALLEL
      SCRATCHPAD 8400
-     SPECIFIC CODE4IBMI_CLCHECK
+     SPECIFIC ${CLSyntaxChecker.UDTF_NAME}
      EXTERNAL NAME '${schema}/${CLSyntaxChecker.PGM_NAME}'
      PARAMETER STYLE DB2SQL;
 
 
-LABEL on specific routine ${schema}.CODE4IBMI_CLCHECK IS
-'CL command Syntax Check via QCAPCMD API';
+LABEL on specific routine ${schema}.${CLSyntaxChecker.UDTF_NAME} IS
+'CL Command Syntax Checker via QCAPCMD API';
 
-comment on specific FUNCTION ${schema}.CODE4IBMI_CLCHECK is
-'${version} - CL Command Syntax Checker. QCAPCMD Wrapper by Bob Cozzi.';
+comment on specific FUNCTION ${schema}.${CLSyntaxChecker.UDTF_NAME} is
+'${version} - CL Command Syntax Checker (QCAPCMD Wrapper)';
 
-comment on parameter specific function ${schema}.CODE4IBMI_CLCHECK
+comment on parameter specific function ${schema}.${CLSyntaxChecker.UDTF_NAME}
 (
 CMD is 'The CL command to be checked. A command length of up to 6000
   bytes is supported by this function',
