@@ -20,6 +20,12 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 					if (!clDoc) {
 						return;
 					}
+					
+					// Check if response contains an error
+					if ('error' in clDoc) {
+						console.error(`Failed to get CL documentation for ${commandName}: ${clDoc.error}`);
+						return;
+					}
 
 					// Parms in the existing statement
 					const currentParms = statement.getParms();

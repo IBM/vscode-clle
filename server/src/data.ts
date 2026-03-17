@@ -46,7 +46,7 @@ export async function getFileSpec(object: string, library = '*LIBL', openId?: st
 	return (spec ? Files.getVariables(spec, openId) : undefined);
 }
 
-export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | undefined> {
+export async function getCLDocSpec(object: string, library = '*LIBL'): Promise<{ html: string, doc: CLDoc } | { error: string } | undefined> {
 	const validObject = object.toUpperCase();
 	const validLibrary = (library || `*LIBL`).toUpperCase();
 	return await getCLDoc(validObject, validLibrary);
