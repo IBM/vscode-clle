@@ -35,10 +35,10 @@ export class CLSyntaxChecker implements IBMiComponent {
     return { name: CLSyntaxChecker.ID, version: this.currentVersion };
   }
 
-  static get(): CLSyntaxChecker | undefined {
+  static async get(): Promise<CLSyntaxChecker | undefined> {
     const instance = getInstance();
     const connection = instance?.getConnection();
-    return connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
+    return await connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
   }
 
   async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {

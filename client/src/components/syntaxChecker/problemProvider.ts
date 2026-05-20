@@ -31,10 +31,10 @@ export namespace ProblemProvider {
         }
       }),
 
-      workspace.onDidOpenTextDocument(e => {
+      workspace.onDidOpenTextDocument(async e => {
         const isSupportedLanguage = SUPPORTED_LANGUAGE_IDS.includes(e.languageId as SupportedLanguageId);
         if (isSupportedLanguage) {
-          if (checkerAvailable() && !isSafeDocument(e)) {
+          if (await checkerAvailable() && !isSafeDocument(e)) {
             const basename = e.fileName ? path.basename(e.fileName) : `Untitled`;
             documentLargeError(basename);
           }
@@ -46,13 +46,13 @@ export namespace ProblemProvider {
         }
       }),
 
-      workspace.onDidChangeTextDocument(e => {
+      workspace.onDidChangeTextDocument(async e => {
         shiftDiagnostics(e.document, e.contentChanges);
 
         const isSupportedLanguage = SUPPORTED_LANGUAGE_IDS.includes(e.document.languageId as SupportedLanguageId);
         if (isSupportedLanguage) {
           const checkOnChange = Configuration.get<boolean>(`syntax.checkOnEdit`) || false;
-          if (checkerAvailable() && checkOnChange && e.contentChanges.length > 0) {
+          if (await checkerAvailable() && checkOnChange && e.contentChanges.length > 0) {
             if (currentTimeout) {
               clearTimeout(currentTimeout);
             }
@@ -158,7 +158,7 @@ export namespace ProblemProvider {
   }
 
   async function validateCLDocument(document: TextDocument, specificLines?: number[]) {
-    const checker = CLSyntaxChecker.get();
+    const checker = await CLSyntaxChecker.get();
     if (checker) {
       const basename = document.fileName ? path.basename(document.fileName) : `Untitled`;
       if (isSafeDocument(document)) {
@@ -267,12 +267,12 @@ export namespace ProblemProvider {
     return isSupportedLanguage && isBelowMaxLength;
   }
 
-  function checkerAvailable() {
-    return CLSyntaxChecker.get() !== undefined;
+  async function checkerAvailable() {
+    return await CLSyntaxChecker.get() !== undefined;
   }
 
-  export function setCheckerAvailableContext(additionalState = true) {
-    const available = checkerAvailable() && additionalState;
+  export async function setCheckerAvailableContext(additionalState = true) {
+    const available = await checkerAvailable() && additionalState;
     commands.executeCommand(`setContext`, `vscode-clle.syntax.checkerAvailable`, available);
   }
 
