@@ -22,7 +22,7 @@ export default class GenCmdXml implements IBMiComponent {
 			const componentManager = connection.getComponentManager();
 			const componentStates = componentManager.getComponentStates();
 			const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
-			if (genCmdXmlComponentState && (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`)) {
+			if (genCmdXmlComponentState && (genCmdXmlComponentState.state.status === `Installed` || genCmdXmlComponentState.state.status === `NeedsUpdate`)) {
 				const allAvailableComponents = componentManager.getAllAvailableComponents();
 				const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
 				if (genCmdXmlComponent) {
