@@ -8,6 +8,7 @@ import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
 import GenCmdXml from './components/gencmdxml/gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
+import { CmdHelpChecker } from './components/cmdHelp/cmdHelpChecker';
 import Configuration from './configuration';
 import { getFileDefinition } from './utils';
 
@@ -88,12 +89,24 @@ export function activate(context: ExtensionContext): CLLE {
 				}
 			}
 		});
+
+		client.onRequest("getCLDocParam", async (params: string[]) => {
+			const displayCommandDocumentation = Configuration.get<boolean>(`general.displayCommandDocumentation`) ?? true;
+			if (displayCommandDocumentation) {
+				try {
+					return await GenCmdDoc.getCLDocParam(params[0], params[1], params[2]);
+				} catch (e) {
+					console.log(e);
+				}
+			}
+		});
 	});
 
 	initialiseRunner(context);
 	registerCommands(context, client);
 	CLSyntaxChecker.registerComponent(context);
 	GenCmdXml.registerComponent(context);
+	CmdHelpChecker.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
 
 	const instance = getInstance();

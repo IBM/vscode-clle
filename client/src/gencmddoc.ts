@@ -2,6 +2,7 @@ import { getInstance } from './api/ibmi';
 import { window, ViewColumn } from 'vscode';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { JSDOM } from "jsdom";
+import { CmdHelpChecker } from './components/cmdHelp/cmdHelpChecker';
 
 export interface CLDoc {
 	command: {
@@ -57,6 +58,7 @@ export class GenCmdDoc {
 
 	public static async generateHtml(object: string, library: string): Promise<string | undefined> {
 		const instance = getInstance();
+		if (!instance) return;
 		const connection = instance.getConnection();
 
 		if (connection) {
@@ -156,6 +158,45 @@ export class GenCmdDoc {
 			examples,
 			errorMessages
 		};
+	}
+
+	/**
+	 * Fast per-item help via the CMD_HELP UDTF.
+	 *
+	 * Calls the CMD_HELP SQL table function with a specific help ID and returns
+	 * the result converted to Markdown.  The caller passes either a parameter
+	 * keyword (e.g. "FROMFILE") or the command name itself to retrieve
+	 * command-level help.  Returns undefined when CMD_HELP is unavailable or
+	 * returns no data so the caller can fall back to the GENCMDDOC path.
+	 *
+	 * @param object  Command name, e.g. "CPYF"
+	 * @param library Library name, e.g. "*LIBL" or "QSYS"
+	 * @param helpId  Parameter keyword or command name to retrieve help for
+	 */
+	public static async getCLDocParam(object: string, library: string, helpId: string): Promise<string | undefined> {
+		const instance = getInstance();
+		if (!instance) { return undefined; }
+		const connection = instance.getConnection();
+		if (!connection || !connection.sqlRunnerAvailable()) { return undefined; }
+
+		const checker = await CmdHelpChecker.get();
+		if (!checker) { return undefined; }
+
+		const lib = (connection.getConfig()?.tempLibrary || 'ILEDITOR').toUpperCase();
+		const esc = (s: string) => s.replace(/'/g, "''");
+		const sql = `SELECT HELP_XML FROM TABLE(${lib}.CMD_HELP('${esc(library)}', '${esc(object)}', '${esc(helpId)}'))`;
+
+		try {
+			const results = await connection.runSQL(sql);
+			if (results.length > 0 && results[0].HELP_XML) {
+				const html = String(results[0].HELP_XML);
+				const htmlToMd = new NodeHtmlMarkdown({ globalEscape: [/[\\`_~\[\]]/gm, '\\$&'] });
+				return htmlToMd.translate(html);
+			}
+		} catch {
+			// CMD_HELP unavailable or failed — caller falls back to GENCMDDOC
+		}
+		return undefined;
 	}
 
 	public static clearCLDocCache() {
