@@ -71,7 +71,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(cppPath, cppBytes);
 
       // Create C++ module
-      const createModule = `CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
+      const createModule = `QSYS/CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
       const createModuleResult = await connection.runCommand({
         command: createModule,
         noLibList: true
@@ -81,7 +81,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       }
 
       // Create C++ program
-      const createProgram = `CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
+      const createProgram = `QSYS/CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
       const createProgramResult = await connection.runCommand({
         command: createProgram,
         noLibList: true
@@ -105,7 +105,7 @@ export class CLSyntaxChecker implements IBMiComponent {
       }
 
       // Create UDTF
-      const createUdtf = `RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
+      const createUdtf = `QSYS/RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
       const createUdtfResult = await connection.runCommand({
         command: createUdtf,
         noLibList: true

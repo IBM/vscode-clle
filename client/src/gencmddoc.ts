@@ -67,7 +67,7 @@ export class GenCmdDoc {
 			const toStmf = `${library.replace('*', '')}_${object}`;
 			const toDir = config.tempDir;
 			const generateResult = await connection.runCommand({
-				command: `GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
+				command: `QSYS/GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
 			});
 
 			if (generateResult.code === 0) {
