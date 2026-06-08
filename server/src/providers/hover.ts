@@ -20,6 +20,10 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 					if (!clDoc) {
 						return;
 					}
+					
+					if ('error' in clDoc) {
+						return;
+					}
 
 					// Parms in the existing statement
 					const currentParms = statement.getParms();

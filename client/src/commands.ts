@@ -10,9 +10,13 @@ export function registerCommands(context: ExtensionContext, client: LanguageClie
     }),
 
     commands.registerCommand(`vscode-clle.viewFullDocumentation`, async (object: string, library: string) => {
-      const isDocOpened = await GenCmdDoc.openClDoc(object, library);
-      if (!isDocOpened) {
-        await window.showErrorMessage(`Documentation for ${object} command not found`);
+      try {
+        const isDocOpened = await GenCmdDoc.openClDoc(object, library);
+        if (!isDocOpened) {
+          await window.showErrorMessage(`Documentation for ${object} command not found`);
+        }
+      } catch (error) {
+        await window.showErrorMessage(`Failed to open documentation for ${object}/${library}`);
       }
     })
   )

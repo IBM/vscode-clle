@@ -73,6 +73,9 @@ export class GenCmdDoc {
 			if (generateResult.code === 0) {
 				const html = (await content.downloadStreamfileRaw(`${toDir}/${toStmf}`)).toString();
 				return html;
+			} else {
+				// Throw stdout from the result when command fails
+				throw new Error(generateResult.stdout || `GENCMDDOC command failed with code ${generateResult.code}`);
 			}
 		}
 	}
