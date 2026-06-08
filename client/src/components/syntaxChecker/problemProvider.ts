@@ -31,10 +31,10 @@ export namespace ProblemProvider {
         }
       }),
 
-      workspace.onDidOpenTextDocument(e => {
+      workspace.onDidOpenTextDocument(async e => {
         const isSupportedLanguage = SUPPORTED_LANGUAGE_IDS.includes(e.languageId as SupportedLanguageId);
         if (isSupportedLanguage) {
-          if (checkerAvailable() && !isSafeDocument(e)) {
+          if (await checkerAvailable() && !isSafeDocument(e)) {
             const basename = e.fileName ? path.basename(e.fileName) : `Untitled`;
             documentLargeError(basename);
           }
@@ -46,13 +46,13 @@ export namespace ProblemProvider {
         }
       }),
 
-      workspace.onDidChangeTextDocument(e => {
+      workspace.onDidChangeTextDocument(async e => {
         shiftDiagnostics(e.document, e.contentChanges);
 
         const isSupportedLanguage = SUPPORTED_LANGUAGE_IDS.includes(e.document.languageId as SupportedLanguageId);
         if (isSupportedLanguage) {
           const checkOnChange = Configuration.get<boolean>(`syntax.checkOnEdit`) || false;
-          if (checkerAvailable() && checkOnChange && e.contentChanges.length > 0) {
+          if (await checkerAvailable() && checkOnChange && e.contentChanges.length > 0) {
             if (currentTimeout) {
               clearTimeout(currentTimeout);
             }
@@ -146,7 +146,7 @@ export namespace ProblemProvider {
           // Diagnostics within the change are removed
           return diag;
         }
-      });
+      }).filter((diag) => diag !== undefined);
 
       // Update the diagnostic collection
       clleDiagnosticCollection.set(document.uri, updatedDiagnostics);
@@ -158,7 +158,7 @@ export namespace ProblemProvider {
   }
 
   async function validateCLDocument(document: TextDocument, specificLines?: number[]) {
-    const checker = CLSyntaxChecker.get();
+    const checker = await CLSyntaxChecker.get();
     if (checker) {
       const basename = document.fileName ? path.basename(document.fileName) : `Untitled`;
       if (isSafeDocument(document)) {
@@ -185,7 +185,11 @@ export namespace ProblemProvider {
 
         // Remove duplicate commands to check
         commandsToCheck = commandsToCheck.filter((command, index, self) =>
-          index === self.findIndex((c) => c.content === command.content && c.range.start === command.range.start && c.range.end === command.range.end)
+          index === self.findIndex((c) =>
+            c.content === command.content &&
+            c.range && command.range &&
+            c.range.start === command.range.start &&
+            c.range.end === command.range.end)
         );
 
         // Get any existing diagnostics for this document
@@ -203,11 +207,11 @@ export namespace ProblemProvider {
           for (const commandToCheck of commandsToCheck) {
             const diagStart = diag.range.start.line;
             const diagEnd = diag.range.end.line;
-            const cmdStart = commandToCheck.range.start;
-            const cmdEnd = commandToCheck.range.end;
+            const cmdStart = commandToCheck.range?.start;
+            const cmdEnd = commandToCheck.range?.end;
 
             // Check if diagnostic overlaps with command range
-            if (diagStart <= cmdEnd && diagEnd >= cmdStart) {
+            if (cmdStart && cmdEnd && diagStart <= cmdEnd && diagEnd >= cmdStart) {
               diagnostics.splice(i, 1);
               break;
             }
@@ -233,17 +237,19 @@ export namespace ProblemProvider {
               const results = await checker.check(command.content, languageId);
               if (results) {
                 for (const result of results) {
-                  const startLine = command.range.start;
-                  const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
-                  const endLine = command.range.end;
-                  const endCharacter = document.lineAt(endLine).text.length;
-                  const range = new Range(startLine, startCharacter, endLine, endCharacter);
-                  const diagnostic = new Diagnostic(
-                    range,
-                    `${result.msgid}: ${result.msgtext}`,
-                    DiagnosticSeverity.Error
-                  );
-                  diagnostics.push(diagnostic);
+                  const startLine = command.range?.start;
+                  const endLine = command.range?.end;
+                  if (startLine && endLine) {
+                    const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
+                    const endCharacter = document.lineAt(endLine).text.length;
+                    const range = new Range(startLine, startCharacter, endLine, endCharacter);
+                    const diagnostic = new Diagnostic(
+                      range,
+                      `${result.msgid}: ${result.msgtext}`,
+                      DiagnosticSeverity.Error
+                    );
+                    diagnostics.push(diagnostic);
+                  }
                 }
               }
             } catch (error) {
@@ -267,12 +273,12 @@ export namespace ProblemProvider {
     return isSupportedLanguage && isBelowMaxLength;
   }
 
-  function checkerAvailable() {
-    return CLSyntaxChecker.get() !== undefined;
+  async function checkerAvailable() {
+    return (await CLSyntaxChecker.get()) !== undefined;
   }
 
-  export function setCheckerAvailableContext(additionalState = true) {
-    const available = checkerAvailable() && additionalState;
+  export async function setCheckerAvailableContext(additionalState = true) {
+    const available = await checkerAvailable() && additionalState;
     commands.executeCommand(`setContext`, `vscode-clle.syntax.checkerAvailable`, available);
   }
 

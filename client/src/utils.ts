@@ -72,7 +72,7 @@ function removePlusJoins(lines: string[]) {
  */
 export async function getFileDefinition(objectName: string, library = `*LIBL`): Promise<any | undefined> {
 	const instance = getInstance();
-	const connection = instance.getConnection();
+	const connection = instance?.getConnection();
 	if (connection) {
 		const content = connection.getContent();
 		const config = connection.getConfig();
