@@ -2,6 +2,7 @@ import { getInstance } from './api/ibmi';
 import { window, ViewColumn } from 'vscode';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { JSDOM } from "jsdom";
+import * as path from "path";
 
 export interface CLDoc {
 	command: {
@@ -71,10 +72,10 @@ export class GenCmdDoc {
 			});
 
 			if (generateResult.code === 0) {
-				const htmlFilePath = `${toDir}/${toStmf}`;
+				const htmlFilePath = path.posix.join(toDir, toStmf);
 				const html = (await content.downloadStreamfileRaw(htmlFilePath)).toString();
 
-				const result = await connection.sendCommand({ command: `rm -rf ${htmlFilePath}` }).catch(() => { });
+				await connection.sendCommand({ command: `rm -rf ${htmlFilePath}` });
 				return html;
 			}
 		}

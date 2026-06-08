@@ -114,6 +114,19 @@ export class CLSyntaxChecker implements IBMiComponent {
         return { status: `Error` }
       }
 
+      // Clean up
+      try {
+        // Remove temporary source stream files
+        await connection.sendCommand({ command: `rm -rf ${cppPath}` });
+        await connection.sendCommand({ command: `rm -rf ${sqlPath}` });
+
+        // Remove intermediate module
+        await connection.runCommand({
+          command: `QSYS/DLTOBJ OBJ(${library}/${CLSyntaxChecker.PGM_NAME}) OBJTYPE(*MODULE)`,
+          noLibList: true
+        });
+      } catch (error) { }
+
       return { status: `Installed` };
     });
   }

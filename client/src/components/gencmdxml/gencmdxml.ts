@@ -73,6 +73,15 @@ export default class GenCmdXml implements IBMiComponent {
 			return { status: `Error` };
 		}
 
+		// Clean up
+		try {
+			// Delete temporary source member
+			await connection.runCommand({
+				command: `QSYS/DLTF FILE(${tempLib}/QTOOLS)`,
+				noLibList: true
+			});
+		} catch (error) { }
+
 		return { status: `Installed` };
 	}
 
