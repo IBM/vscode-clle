@@ -1,4 +1,4 @@
-import { ComponentIdentification, ComponentState, IBMiComponent } from "@halcyontech/vscode-ibmi-types/api/components/component";
+import { ComponentIdentification, IBMiComponent, SecureComponentState } from "@halcyontech/vscode-ibmi-types/api/components/component";
 import IBMi from '@halcyontech/vscode-ibmi-types/api/IBMi';
 import { getComponentRegistry, getInstance, getVSCodeTools } from '../../api/ibmi';
 import * as xml2js from "xml2js";
@@ -12,7 +12,7 @@ export default class GenCmdXml implements IBMiComponent {
 	private library: string | undefined;
 
 	getIdentification(): ComponentIdentification {
-		return { name: GenCmdXml.ID, version: this.currentVersion };
+		return { name: GenCmdXml.ID, version: this.currentVersion } as any;
 	}
 
 	static get(): GenCmdXml | undefined {
@@ -22,7 +22,7 @@ export default class GenCmdXml implements IBMiComponent {
 			const componentManager = connection.getComponentManager();
 			const componentStates = componentManager.getComponentStates();
 			const genCmdXmlComponentState = componentStates.find(cs => cs.id.name === GenCmdXml.ID);
-			if (genCmdXmlComponentState && (genCmdXmlComponentState.state === `Installed` || genCmdXmlComponentState.state === `NeedsUpdate`)) {
+			if (genCmdXmlComponentState && (genCmdXmlComponentState.state.status === `Installed` || genCmdXmlComponentState.state.status === `NeedsUpdate`)) {
 				const allAvailableComponents = componentManager.getAllAvailableComponents();
 				const genCmdXmlComponent = allAvailableComponents.find(ac => ac.getIdentification().name === GenCmdXml.ID) as GenCmdXml;
 				if (genCmdXmlComponent) {
@@ -35,15 +35,15 @@ export default class GenCmdXml implements IBMiComponent {
 		}
 	}
 
-	async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
+	async getRemoteState(connection: IBMi, installDirectory: string): Promise<SecureComponentState> {
 		const library = this.getLibrary(connection);
 
 		const pgmVersion = await GenCmdXml.getVersionOf(connection, library, GenCmdXml.PGM_NAME);
 		if (Number.isNaN(pgmVersion) || pgmVersion < this.currentVersion) {
-			return `NeedsUpdate`;
+			return { status: `NeedsUpdate` };
 		}
 
-		return `Installed`;
+		return { status: `Installed` };
 	}
 
 	static registerComponent(context: ExtensionContext) {
@@ -53,7 +53,7 @@ export default class GenCmdXml implements IBMiComponent {
 	}
 
 
-	async update(connection: IBMi, installDirectory: string): Promise<ComponentState> {
+	async update(connection: IBMi, installDirectory: string): Promise<SecureComponentState> {
 		const content = connection.getContent();
 		const tempLib = this.getLibrary(connection);
 
@@ -70,10 +70,10 @@ export default class GenCmdXml implements IBMiComponent {
 			noLibList: true
 		});
 		if (createProgram.code !== 0) {
-			return `Error`
+			return { status: `Error` };
 		}
 
-		return `Installed`;
+		return { status: `Installed` };
 	}
 
 	reset?(): void | Promise<void> {
@@ -87,14 +87,14 @@ export default class GenCmdXml implements IBMiComponent {
 		if (genCmdXml) {
 			try {
 				const instance = getInstance();
-				const connection = instance.getConnection();
+				const connection = instance?.getConnection();
 				if (connection) {
 					const content = connection.getContent();
 					const tempLib = this.getLibrary(connection);
 
 					const targetCommand = objectName.padEnd(10) + library.padEnd(10);
 					const vsCodeTools = getVSCodeTools();
-					const targetName = vsCodeTools.makeid();
+					const targetName = vsCodeTools!.makeid();
 
 					const callResult = await connection.runCommand({
 						command: `QSYS/CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
@@ -108,8 +108,8 @@ export default class GenCmdXml implements IBMiComponent {
 							connection.sendCommand({ command: `rm -rf ${resultingFile}` });
 							const commandData = await xml2js.parseStringPromise(xml);
 							return commandData;
-						} catch (e) {
-							console.log(`Command likely doesn't exist: ${targetCommand}: ${e.message}`);
+						} catch (e: any) {
+							console.log(`Command likely doesn't exist: ${targetCommand}: ${e.message ? e.message : e}`);
 						}
 					}
 				}

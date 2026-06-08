@@ -57,7 +57,7 @@ export class GenCmdDoc {
 
 	public static async generateHtml(object: string, library: string): Promise<string | undefined> {
 		const instance = getInstance();
-		const connection = instance.getConnection();
+		const connection = instance?.getConnection();
 
 		if (connection) {
 			const content = connection.getContent();
@@ -65,7 +65,7 @@ export class GenCmdDoc {
 
 			const cmd = `${library}/${object}`;
 			const toStmf = `${library.replace('*', '')}_${object}`;
-			const toDir = config.tempDir;
+			const toDir = connection.getTempDirectory();
 			const generateResult = await connection.runCommand({
 				command: `QSYS/GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
 			});
