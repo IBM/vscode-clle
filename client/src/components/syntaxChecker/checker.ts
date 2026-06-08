@@ -1,5 +1,5 @@
 
-import { ComponentIdentification, ComponentState, IBMiComponent } from "@halcyontech/vscode-ibmi-types/api/components/component";
+import { ComponentIdentification, SecureComponentState, IBMiComponent } from "@halcyontech/vscode-ibmi-types/api/components/component";
 import IBMi from '@halcyontech/vscode-ibmi-types/api/IBMi';
 import { getCLCheckerCPPSrc } from './cppSource';
 import { getCLCheckerUDTFSrc } from './udtfSource';
@@ -32,24 +32,24 @@ export class CLSyntaxChecker implements IBMiComponent {
   private library: string | undefined;
 
   getIdentification(): ComponentIdentification {
-    return { name: CLSyntaxChecker.ID, version: this.currentVersion };
+    return { name: CLSyntaxChecker.ID, version: this.currentVersion } as any;
   }
 
-  static get(): CLSyntaxChecker | undefined {
+  static async get(): Promise<CLSyntaxChecker | undefined> {
     const instance = getInstance();
     const connection = instance?.getConnection();
-    return connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
+    return await connection?.getComponent<CLSyntaxChecker>(CLSyntaxChecker.ID);
   }
 
-  async getRemoteState(connection: IBMi, installDirectory: string): Promise<ComponentState> {
+  async getRemoteState(connection: IBMi, installDirectory: string): Promise<SecureComponentState> {
     const library = this.getLibrary(connection);
 
     const udtfVersion = await CLSyntaxChecker.getVersionOf(connection, library!, CLSyntaxChecker.UDTF_NAME);
     if (udtfVersion < this.currentVersion) {
-      return `NeedsUpdate`;
+      return { status: `NeedsUpdate` };
     }
 
-    return `Installed`;
+    return { status: `Installed` };
   }
 
   static registerComponent(context: ExtensionContext) {
@@ -58,7 +58,7 @@ export class CLSyntaxChecker implements IBMiComponent {
     componentRegistry?.registerComponent(context, clSyntaxChecker);
   }
 
-  async update(connection: IBMi, installDirectory: string): Promise<ComponentState> {
+  async update(connection: IBMi, installDirectory: string): Promise<SecureComponentState> {
     return await connection.withTempDirectory(async (tempDir: string) => {
       const content = connection.getContent();
       const textEncoder = new TextEncoder();
@@ -77,7 +77,7 @@ export class CLSyntaxChecker implements IBMiComponent {
         noLibList: true
       });
       if (createModuleResult.code !== 0) {
-        return `Error`;
+        return { status: `Error` };
       }
 
       // Create C++ program
@@ -87,7 +87,7 @@ export class CLSyntaxChecker implements IBMiComponent {
         noLibList: true
       });
       if (createProgramResult.code !== 0) {
-        return `Error`;
+        return { status: `Error` };
       }
 
       // Upload UDTF source
@@ -97,8 +97,8 @@ export class CLSyntaxChecker implements IBMiComponent {
       await content.writeStreamfileRaw(sqlPath, sqlBytes);
 
       // Drop existing UDTF specific
-      const dropUdtf = `DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}`;
       try {
+        const dropUdtf = `DROP SPECIFIC FUNCTION ${library}.${CLSyntaxChecker.UDTF_NAME}`;
         const dropUdtfResult = await connection.runSQL(dropUdtf);
       } catch (error) {
         // Ignore error as UDTF may not exist
@@ -111,10 +111,10 @@ export class CLSyntaxChecker implements IBMiComponent {
         noLibList: true
       });
       if (createUdtfResult.code !== 0) {
-        return `Error`
+        return { status: `Error` }
       }
 
-      return `Installed`;
+      return { status: `Installed` };
     });
   }
 

@@ -12,7 +12,7 @@ export function initialiseRunner(context: ExtensionContext) {
         const document = editor.document;
 
         if (document && document.languageId === `cl`) {
-          const connection = instance.getConnection();
+          const connection = instance?.getConnection();
 
           if (connection) {
             const selectedCommand = getCommandString(editor.selection, document);
