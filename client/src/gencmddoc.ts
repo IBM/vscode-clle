@@ -71,7 +71,10 @@ export class GenCmdDoc {
 			});
 
 			if (generateResult.code === 0) {
-				const html = (await content.downloadStreamfileRaw(`${toDir}/${toStmf}`)).toString();
+				const htmlFilePath = `${toDir}/${toStmf}`;
+				const html = (await content.downloadStreamfileRaw(htmlFilePath)).toString();
+
+				const result = await connection.sendCommand({ command: `rm -rf ${htmlFilePath}` }).catch(() => { });
 				return html;
 			}
 		}
