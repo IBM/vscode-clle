@@ -150,23 +150,18 @@ export async function completionResolveProvider(item: CompletionItem): Promise<C
 
 	if (data && data.commandName && data.name) {
 		const clDoc = await getCLDocSpec(data.commandName, data.commandLibrary);
-
-		// Check if response contains an error
-		if (clDoc && 'error' in clDoc) {
-			console.error(`Failed to get CL documentation for ${data.commandName}: ${clDoc.error}`);
-			return item;
-		}
-
 		if (clDoc) {
-			const parameterDoc = clDoc.doc.parameters.details.find(p => p.name === data.name);
-			if (parameterDoc && parameterDoc.description) {
-				// Remove the heading pattern: ### Parameter\n\n
-				const description = parameterDoc.description.replace(/^###[^\n]*\n\n/, '');
+			if (!('error' in clDoc)) {
+				const parameterDoc = clDoc.doc.parameters.details.find(p => p.name === data.name);
+				if (parameterDoc && parameterDoc.description) {
+					// Remove the heading pattern: ### Parameter\n\n
+					const description = parameterDoc.description.replace(/^###[^\n]*\n\n/, '');
 
-				item.documentation = {
-					kind: MarkupKind.Markdown,
-					value: description
-				};
+					item.documentation = {
+						kind: MarkupKind.Markdown,
+						value: description
+					};
+				}
 			}
 		}
 	}

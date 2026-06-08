@@ -16,8 +16,7 @@ export function registerCommands(context: ExtensionContext, client: LanguageClie
           await window.showErrorMessage(`Documentation for ${object} command not found`);
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        await window.showErrorMessage(`Failed to generate documentation: ${errorMessage}`);
+        await window.showErrorMessage(`Failed to open documentation for ${object}/${library}`);
       }
     })
   )

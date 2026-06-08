@@ -85,7 +85,7 @@ export function activate(context: ExtensionContext): CLLE {
 					return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					console.error('Error getting CL documentation:', errorMessage);
+
 					// Return error object so caller knows what went wrong
 					return { error: errorMessage };
 				}

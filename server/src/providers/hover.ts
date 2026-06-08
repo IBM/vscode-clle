@@ -21,9 +21,7 @@ export default async function hoverProvider(params: HoverParams): Promise<Hover 
 						return;
 					}
 					
-					// Check if response contains an error
 					if ('error' in clDoc) {
-						console.error(`Failed to get CL documentation for ${commandName}: ${clDoc.error}`);
 						return;
 					}
 
