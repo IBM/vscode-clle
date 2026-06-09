@@ -2,6 +2,7 @@ import { getInstance } from './api/ibmi';
 import { window, ViewColumn } from 'vscode';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { JSDOM } from "jsdom";
+import * as path from "path";
 
 export interface CLDoc {
 	command: {
@@ -67,11 +68,14 @@ export class GenCmdDoc {
 			const toStmf = `${library.replace('*', '')}_${object}`;
 			const toDir = connection.getTempDirectory();
 			const generateResult = await connection.runCommand({
-				command: `GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
+				command: `QSYS/GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
 			});
 
 			if (generateResult.code === 0) {
-				const html = (await content.downloadStreamfileRaw(`${toDir}/${toStmf}`)).toString();
+				const htmlFilePath = path.posix.join(toDir, toStmf);
+				const html = (await content.downloadStreamfileRaw(htmlFilePath)).toString();
+
+				await connection.sendCommand({ command: `rm -rf ${htmlFilePath}` });
 				return html;
 			} else {
 				// Throw stdout from the result when command fails

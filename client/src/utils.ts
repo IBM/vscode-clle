@@ -77,21 +77,27 @@ export async function getFileDefinition(objectName: string, library = `*LIBL`): 
 		const content = connection.getContent();
 		const config = connection.getConfig();
 
-		const tempLib = config.tempLibrary;
+		const tempLib = 'QTEMP';
 		const dateStr = Date.now().toString().substr(-6);
 		const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
 		const fullPath = `${tempLib}/${randomFile}`;
 
 		const outfileRes = await connection.runCommand({
-			command: `DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
+			command: `QSYS/DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
 			environment: `ile`
 		});
 		console.log(outfileRes);
 		const resultCode = outfileRes.code || 0;
 
 		if (resultCode === 0) {
-			const data: object[] = await content.getTable(config.tempLibrary, randomFile, randomFile, true);
+			const data: object[] = await content.getTable(tempLib, randomFile, randomFile, true);
 			console.log(`Temp OUTFILE read. ${data.length} rows.`);
+
+			connection.runCommand({
+				environment: `ile`,
+				command: `QSYS/DLTOBJ OBJ(${fullPath}) OBJTYPE(*FILE)`
+			});
+
 			return data;
 		}
 	}

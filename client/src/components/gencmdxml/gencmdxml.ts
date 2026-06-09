@@ -58,7 +58,7 @@ export default class GenCmdXml implements IBMiComponent {
 		const tempLib = this.getLibrary(connection);
 
 		// Create QTOOLS source file (ignore error if it exists)
-		const createSourceFile = await connection.runCommand({ command: `CRTSRCPF ${tempLib}/QTOOLS AUT(*ALL)`, noLibList: true })
+		const createSourceFile = await connection.runCommand({ command: `QSYS/CRTSRCPF ${tempLib}/QTOOLS AUT(*ALL)`, noLibList: true })
 
 		// Upload CL source
 		const clSource = getGenCmdXmlClSrc();
@@ -66,12 +66,21 @@ export default class GenCmdXml implements IBMiComponent {
 
 		// Create CL program
 		const createProgram = await connection.runCommand({
-			command: `CRTBNDCL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('${this.currentVersion} - CLLE XML Generator for Commands')`,
+			command: `QSYS/CRTBNDCL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('${this.currentVersion} - CLLE XML Generator for Commands')`,
 			noLibList: true
 		});
 		if (createProgram.code !== 0) {
 			return { status: `Error` };
 		}
+
+		// Clean up
+		try {
+			// Delete temporary source member
+			await connection.runCommand({
+				command: `QSYS/DLTF FILE(${tempLib}/QTOOLS)`,
+				noLibList: true
+			});
+		} catch (error) { }
 
 		return { status: `Installed` };
 	}
@@ -97,7 +106,7 @@ export default class GenCmdXml implements IBMiComponent {
 					const targetName = vsCodeTools!.makeid();
 
 					const callResult = await connection.runCommand({
-						command: `CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
+						command: `QSYS/CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
 					});
 					if (callResult.code === 0) {
 						console.log(callResult);

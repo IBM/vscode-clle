@@ -20,7 +20,9 @@ CREATE or REPLACE FUNCTION ${schema}.${CLSyntaxChecker.UDTF_NAME} (
      SCRATCHPAD 8400
      SPECIFIC ${CLSyntaxChecker.UDTF_NAME}
      EXTERNAL NAME '${schema}/${CLSyntaxChecker.PGM_NAME}'
-     PARAMETER STYLE DB2SQL;
+     PARAMETER STYLE DB2SQL
+     SET OPTION USRPRF=*USER,
+	   DYNUSRPRF=*USER;
 
 
 LABEL on specific routine ${schema}.${CLSyntaxChecker.UDTF_NAME} IS
