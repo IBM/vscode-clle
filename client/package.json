@@ -14,10 +14,9 @@
 		"xml2js": "^0.6.2"
 	},
 	"devDependencies": {
-		"@halcyontech/vscode-ibmi-types": "^3.0.7",
+		"@halcyontech/vscode-ibmi-types": "^3.0.13",
 		"@types/node": "^25.9.2",
 		"@types/vscode": "^1.50.0",
-		"@types/xml2js": "^0.4.14",
-		"@vscode/test-electron": "^2.5.2"
+		"@types/xml2js": "^0.4.14"
 	}
 }
