@@ -1,9 +1,9 @@
-import { CLParser, DefinitionType, Module, Statement, Subroutine, Token, Variable } from 'language';
-import { Location, ParameterStructures, PrepareRenameParams, Range, ReferenceParams, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver';
+import { Subroutine, Variable } from 'language';
+import { Location, Range, ReferenceParams } from 'vscode-languageserver/node';
 import { CLModules } from '../data';
 import { documents } from '../instance';
 
-export function referencesProvider(params: ReferenceParams): Location[]|undefined {
+export function referencesProvider(params: ReferenceParams): Location[] | undefined {
 	const uri = params.textDocument.uri;
 	const document = documents.get(uri);
 
@@ -20,7 +20,7 @@ export function referencesProvider(params: ReferenceParams): Location[]|undefine
 	}
 
 	if (token && token.value) {
-		const def = module.getDefinition<Variable|Subroutine>(token.value!);
+		const def = module.getDefinition<Variable | Subroutine>(token.value!);
 		if (def) {
 			const refs = module.getReferences(def);
 			return refs.map(ref =>
@@ -30,9 +30,9 @@ export function referencesProvider(params: ReferenceParams): Location[]|undefine
 						document.positionAt(ref.start),
 						document.positionAt(ref.end)
 					)
-				) 
+				)
 			);
 		}
 	}
-	
+
 }

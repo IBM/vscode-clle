@@ -8,8 +8,8 @@
 	},
 	"dependencies": {
 		"language": "file:../language",
-		"vscode-languageserver": "^7.0.0",
-		"vscode-languageserver-textdocument": "^1.0.4"
+		"vscode-languageserver": "^10.1.2",
+		"vscode-languageserver-textdocument": "^1.0.15"
 	},
 	"scripts": {},
 	"devDependencies": {

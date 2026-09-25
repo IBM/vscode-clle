@@ -1,5 +1,5 @@
-import { CLParser, Module, Variable, DefinitionType, Statement, Subroutine, Token, File } from 'language';
-import { CompletionItem, CompletionItemKind, CompletionParams, Definition, DefinitionParams, Location, Range } from 'vscode-languageserver';
+import { Variable, DefinitionType, Statement, Subroutine, Token, File } from 'language';
+import { DefinitionParams, Location, Range } from 'vscode-languageserver/node';
 import { CLModules, getFileSpecCache } from '../data';
 import { documents } from '../instance';
 

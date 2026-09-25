@@ -16,7 +16,7 @@ module.exports = withDefaults({
   resolve: {
       mainFields: [`module`, `main`],
       extensions: [`.ts`, `.js`], // support ts-files and js-files
-			conditionNames: ['import', 'require'],
+      conditionNames: ['node', 'import', 'require'],
   },
   plugins: [],
 });

@@ -61,9 +61,7 @@ export function activate(context: ExtensionContext): CLLE {
 	);
 
 	// Start the client. This will also launch the server
-	client.start();
-
-	client.onReady().then(() => {
+	client.start().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
 			const genCmdXml = GenCmdXml.get();
 			if (genCmdXml) {
@@ -82,7 +80,7 @@ export function activate(context: ExtensionContext): CLLE {
 			const displayCommandDocumentation = Configuration.get<boolean>(`general.displayCommandDocumentation`) ?? true;
 			if (displayCommandDocumentation) {
 				try {
-					return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]);
+					return await GenCmdDoc.getCLDoc(qualifiedObject[0], qualifiedObject[1]) as any;
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
 
