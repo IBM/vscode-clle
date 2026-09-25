@@ -1,5 +1,5 @@
 import { Variable, DefinitionType, Subroutine, File } from 'language';
-import { CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat, MarkupKind } from 'vscode-languageserver';
+import { CompletionItem, CompletionItemKind, CompletionParams, InsertTextFormat, MarkupKind } from 'vscode-languageserver/node';
 import { CLModules, getCLspec, getFileSpecCache, getCLDocSpec } from '../data';
 import { documents } from '../instance';
 import { buildDescription, columnDescription } from '../utils';

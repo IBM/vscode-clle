@@ -1,4 +1,4 @@
-import { Hover, HoverParams, MarkupKind } from 'vscode-languageserver';
+import { Hover, HoverParams, MarkupKind } from 'vscode-languageserver/node';
 import { documents } from '../instance';
 import { CLModules, getCLDocSpec } from '../data';
 

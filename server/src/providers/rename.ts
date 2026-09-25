@@ -1,5 +1,5 @@
 import { CLParser, DefinitionType, Module, Token, Variable } from 'language';
-import { ParameterStructures, PrepareRenameParams, Range, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver';
+import { PrepareRenameParams, Range, RenameParams, TextEdit, WorkspaceEdit } from 'vscode-languageserver/node';
 import { CLModules } from '../data';
 import { documents } from '../instance';
 
