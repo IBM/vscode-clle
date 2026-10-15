@@ -211,7 +211,7 @@ export namespace ProblemProvider {
             const cmdEnd = commandToCheck.range?.end;
 
             // Check if diagnostic overlaps with command range
-            if (cmdStart && cmdEnd && diagStart <= cmdEnd && diagEnd >= cmdStart) {
+            if (cmdStart !== undefined && cmdEnd !== undefined && diagStart <= cmdEnd && diagEnd >= cmdStart) {
               diagnostics.splice(i, 1);
               break;
             }
@@ -239,7 +239,7 @@ export namespace ProblemProvider {
                 for (const result of results) {
                   const startLine = command.range?.start;
                   const endLine = command.range?.end;
-                  if (startLine && endLine) {
+                  if (startLine !== undefined && endLine !== undefined) {
                     const startCharacter = document.lineAt(startLine).firstNonWhitespaceCharacterIndex;
                     const endCharacter = document.lineAt(endLine).text.length;
                     const range = new Range(startLine, startCharacter, endLine, endCharacter);
