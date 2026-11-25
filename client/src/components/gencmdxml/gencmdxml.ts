@@ -58,28 +58,22 @@ export default class GenCmdXml implements IBMiComponent {
 		const tempLib = this.getLibrary(connection);
 
 		// Create QTOOLS source file (ignore error if it exists)
-		const createSourceFile = await connection.runCommand({ command: `QSYS/CRTSRCPF ${tempLib}/QTOOLS AUT(*ALL)`, noLibList: true })
+		const createSourceFile = await connection.runCL(`QSYS/CRTSRCPF ${tempLib}/QTOOLS AUT(*ALL)`)
 
 		// Upload CL source
 		const clSource = getGenCmdXmlClSrc();
 		const uploadSource = await content.uploadMemberContent(tempLib, `QTOOLS`, GenCmdXml.PGM_NAME, clSource);
 
 		// Create CL program
-		const createProgram = await connection.runCommand({
-			command: `QSYS/CRTBNDCL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('${this.currentVersion} - CLLE XML Generator for Commands')`,
-			noLibList: true
-		});
-		if (createProgram.code !== 0) {
+		const createProgram = await connection.runCL(`QSYS/CRTBNDCL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) SRCFILE(${tempLib}/QTOOLS) DBGVIEW(*SOURCE) TEXT('${this.currentVersion} - CLLE XML Generator for Commands')`);
+		if (!createProgram.success) {
 			return { status: `Error` };
 		}
 
 		// Clean up
 		try {
 			// Delete temporary source member
-			await connection.runCommand({
-				command: `QSYS/DLTF FILE(${tempLib}/QTOOLS)`,
-				noLibList: true
-			});
+			await connection.runCL(`QSYS/DLTF FILE(${tempLib}/QTOOLS)`);
 		} catch (error) { }
 
 		return { status: `Installed` };
@@ -105,10 +99,8 @@ export default class GenCmdXml implements IBMiComponent {
 					const vsCodeTools = getVSCodeTools();
 					const targetName = vsCodeTools!.makeid();
 
-					const callResult = await connection.runCommand({
-						command: `QSYS/CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`,
-					});
-					if (callResult.code === 0) {
+					const callResult = await connection.runCL(`QSYS/CALL PGM(${tempLib}/${GenCmdXml.PGM_NAME}) PARM('${targetName}' '${targetCommand}')`);
+					if (callResult.success) {
 						console.log(callResult);
 
 						try {
