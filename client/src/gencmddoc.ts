@@ -46,8 +46,19 @@ export class GenCmdDoc {
 		}
 
 		// Generate doc
-		const html = await GenCmdDoc.generateHtml(validObject, validLibrary);
+		let html = await GenCmdDoc.generateHtml(validObject, validLibrary);
 		if (html) {
+			// Convert legacy named anchors to modern IDs to support fragment navigation so links work in webviews
+			const htmlDoc = parseHtmlDoc(html);
+			htmlDoc.querySelectorAll('a[name]').forEach(anchor => {
+				const name = anchor.getAttribute('name');
+
+				if (name) {
+					anchor.setAttribute('id', name);
+				}
+			});
+			html = htmlDoc.toString();
+
 			const doc = GenCmdDoc.parseHtml(validObject, html);
 			if (doc) {
 				GenCmdDoc.cachedClDocs[qualifiedPath] = { html, doc };
@@ -61,50 +72,53 @@ export class GenCmdDoc {
 		const connection = instance?.getConnection();
 
 		if (connection) {
-			const content = connection.getContent();
-			const config = connection.getConfig();
+			if (library === `*LIBL`) {
+				// Search library list for first library with specified command
+				const result = await connection.runSQL(/* sql */`
+					SELECT
+						C.COMMAND_LIBRARY
+					FROM QSYS2.COMMAND_INFO C
+					JOIN QSYS2.LIBRARY_LIST_INFO L
+						ON L.SYSTEM_SCHEMA_NAME = C.COMMAND_LIBRARY
+					WHERE C.COMMAND_NAME = '${object}'
+					ORDER BY L.ORDINAL_POSITION
+					FETCH FIRST 1 ROW ONLY
+				`);
+				if (result.length > 0) {
+					library = String(result[0].COMMAND_LIBRARY);
+				} else {
+					throw new Error(`${object} command not found on library list`)
+				}
+			}
 
-			const cmd = `${library}/${object}`;
-			const toStmf = `${library.replace('*', '')}_${object}`;
-			const toDir = connection.getTempDirectory();
-			const generateResult = await connection.runCommand({
-				command: `QSYS/GENCMDDOC CMD(${cmd}) GENOPT(*HTML *SHOWCHOICEPGMVAL) REPLACE(*YES) TOSTMF('${toStmf}') TODIR('${toDir}')`
-			});
-
-			if (generateResult.code === 0) {
-				const htmlFilePath = path.posix.join(toDir, toStmf);
-				const html = (await content.downloadStreamfileRaw(htmlFilePath)).toString();
-
-				await connection.sendCommand({ command: `rm -rf ${htmlFilePath}` });
-				return html;
-			} else {
-				// Throw stdout from the result when command fails
-				throw new Error(generateResult.stdout || `GENCMDDOC command failed with code ${generateResult.code}`);
+			const result = await connection.getCLDoc(`/${library}.LIB/${object}.CMD`);
+			if (result.success) {
+				return result.html;
 			}
 		}
 	}
 
 	public static parseHtml(command: string, html: string): CLDoc | undefined {
-		const doc = parseHtmlDoc(html);
+		const htmlDoc = parseHtmlDoc(html);
 		// Override default (https://github.com/crosstype/node-html-markdown/blob/master/src/config.ts#L53C17-L53C45) to avoid escaping asterisks
 		const htmlToMd = new NodeHtmlMarkdown({ globalEscape: [/[\\`_~\[\]]/gm, '\\$&'] });
 
 		// Get command name
-		const h2 = doc.querySelector(`h2`);
+		const h2 = htmlDoc.querySelector(`h2`);
 		const commandName = h2?.textContent;
 		if (!commandName) {
 			return;
 		}
 
 		// Get command description
-		const tdInfo = doc.querySelector('td[valign="top"][align="left"]');
+		const tdInfo = htmlDoc.querySelector('td[valign="top"][align="left"]');
 		const tdHtml = tdInfo?.innerHTML ?? ``;
-		const commandDiv = doc.querySelector(`div > a[name="${command}"]`)?.parentNode;
+		const commandDiv = htmlDoc.querySelector(`div > a[name="${command}"]`)?.parentNode;
 		const commandDivHtml = commandDiv?.innerHTML ?? ``;
 		const commandDescription = htmlToMd.translate(`${tdHtml}\n\n${commandDivHtml}`);
 
 		// Get parameter overview
-		const tableDiv = doc.querySelector(`div > h3 > a[name="${command}.PARAMETERS.TABLE"]`)?.parentNode?.parentNode;
+		const tableDiv = htmlDoc.querySelector(`div > h3 > a[name="${command}.PARAMETERS.TABLE"]`)?.parentNode?.parentNode;
 		const tableH3 = tableDiv?.querySelector(`h3`);
 		tableH3?.remove();
 		const tableTopOfPage = tableDiv?.querySelector(`table[width="100%"]`);
@@ -131,20 +145,20 @@ export class GenCmdDoc {
 
 		// Get parameter detail descriptions
 		parameterDetails.forEach(param => {
-			const parameterDiv = doc.querySelector(`div > a[name="${command}.${param.name}"]`)?.parentNode;
+			const parameterDiv = htmlDoc.querySelector(`div > a[name="${command}.${param.name}"]`)?.parentNode;
 			const parameterDivHtml = parameterDiv?.innerHTML ?? ``;
 			param.description = htmlToMd.translate(parameterDivHtml);
 		});
 
 		// Get examples
-		const examplesDiv = doc.querySelector(`div > h3 > a[name="${command}.COMMAND.EXAMPLES"]`)?.parentNode?.parentNode;
+		const examplesDiv = htmlDoc.querySelector(`div > h3 > a[name="${command}.COMMAND.EXAMPLES"]`)?.parentNode?.parentNode;
 		const examplesH3 = examplesDiv?.querySelector(`h3`);
 		examplesH3?.remove();
 		const examplesDivHtml = examplesDiv?.innerHTML ?? ``;
 		const examples = htmlToMd.translate(examplesDivHtml);
 
 		// Get error messages
-		const errorMessageDiv = doc.querySelector(`div > h3 > a[name="${command}.ERROR.MESSAGES"]`)?.parentNode?.parentNode;
+		const errorMessageDiv = htmlDoc.querySelector(`div > h3 > a[name="${command}.ERROR.MESSAGES"]`)?.parentNode?.parentNode;
 		const errorMessageH3 = errorMessageDiv?.querySelector(`h3`);
 		errorMessageH3?.remove();
 		const errorMessageDivHtml = errorMessageDiv?.innerHTML ?? ``;
