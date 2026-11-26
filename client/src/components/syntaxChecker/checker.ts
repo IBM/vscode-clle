@@ -112,10 +112,7 @@ export class CLSyntaxChecker implements IBMiComponent {
         await connection.sendCommand({ command: `rm -rf ${sqlPath}` });
 
         // Remove intermediate module
-        await connection.runCommand({
-          command: `QSYS/DLTOBJ OBJ(${library}/${CLSyntaxChecker.PGM_NAME}) OBJTYPE(*MODULE)`,
-          noLibList: true
-        });
+        await connection.runCL(`QSYS/DLTOBJ OBJ(${library}/${CLSyntaxChecker.PGM_NAME}) OBJTYPE(*MODULE)`);
       } catch (error) { }
 
       return { status: `Installed` };
