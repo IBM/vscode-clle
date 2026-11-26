@@ -2,7 +2,7 @@ import { getInstance } from './api/ibmi';
 import { window, ViewColumn } from 'vscode';
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { parse as parseHtmlDoc } from "node-html-parser";
-import * as path from "path";
+import { resolveCommand } from './utils';
 
 export interface CLDoc {
 	command: {
@@ -73,19 +73,9 @@ export class GenCmdDoc {
 
 		if (connection) {
 			if (library === `*LIBL`) {
-				// Search library list for first library with specified command
-				const result = await connection.runSQL(/* sql */`
-					SELECT
-						C.COMMAND_LIBRARY
-					FROM QSYS2.COMMAND_INFO C
-					JOIN QSYS2.LIBRARY_LIST_INFO L
-						ON L.SYSTEM_SCHEMA_NAME = C.COMMAND_LIBRARY
-					WHERE C.COMMAND_NAME = '${object}'
-					ORDER BY L.ORDINAL_POSITION
-					FETCH FIRST 1 ROW ONLY
-				`);
-				if (result.length > 0) {
-					library = String(result[0].COMMAND_LIBRARY);
+				const resolvedLibrary = await resolveCommand(object);
+				if (resolvedLibrary) {
+					library = resolvedLibrary;
 				} else {
 					throw new Error(`${object} command not found on library list`)
 				}

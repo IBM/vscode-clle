@@ -13,7 +13,7 @@
 	},
 	"scripts": {},
 	"devDependencies": {
-		"@halcyontech/vscode-ibmi-types": "^3.0.13",
+		"@halcyontech/vscode-ibmi-types": "^3.0.16",
 		"@types/vscode": "^1.50.0"
 	}
 }

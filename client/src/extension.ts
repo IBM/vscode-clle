@@ -6,7 +6,7 @@ import { initialiseRunner } from './clRunner';
 import { CLSyntaxChecker } from './components/syntaxChecker/checker';
 import { ProblemProvider } from './components/syntaxChecker/problemProvider';
 import { registerCommands } from './commands';
-import GenCmdXml from './components/gencmdxml/gencmdxml';
+import GenCmdXml from './gencmdxml';
 import { GenCmdDoc } from './gencmddoc';
 import Configuration from './configuration';
 import { getFileDefinition } from './utils';
@@ -63,12 +63,7 @@ export function activate(context: ExtensionContext): CLLE {
 	// Start the client. This will also launch the server
 	client.start().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
-			const genCmdXml = GenCmdXml.get();
-			if (genCmdXml) {
-				const definition = await genCmdXml.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
-
-				return definition;
-			}
+			return await GenCmdXml.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
 		});
 
 		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
@@ -94,7 +89,6 @@ export function activate(context: ExtensionContext): CLLE {
 	initialiseRunner(context);
 	registerCommands(context, client);
 	CLSyntaxChecker.registerComponent(context);
-	GenCmdXml.registerComponent(context);
 	ProblemProvider.registerProblemProvider(context);
 
 	const instance = getInstance();
