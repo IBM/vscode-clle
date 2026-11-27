@@ -114,8 +114,13 @@ export async function getFileDefinition(objectName: string, library = `*LIBL`): 
     const randomFile = `R${objectName.substring(0, 3)}${dateStr}`.substring(0, 10);
     const fullPath = `${tempLib}/${randomFile}`;
 
-    const outfileRes = await connection.runCL(`QSYS/DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`, true);
-    if (outfileRes.success) {
+    const outfileRes = await connection.runCommand({
+      command: `QSYS/DSPFFD FILE(${library}/${objectName}) OUTPUT(*OUTFILE) OUTFILE(${fullPath})`,
+      environment: `ile`,
+      throughSQL: true
+    } as any);
+    const resultCode = outfileRes.code || 0;
+    if (resultCode === 0) {
       const data = await connection.runSQL(`SELECT * FROM ${tempLib}.${randomFile}`);
       connection.runCL(`QSYS/DLTOBJ OBJ(${fullPath}) OBJTYPE(*FILE)`, true);
       return data;

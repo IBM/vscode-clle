@@ -63,12 +63,20 @@ export function activate(context: ExtensionContext): CLLE {
 	// Start the client. This will also launch the server
 	client.start().then(() => {
 		client.onRequest("getCLDefinition", async (qualifiedObject: string[]) => {
-			return await GenCmdXml.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
+			try {
+				return await GenCmdXml.getCLDefinition(qualifiedObject[0], qualifiedObject[1]);
+			} catch (error) {
+				console.log(error);
+			}
 		});
 
 		client.onRequest("getFileDefinition", async (qualifiedObject: string[]) => {
-			const definition = await getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
-			return definition;
+			try {
+				const definition = await getFileDefinition(qualifiedObject[0], qualifiedObject[1]);
+				return definition;
+			} catch (error) {
+				console.error(error);
+			}
 		});
 
 		client.onRequest("getCLDoc", async (qualifiedObject: string[]) => {
