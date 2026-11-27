@@ -3,7 +3,7 @@
 	"displayName": "CL",
 	"description": "CLLE language tools",
 	"author": "IBM",
-	"version": "1.2.8",
+	"version": "1.2.9",
 	"publisher": "IBM",
 	"categories": [
 		"Programming Languages"
@@ -133,7 +133,7 @@
 		"webpack:dev": "npm run clean && npm run lang:setup && webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js"
 	},
 	"devDependencies": {
-		"@halcyontech/vscode-ibmi-types": "^3.0.13",
+		"@halcyontech/vscode-ibmi-types": "^3.0.16",
 		"@types/node": "^22.x",
 		"@typescript-eslint/eslint-plugin": "^8.70.1",
 		"@typescript-eslint/parser": "^8.70.1",

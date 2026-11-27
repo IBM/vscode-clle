@@ -72,21 +72,15 @@ export class CLSyntaxChecker implements IBMiComponent {
 
       // Create C++ module
       const createModule = `QSYS/CRTCPPMOD MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) SRCSTMF('${cppPath}') DBGVIEW(*LIST) LANGLVL(*EXTENDED0X) OUTPUT(*PRINT)`;
-      const createModuleResult = await connection.runCommand({
-        command: createModule,
-        noLibList: true
-      });
-      if (createModuleResult.code !== 0) {
+      const createModuleResult = await connection.runCL(createModule);
+      if (!createModuleResult.success) {
         return { status: `Error` };
       }
 
       // Create C++ program
       const createProgram = `QSYS/CRTPGM PGM(${library}/${CLSyntaxChecker.PGM_NAME}) MODULE(${library}/${CLSyntaxChecker.PGM_NAME}) ACTGRP(*CALLER)`;
-      const createProgramResult = await connection.runCommand({
-        command: createProgram,
-        noLibList: true
-      });
-      if (createProgramResult.code !== 0) {
+      const createProgramResult = await connection.runCL(createProgram);
+      if (!createProgramResult.success) {
         return { status: `Error` };
       }
 
@@ -106,11 +100,8 @@ export class CLSyntaxChecker implements IBMiComponent {
 
       // Create UDTF
       const createUdtf = `QSYS/RUNSQLSTM SRCSTMF('${sqlPath}') COMMIT(*NONE) NAMING(*SYS)`;
-      const createUdtfResult = await connection.runCommand({
-        command: createUdtf,
-        noLibList: true
-      });
-      if (createUdtfResult.code !== 0) {
+      const createUdtfResult = await connection.runCL(createUdtf);
+      if (!createUdtfResult.success) {
         return { status: `Error` }
       }
 
@@ -121,10 +112,7 @@ export class CLSyntaxChecker implements IBMiComponent {
         await connection.sendCommand({ command: `rm -rf ${sqlPath}` });
 
         // Remove intermediate module
-        await connection.runCommand({
-          command: `QSYS/DLTOBJ OBJ(${library}/${CLSyntaxChecker.PGM_NAME}) OBJTYPE(*MODULE)`,
-          noLibList: true
-        });
+        await connection.runCL(`QSYS/DLTOBJ OBJ(${library}/${CLSyntaxChecker.PGM_NAME}) OBJTYPE(*MODULE)`);
       } catch (error) { }
 
       return { status: `Installed` };
