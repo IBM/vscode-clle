@@ -6,6 +6,9 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release and Publish
