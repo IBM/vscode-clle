@@ -1,5 +1,6 @@
 import { getInstance } from './api/ibmi';
 import { resolveCommand } from './utils';
+import * as xml2js from "xml2js";
 
 export default class GenCmdXml {
 	static async getCLDefinition(object: string, library = `*LIBL`): Promise<any | undefined> {
@@ -18,7 +19,7 @@ export default class GenCmdXml {
 
 			const result = await connection.getCmdXml(`/${library}.LIB/${object}.CMD`);
 			if (result.success) {
-				return result.xml;
+				return await xml2js.parseStringPromise(result.xml);
 			}
 		}
 	}
